@@ -20,7 +20,7 @@
 		'@context': 'https://schema.org',
 		'@type': 'Restaurant',
 		name: 'Saraylı Döner',
-		image: `${SITE_URL}/images/food/shop-front.jpg`,
+		image: `${SITE_URL}/images/food/shop-front.webp`,
 		url: SITE_URL,
 		telephone: '+492043376490',
 		priceRange: '€',
@@ -80,7 +80,7 @@
 		property="og:description"
 		content="33 Jahre Erfahrung. 100% Halal-Kalbfleisch. Horster Str. 372, 45968 Gladbeck."
 	/>
-	<meta property="og:image" content="{SITE_URL}/images/food/shop-front.jpg" />
+	<meta property="og:image" content="{SITE_URL}/images/food/shop-front.webp" />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta property="og:url" content={SITE_URL} />
@@ -97,7 +97,7 @@
 		name="twitter:description"
 		content="33 Jahre Erfahrung. 100% Halal-Kalbfleisch. Gladbeck."
 	/>
-	<meta name="twitter:image" content="{SITE_URL}/images/food/shop-front.jpg" />
+	<meta name="twitter:image" content="{SITE_URL}/images/food/shop-front.webp" />
 
 	{@html `<script type="application/ld+json">${JSON.stringify(structuredData)}</script>`}
 

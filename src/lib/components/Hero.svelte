@@ -10,7 +10,7 @@
 	<!-- Background Image with Overlay -->
 	<div class="absolute inset-0 z-0">
 		<img
-			src="{base}/images/food/shop-front.jpg"
+			src="{base}/images/food/shop-front.webp"
 			alt="Sarayli Döner Shop Front"
 			class="h-full w-full object-cover object-center"
 		/>

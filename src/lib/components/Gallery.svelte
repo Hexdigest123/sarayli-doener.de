@@ -16,7 +16,7 @@
 
 	const images = [
 		{
-			src: '/images/food/shop-front.jpg',
+			src: '/images/food/shop-front.webp',
 			alt: 'Saraylı Döner Laden'
 		},
 		{
