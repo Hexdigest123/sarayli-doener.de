@@ -1,0 +1,253 @@
+<script lang="ts">
+	import * as m from '$lib/paraglide/messages';
+</script>
+
+<section
+	id="special-offers"
+	class="relative overflow-hidden bg-gradient-to-br from-crimson via-crimson-dark to-crimson py-16 md:py-24"
+>
+	<div class="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
+		<div
+			class="absolute inset-0"
+			style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 32px 32px;"
+		></div>
+	</div>
+
+	<div
+		class="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-gold/10"
+		aria-hidden="true"
+	></div>
+	<div
+		class="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-gold/5"
+		aria-hidden="true"
+	></div>
+
+	<div class="relative container mx-auto px-4">
+		<div class="text-center">
+			<span
+				class="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs font-bold tracking-wide text-gold-light uppercase backdrop-blur-sm"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-3.5 w-3.5"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+				>
+					<path
+						d="M9.153 5.408C10.42 3.136 11.053 2 12 2c.947 0 1.58 1.136 2.847 3.408l.328.588c.36.645.54.967.82 1.175.28.208.63.273 1.33.404l.636.12c2.451.462 3.677.693 3.97 1.636.292.944-.597 1.926-1.774 3.89l-.384.64c-.335.56-.502.84-.56 1.166-.058.327.003.664.125 1.339l.11.614c.49 2.748.735 4.122.056 4.762-.68.64-1.936.044-4.448-1.147l-.59-.28c-.627-.297-.94-.446-1.274-.446-.335 0-.648.149-1.274.446l-.59.28c-2.512 1.191-3.768 1.787-4.449 1.147-.679-.64-.433-2.014.057-4.762l.11-.614c.122-.675.183-1.012.125-1.34-.058-.325-.225-.604-.56-1.164l-.384-.64C4.596 10.37 3.706 9.388 3.999 8.444c.292-.943 1.518-1.174 3.97-1.636l.635-.12c.7-.131 1.05-.196 1.33-.404.28-.208.46-.53.82-1.175l.328-.588Z"
+					/>
+				</svg>
+				{m.offer_section_badge()}
+			</span>
+			<h2 class="mt-4 font-display text-3xl font-bold text-white md:text-4xl">
+				{m.offer_section_title()}
+			</h2>
+			<div class="mx-auto mt-3 h-1 w-24 rounded-full bg-gold"></div>
+			<p class="mx-auto mt-4 max-w-lg font-body text-base text-white/70">
+				{m.offer_section_subtitle()}
+			</p>
+		</div>
+
+		<div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+			<div
+				class="group relative overflow-hidden rounded-2xl border border-gold/20 bg-white/[0.07] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:shadow-xl hover:shadow-black/10 sm:p-8"
+			>
+				<div
+					class="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-gold/10 transition-transform duration-300 group-hover:scale-150"
+					aria-hidden="true"
+				></div>
+
+				<h3 class="font-display text-xl font-bold text-white sm:text-2xl">
+					{m.offer_section_menu1_name()}
+				</h3>
+
+				<div class="mt-4 space-y-3">
+					<p class="text-xs font-semibold tracking-wider text-gold-light uppercase">
+						{m.offer_section_includes()}
+					</p>
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 text-gold-light"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="1.5"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m-5-4H4m16 0h-3"
+								/>
+								<path stroke-linecap="round" d="M4 14c0 0 2 4 8 4s8-4 8-4" />
+							</svg>
+						</div>
+						<span class="font-body text-sm text-white/80">{m.offer_item_soup()}</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 text-gold-light"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+								<path d="M7 2v20" />
+								<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+							</svg>
+						</div>
+						<span class="font-body text-sm text-white/80">{m.offer_item_doener_plate()}</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 text-gold-light"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+								<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+							</svg>
+						</div>
+						<span class="font-body text-sm text-white/80">{m.offer_item_drink()}</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 text-gold-light"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M12 2L8.5 9.5 2 12l6.5 2.5L12 22l3.5-7.5L22 12l-6.5-2.5L12 2Z" />
+							</svg>
+						</div>
+						<span class="font-body text-sm text-white/80">{m.offer_item_baklava()}</span>
+					</div>
+				</div>
+
+				<div class="mt-6 flex items-baseline gap-2 border-t border-white/10 pt-5">
+					<span class="font-display text-4xl font-bold text-gold">22,00</span>
+					<span class="font-display text-lg font-bold text-gold/70">€</span>
+				</div>
+			</div>
+
+			<div
+				class="group relative overflow-hidden rounded-2xl border border-gold/20 bg-white/[0.07] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:shadow-xl hover:shadow-black/10 sm:p-8"
+			>
+				<div
+					class="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-gold/10 transition-transform duration-300 group-hover:scale-150"
+					aria-hidden="true"
+				></div>
+
+				<h3 class="font-display text-xl font-bold text-white sm:text-2xl">
+					{m.offer_section_menu2_name()}
+				</h3>
+
+				<div class="mt-4 space-y-3">
+					<p class="text-xs font-semibold tracking-wider text-gold-light uppercase">
+						{m.offer_section_includes()}
+					</p>
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 text-gold-light"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								stroke-width="1.5"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m-5-4H4m16 0h-3"
+								/>
+								<path stroke-linecap="round" d="M4 14c0 0 2 4 8 4s8-4 8-4" />
+							</svg>
+						</div>
+						<span class="font-body text-sm text-white/80">{m.offer_item_soup()}</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 text-gold-light"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+								<path d="M7 2v20" />
+								<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+							</svg>
+						</div>
+						<span class="font-body text-sm text-white/80">{m.offer_item_doener()}</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 text-gold-light"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+								<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+							</svg>
+						</div>
+						<span class="font-body text-sm text-white/80">{m.offer_item_drink()}</span>
+					</div>
+					<div class="flex items-center gap-3">
+						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="h-4 w-4 text-gold-light"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M12 2L8.5 9.5 2 12l6.5 2.5L12 22l3.5-7.5L22 12l-6.5-2.5L12 2Z" />
+							</svg>
+						</div>
+						<span class="font-body text-sm text-white/80">{m.offer_item_baklava()}</span>
+					</div>
+				</div>
+
+				<div class="mt-6 flex items-baseline gap-2 border-t border-white/10 pt-5">
+					<span class="font-display text-4xl font-bold text-gold">16,00</span>
+					<span class="font-display text-lg font-bold text-gold/70">€</span>
+				</div>
+			</div>
+		</div>
+
+		<p class="mt-10 text-center font-display text-lg font-semibold text-white/60 italic">
+			{m.offer_section_cta()}
+		</p>
+	</div>
+</section>

@@ -14,6 +14,44 @@
 	let isHovering = $state(false);
 	let autoplayInterval: ReturnType<typeof setInterval> | null = null;
 
+	let touchStartX = $state(0);
+	let touchStartY = $state(0);
+	let touchDeltaX = $state(0);
+	let isSwiping = $state(false);
+
+	function handleTouchStart(e: TouchEvent) {
+		touchStartX = e.touches[0].clientX;
+		touchStartY = e.touches[0].clientY;
+		touchDeltaX = 0;
+		isSwiping = false;
+	}
+
+	function handleTouchMove(e: TouchEvent) {
+		const dx = e.touches[0].clientX - touchStartX;
+		const dy = e.touches[0].clientY - touchStartY;
+
+		if (!isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+			isSwiping = true;
+		}
+
+		if (isSwiping) {
+			e.preventDefault();
+			touchDeltaX = dx;
+		}
+	}
+
+	function handleTouchEnd() {
+		if (Math.abs(touchDeltaX) > 50) {
+			if (touchDeltaX < 0) {
+				nextSlide();
+			} else {
+				prevSlide();
+			}
+		}
+		touchDeltaX = 0;
+		isSwiping = false;
+	}
+
 	const images = [
 		{
 			src: '/images/food/shop-front.webp',
@@ -156,10 +194,17 @@
 			onmouseleave={() => (isHovering = false)}
 		>
 			<!-- Viewport -->
-			<div class="-mx-2 overflow-hidden px-2 py-4">
+			<div
+				class="-mx-2 touch-pan-y overflow-hidden px-2 py-4"
+				ontouchstart={handleTouchStart}
+				ontouchmove={handleTouchMove}
+				ontouchend={handleTouchEnd}
+			>
 				<div
-					class="flex transition-transform duration-500 ease-out will-change-transform"
-					style="transform: translateX(calc(-{currentIndex} * (100% / {itemsPerPage})))"
+					class="flex will-change-transform {isSwiping
+						? ''
+						: 'transition-transform duration-500 ease-out'}"
+					style="transform: translateX(calc(-{currentIndex} * (100% / {itemsPerPage}) + {touchDeltaX}px))"
 				>
 					{#each images as img, i}
 						<div
@@ -211,7 +256,7 @@
 			<!-- Navigation Arrows -->
 			{#if currentIndex > 0}
 				<button
-					class="absolute top-1/2 left-0 z-10 flex h-12 w-12 -translate-x-4 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-crimson shadow-lg backdrop-blur-sm transition-all hover:bg-crimson hover:text-white focus:ring-2 focus:ring-gold focus:outline-none md:-translate-x-12"
+					class="absolute top-1/2 left-0 z-10 hidden h-12 w-12 -translate-x-4 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-crimson shadow-lg backdrop-blur-sm transition-all hover:bg-crimson hover:text-white focus:ring-2 focus:ring-gold focus:outline-none md:flex md:-translate-x-12"
 					onclick={prevSlide}
 					aria-label="Previous images"
 					transition:fade={{ duration: 200 }}
@@ -234,7 +279,7 @@
 
 			{#if currentIndex < maxIndex}
 				<button
-					class="absolute top-1/2 right-0 z-10 flex h-12 w-12 translate-x-4 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-crimson shadow-lg backdrop-blur-sm transition-all hover:bg-crimson hover:text-white focus:ring-2 focus:ring-gold focus:outline-none md:translate-x-12"
+					class="absolute top-1/2 right-0 z-10 hidden h-12 w-12 translate-x-4 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-crimson shadow-lg backdrop-blur-sm transition-all hover:bg-crimson hover:text-white focus:ring-2 focus:ring-gold focus:outline-none md:flex md:translate-x-12"
 					onclick={nextSlide}
 					aria-label="Next images"
 					transition:fade={{ duration: 200 }}

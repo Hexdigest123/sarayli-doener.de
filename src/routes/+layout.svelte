@@ -3,10 +3,34 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import CookieBanner from '$lib/components/CookieBanner.svelte';
+	import SpecialOfferPopup from '$lib/components/SpecialOfferPopup.svelte';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { page } from '$app/state';
+	import { browser } from '$app/environment';
 
 	let { children } = $props();
+
+	$effect(() => {
+		if (!browser) return;
+
+		function handleAnchorClick(e: MouseEvent) {
+			const anchor = (e.target as HTMLElement).closest('a[href^="#"]');
+			if (!anchor) return;
+
+			const id = anchor.getAttribute('href')?.slice(1);
+			if (!id) return;
+
+			const target = document.getElementById(id);
+			if (!target) return;
+
+			e.preventDefault();
+			target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			history.replaceState(null, '', `#${id}`);
+		}
+
+		document.addEventListener('click', handleAnchorClick);
+		return () => document.removeEventListener('click', handleAnchorClick);
+	});
 
 	const isAdmin = $derived(page.url.pathname.startsWith('/admin'));
 	const isLegalPage = $derived(
@@ -120,4 +144,5 @@
 </main>
 {#if !isAdmin}
 	<CookieBanner />
+	<SpecialOfferPopup />
 {/if}
