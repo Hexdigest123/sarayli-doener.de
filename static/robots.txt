@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /_app/
+
+Sitemap: https://sarayli-doener.de/sitemap.xml
