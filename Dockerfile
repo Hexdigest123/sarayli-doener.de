@@ -47,4 +47,4 @@ LABEL org.opencontainers.image.created="${BUILD_DATE}" \
   org.opencontainers.image.source="https://github.com/hex/sarayli-doener.de"
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "npx drizzle-kit migrate && node build"]
+CMD ["sh", "-c", "npx drizzle-kit push && node build"]
