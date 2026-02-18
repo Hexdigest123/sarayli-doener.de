@@ -16,6 +16,7 @@
 	function setConsent(value: 'granted' | 'denied') {
 		document.cookie = `tracking_consent=${value};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
 		visible = false;
+		window.dispatchEvent(new CustomEvent('cookie-consent-resolved'));
 	}
 
 	function acceptAll() {

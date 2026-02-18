@@ -3,10 +3,22 @@
 	import { businessInfo } from '$lib/config';
 	import { base } from '$app/paths';
 
+	const SITE_URL = 'https://sarayli-doener.de';
+
 	const reels = [
-		{ src: `${base}/videos/reel.mp4` },
-		{ src: `${base}/videos/kebab-spike-turning.mp4` }
+		{ src: `${base}/videos/reel.mp4`, name: 'Saraylı Döner – Frische Döner-Zubereitung' },
+		{ src: `${base}/videos/kebab-spike-turning.mp4`, name: 'Saraylı Döner – Döner am Spieß' }
 	];
+
+	const videoSchema = reels.map((reel, i) => ({
+		'@context': 'https://schema.org',
+		'@type': 'VideoObject',
+		name: reel.name,
+		description: `${businessInfo.name} – 100% selbstgemachter Döner aus reinem Halal-Kalbfleisch in Gladbeck`,
+		contentUrl: `${SITE_URL}${reel.src.replace(base, '')}`,
+		thumbnailUrl: `${SITE_URL}/images/food/shop-front.webp`,
+		uploadDate: '2026-02-18'
+	}));
 
 	let videoEls = $state<(HTMLVideoElement | undefined)[]>([]);
 	let playingStates = $state<boolean[]>([false, false]);
@@ -38,6 +50,12 @@
 		playingStates[index] = false;
 	}
 </script>
+
+<svelte:head>
+	{#each videoSchema as schema}
+		{@html `<script type="application/ld+json">${JSON.stringify(schema)}</script>`}
+	{/each}
+</svelte:head>
 
 <section id="video" class="bg-white py-16 md:py-24">
 	<div class="container mx-auto px-4">

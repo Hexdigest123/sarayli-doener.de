@@ -173,17 +173,17 @@
 			<div class="flex items-center gap-4">
 				<a
 					href="/impressum"
-					aria-label="Impressum anzeigen"
+					aria-label={m.footer_impressum()}
 					class="py-3 text-sm font-light text-white/50 transition-colors hover:text-gold"
 				>
-					Impressum
+					{m.footer_impressum()}
 				</a>
 				<a
 					href="/datenschutz"
-					aria-label="Datenschutzerklärung anzeigen"
+					aria-label={m.footer_datenschutz()}
 					class="py-3 text-sm font-light text-white/50 transition-colors hover:text-gold"
 				>
-					Datenschutz
+					{m.footer_datenschutz()}
 				</a>
 				<span class="text-white/20">|</span>
 				<a

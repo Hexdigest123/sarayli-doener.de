@@ -1,0 +1,2 @@
+ALTER TABLE "page_views" ADD COLUMN "visitor_id" text;--> statement-breakpoint
+UPDATE "page_views" SET "visitor_id" = encode(sha256((COALESCE("ip_address", '') || '|' || COALESCE("user_agent", '') || '|' || '' || '|' || '' || '|' || '' || '|' || '' || '|' || '' || '|' || '' || '|' || '' || '|' || '' || '|' || '' || '|' || '')::bytea), 'hex') WHERE "visitor_id" IS NULL;

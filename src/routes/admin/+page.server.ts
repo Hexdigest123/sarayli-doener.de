@@ -29,6 +29,8 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	const sortColumn = (() => {
 		switch (sortBy) {
+			case 'visitorId':
+				return pageViews.visitorId;
 			case 'ipAddress':
 				return pageViews.ipAddress;
 			case 'landingPage':
@@ -71,7 +73,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	const [
 		views,
 		totalResult,
-		uniqueIpsResult,
+		uniqueVisitorsResult,
 		sourceStats,
 		campaignStats,
 		dailyStats,
@@ -89,7 +91,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		db.select({ count: count() }).from(pageViews).where(whereClause),
 
 		db
-			.select({ count: countDistinct(pageViews.ipAddress) })
+			.select({ count: countDistinct(pageViews.visitorId) })
 			.from(pageViews)
 			.where(whereClause),
 
@@ -142,7 +144,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	return {
 		views: views.map((v) => ({ ...v, createdAt: v.createdAt.toISOString() })),
 		totalViews: totalResult[0]?.count ?? 0,
-		uniqueVisitors: uniqueIpsResult[0]?.count ?? 0,
+		uniqueVisitors: uniqueVisitorsResult[0]?.count ?? 0,
 		todayViews,
 		topSource,
 		sourceStats: sourceStats.map((s) => ({ source: s.source ?? 'Direct', count: s.count })),

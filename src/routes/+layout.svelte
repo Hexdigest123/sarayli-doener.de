@@ -4,7 +4,9 @@
 	import Header from '$lib/components/Header.svelte';
 	import CookieBanner from '$lib/components/CookieBanner.svelte';
 	import SpecialOfferPopup from '$lib/components/SpecialOfferPopup.svelte';
-	import { getLocale } from '$lib/paraglide/runtime';
+	import FingerprintCollector from '$lib/components/FingerprintCollector.svelte';
+	import * as m from '$lib/paraglide/messages';
+	import { getLocale, localizeHref } from '$lib/paraglide/runtime';
 	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 
@@ -40,6 +42,20 @@
 
 	const SITE_URL = 'https://sarayli-doener.de';
 
+	const locale = $derived(getLocale());
+
+	// Map locale to full OG locale code
+	const ogLocaleMap: Record<string, string> = {
+		de: 'de_DE',
+		en: 'en_US',
+		tr: 'tr_TR'
+	};
+	const ogLocale = $derived(ogLocaleMap[locale] ?? 'de_DE');
+	const ogAlternateLocales = $derived(Object.values(ogLocaleMap).filter((l) => l !== ogLocale));
+
+	// Build canonical URL based on current locale
+	const canonicalUrl = $derived(locale === 'de' ? SITE_URL : `${SITE_URL}/${locale}`);
+
 	const structuredData = {
 		'@context': 'https://schema.org',
 		'@type': 'Restaurant',
@@ -73,19 +89,63 @@
 			reviewCount: '58',
 			bestRating: '5'
 		},
-		sameAs: ['https://www.instagram.com/sarayli.doener', 'https://www.tiktok.com/@sarayli.doener']
+		sameAs: ['https://www.instagram.com/sarayli.doener', 'https://www.tiktok.com/@sarayli.doener'],
+		menu: `${SITE_URL}/#menu`,
+		hasMenu: {
+			'@type': 'Menu',
+			name: 'Speisekarte',
+			url: `${SITE_URL}/#menu`
+		},
+		currenciesAccepted: 'EUR',
+		paymentAccepted: 'Cash, Credit Card, Debit Card',
+		foundingDate: '1992',
+		founder: {
+			'@type': 'Person',
+			name: 'Habil'
+		},
+		review: [
+			{
+				'@type': 'Review',
+				reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+				author: { '@type': 'Person', name: 'hossam Khalefa' }
+			},
+			{
+				'@type': 'Review',
+				reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+				author: { '@type': 'Person', name: 'Saliha' }
+			},
+			{
+				'@type': 'Review',
+				reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+				author: { '@type': 'Person', name: 'Betül Burulday' }
+			},
+			{
+				'@type': 'Review',
+				reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+				author: { '@type': 'Person', name: 'Elhame Kurteshi' }
+			},
+			{
+				'@type': 'Review',
+				reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+				author: { '@type': 'Person', name: 'Ammar' }
+			}
+		]
 	};
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<link rel="canonical" href={SITE_URL} />
+	<link rel="apple-touch-icon" href="/images/logo.webp" />
+	<link rel="manifest" href="/site.webmanifest" />
+	<link rel="canonical" href={canonicalUrl} />
 
-	<title>Saraylı Döner – 100% Selbstgemachter Döner in Gladbeck</title>
-	<meta
-		name="description"
-		content="Saraylı Döner – Seit 33 Jahren 100% selbstgemachter Döner aus reinem Halal-Kalbfleisch in Gladbeck. Horster Str. 372, täglich 11–22 Uhr."
-	/>
+	<link rel="alternate" hreflang="de" href={SITE_URL} />
+	<link rel="alternate" hreflang="en" href={`${SITE_URL}/en`} />
+	<link rel="alternate" hreflang="tr" href={`${SITE_URL}/tr`} />
+	<link rel="alternate" hreflang="x-default" href={SITE_URL} />
+
+	<title>{m.seo_title()}</title>
+	<meta name="description" content={m.seo_description()} />
 	<meta
 		name="keywords"
 		content="Döner, Kebab, Gladbeck, Halal, Kalbfleisch, türkisch, Restaurant, Imbiss, Saraylı"
@@ -99,34 +159,32 @@
 	<meta name="geo.position" content="51.5697;6.9861" />
 	<meta name="ICBM" content="51.5697, 6.9861" />
 
-	<meta property="og:title" content="Saraylı Döner – 100% Selbstgemacht" />
-	<meta
-		property="og:description"
-		content="33 Jahre Erfahrung. 100% Halal-Kalbfleisch. Horster Str. 372, 45968 Gladbeck."
-	/>
-	<meta property="og:image" content="{SITE_URL}/images/food/shop-front.webp" />
+	<meta property="og:title" content={m.seo_og_title()} />
+	<meta property="og:description" content={m.seo_og_description()} />
+	<meta property="og:image" content={`${SITE_URL}/images/food/shop-front.webp`} />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
-	<meta property="og:url" content={SITE_URL} />
+	<meta property="og:url" content={canonicalUrl} />
 	<meta property="og:type" content="restaurant" />
-	<meta property="og:locale" content={getLocale()} />
-	<meta property="og:locale:alternate" content="de" />
-	<meta property="og:locale:alternate" content="en" />
-	<meta property="og:locale:alternate" content="tr" />
+	<meta property="og:locale" content={ogLocale} />
+	{#each ogAlternateLocales as altLocale}
+		<meta property="og:locale:alternate" content={altLocale} />
+	{/each}
 	<meta property="og:site_name" content="Saraylı Döner" />
 
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="Saraylı Döner – 100% Selbstgemacht" />
-	<meta
-		name="twitter:description"
-		content="33 Jahre Erfahrung. 100% Halal-Kalbfleisch. Gladbeck."
-	/>
-	<meta name="twitter:image" content="{SITE_URL}/images/food/shop-front.webp" />
+	<meta name="twitter:title" content={m.seo_og_title()} />
+	<meta name="twitter:description" content={m.seo_twitter_description()} />
+	<meta name="twitter:image" content={`${SITE_URL}/images/food/shop-front.webp`} />
 
 	{@html `<script type="application/ld+json">${JSON.stringify(structuredData)}</script>`}
 
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+	<link
+		href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+		rel="stylesheet"
+	/>
 </svelte:head>
 
 <a
@@ -145,4 +203,5 @@
 {#if !isAdmin}
 	<CookieBanner />
 	<SpecialOfferPopup />
+	<FingerprintCollector />
 {/if}

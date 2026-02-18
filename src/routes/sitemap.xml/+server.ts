@@ -1,6 +1,6 @@
 export function GET() {
 	const site = 'https://sarayli-doener.de';
-	const lastmod = new Date().toISOString().split('T')[0];
+	const lastmod = '2026-02-18';
 
 	const urls = [
 		{ loc: site, priority: '1.0' },
@@ -21,6 +21,7 @@ ${urls
     <xhtml:link rel="alternate" hreflang="de" href="${site}" />
     <xhtml:link rel="alternate" hreflang="en" href="${site}/en" />
     <xhtml:link rel="alternate" hreflang="tr" href="${site}/tr" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${site}" />
   </url>`
 	)
 	.join('\n')}

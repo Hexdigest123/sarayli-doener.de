@@ -3,6 +3,7 @@ import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 export const pageViews = pgTable('page_views', {
 	id: serial('id').primaryKey(),
 	ipAddress: text('ip_address').notNull(),
+	visitorId: text('visitor_id'),
 	userAgent: text('user_agent'),
 	referer: text('referer'),
 	landingPage: text('landing_page').notNull(),

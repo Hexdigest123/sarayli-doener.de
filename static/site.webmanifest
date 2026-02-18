@@ -1,0 +1,17 @@
+{
+	"name": "Saraylı Döner",
+	"short_name": "Saraylı Döner",
+	"description": "100% selbstgemachter Döner aus reinem Halal-Kalbfleisch in Gladbeck",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#fff8f0",
+	"theme_color": "#8B1A1A",
+	"icons": [
+		{
+			"src": "/images/logo.webp",
+			"sizes": "any",
+			"type": "image/webp",
+			"purpose": "any"
+		}
+	]
+}

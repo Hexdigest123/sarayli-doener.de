@@ -338,7 +338,7 @@
 
 	const tableColumns = [
 		{ key: 'createdAt', label: 'Time', sortable: true },
-		{ key: 'ipAddress', label: 'IP Address', sortable: true },
+		{ key: 'visitorId', label: 'Visitor ID', sortable: true },
 		{ key: 'landingPage', label: 'Page', sortable: true },
 		{ key: 'utmSource', label: 'Source', sortable: true },
 		{ key: 'utmMedium', label: 'Medium', sortable: true },
@@ -543,8 +543,11 @@
 								<td class="px-4 py-3 whitespace-nowrap text-gray-600">
 									{formatDate(row.createdAt)}
 								</td>
-								<td class="px-4 py-3 font-mono text-xs whitespace-nowrap text-gray-600">
-									{row.ipAddress}
+								<td
+									class="px-4 py-3 font-mono text-xs whitespace-nowrap text-gray-600"
+									title={row.visitorId ?? ''}
+								>
+									{row.visitorId ? row.visitorId.slice(0, 12) + '...' : '—'}
 								</td>
 								<td class="max-w-[180px] truncate px-4 py-3 text-gray-600" title={row.landingPage}>
 									{row.landingPage}

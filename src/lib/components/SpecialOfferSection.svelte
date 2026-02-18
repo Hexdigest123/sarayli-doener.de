@@ -61,83 +61,125 @@
 					{m.offer_section_menu1_name()}
 				</h3>
 
-				<div class="mt-4 space-y-3">
-					<p class="text-xs font-semibold tracking-wider text-gold-light uppercase">
-						{m.offer_section_includes()}
-					</p>
-					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4 text-gold-light"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-								stroke-width="1.5"
+				<div class="mt-6">
+					<div class="mb-4 flex items-center gap-3 opacity-80">
+						<div class="h-px flex-1 bg-gradient-to-r from-transparent to-gold/30"></div>
+						<p class="text-[10px] font-bold tracking-[0.2em] text-gold-light uppercase">
+							{m.offer_section_includes()}
+						</p>
+						<div class="h-px flex-1 bg-gradient-to-l from-transparent to-gold/30"></div>
+					</div>
+
+					<div class="grid grid-cols-2 gap-3">
+						<!-- Soup -->
+						<div
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+						>
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
 							>
-								<path
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="1.5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m-5-4H4m16 0h-3"
+									/>
+									<path stroke-linecap="round" d="M4 14c0 0 2 4 8 4s8-4 8-4" />
+								</svg>
+							</div>
+							<span
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								>{m.offer_item_soup()}</span
+							>
+						</div>
+
+						<!-- Main Dish (Dönerteller) -->
+						<div
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+						>
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
 									stroke-linecap="round"
 									stroke-linejoin="round"
-									d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m-5-4H4m16 0h-3"
-								/>
-								<path stroke-linecap="round" d="M4 14c0 0 2 4 8 4s8-4 8-4" />
-							</svg>
-						</div>
-						<span class="font-body text-sm text-white/80">{m.offer_item_soup()}</span>
-					</div>
-					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4 text-gold-light"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								>
+									<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+									<path d="M7 2v20" />
+									<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+								</svg>
+							</div>
+							<span
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								>{m.offer_item_doener_plate()}</span
 							>
-								<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-								<path d="M7 2v20" />
-								<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
-							</svg>
 						</div>
-						<span class="font-body text-sm text-white/80">{m.offer_item_doener_plate()}</span>
-					</div>
-					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4 text-gold-light"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+
+						<!-- Drink -->
+						<div
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+						>
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
 							>
-								<path d="M17 8h1a4 4 0 1 1 0 8h-1" />
-								<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
-							</svg>
-						</div>
-						<span class="font-body text-sm text-white/80">{m.offer_item_drink()}</span>
-					</div>
-					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4 text-gold-light"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+									<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+								</svg>
+							</div>
+							<span
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								>{m.offer_item_drink()}</span
 							>
-								<path d="M12 2L8.5 9.5 2 12l6.5 2.5L12 22l3.5-7.5L22 12l-6.5-2.5L12 2Z" />
-							</svg>
 						</div>
-						<span class="font-body text-sm text-white/80">{m.offer_item_baklava()}</span>
+
+						<!-- Dessert -->
+						<div
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+						>
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="M12 2L8.5 9.5 2 12l6.5 2.5L12 22l3.5-7.5L22 12l-6.5-2.5L12 2Z" />
+								</svg>
+							</div>
+							<span
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								>{m.offer_item_baklava()}</span
+							>
+						</div>
 					</div>
 				</div>
 
@@ -159,83 +201,121 @@
 					{m.offer_section_menu2_name()}
 				</h3>
 
-				<div class="mt-4 space-y-3">
-					<p class="text-xs font-semibold tracking-wider text-gold-light uppercase">
-						{m.offer_section_includes()}
-					</p>
-					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4 text-gold-light"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-								stroke-width="1.5"
+				<div class="mt-6">
+					<div class="mb-4 flex items-center gap-3 opacity-80">
+						<div class="h-px flex-1 bg-gradient-to-r from-transparent to-gold/30"></div>
+						<p class="text-[10px] font-bold tracking-[0.2em] text-gold-light uppercase">
+							{m.offer_section_includes()}
+						</p>
+						<div class="h-px flex-1 bg-gradient-to-l from-transparent to-gold/30"></div>
+					</div>
+
+					<div class="grid grid-cols-2 gap-3">
+						<div
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+						>
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
 							>
-								<path
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									stroke-width="1.5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m-5-4H4m16 0h-3"
+									/>
+									<path stroke-linecap="round" d="M4 14c0 0 2 4 8 4s8-4 8-4" />
+								</svg>
+							</div>
+							<span
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								>{m.offer_item_soup()}</span
+							>
+						</div>
+
+						<div
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+						>
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
 									stroke-linecap="round"
 									stroke-linejoin="round"
-									d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m-5-4H4m16 0h-3"
-								/>
-								<path stroke-linecap="round" d="M4 14c0 0 2 4 8 4s8-4 8-4" />
-							</svg>
-						</div>
-						<span class="font-body text-sm text-white/80">{m.offer_item_soup()}</span>
-					</div>
-					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4 text-gold-light"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								>
+									<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+									<path d="M7 2v20" />
+									<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+								</svg>
+							</div>
+							<span
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								>{m.offer_item_doener()}</span
 							>
-								<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-								<path d="M7 2v20" />
-								<path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
-							</svg>
 						</div>
-						<span class="font-body text-sm text-white/80">{m.offer_item_doener()}</span>
-					</div>
-					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4 text-gold-light"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+
+						<div
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+						>
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
 							>
-								<path d="M17 8h1a4 4 0 1 1 0 8h-1" />
-								<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
-							</svg>
-						</div>
-						<span class="font-body text-sm text-white/80">{m.offer_item_drink()}</span>
-					</div>
-					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/10">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="h-4 w-4 text-gold-light"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="1.5"
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+									<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+								</svg>
+							</div>
+							<span
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								>{m.offer_item_drink()}</span
 							>
-								<path d="M12 2L8.5 9.5 2 12l6.5 2.5L12 22l3.5-7.5L22 12l-6.5-2.5L12 2Z" />
-							</svg>
 						</div>
-						<span class="font-body text-sm text-white/80">{m.offer_item_baklava()}</span>
+
+						<div
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+						>
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-5 w-5"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<path d="M12 2L8.5 9.5 2 12l6.5 2.5L12 22l3.5-7.5L22 12l-6.5-2.5L12 2Z" />
+								</svg>
+							</div>
+							<span
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								>{m.offer_item_baklava()}</span
+							>
+						</div>
 					</div>
 				</div>
 

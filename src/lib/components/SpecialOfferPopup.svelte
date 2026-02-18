@@ -52,16 +52,36 @@
 		}
 	}
 
+	function showPopup(delay: number) {
+		const timer = setTimeout(() => {
+			visible = true;
+			requestAnimationFrame(() => {
+				animateIn = true;
+			});
+		}, delay);
+		return () => clearTimeout(timer);
+	}
+
 	$effect(() => {
-		if (browser && !getCookie('offer_popup_dismissed')) {
-			const timer = setTimeout(() => {
-				visible = true;
-				requestAnimationFrame(() => {
-					animateIn = true;
-				});
-			}, 1500);
-			return () => clearTimeout(timer);
+		if (!browser || getCookie('offer_popup_dismissed')) return;
+
+		// Returning visitor: cookie banner already resolved, show after 1.5s
+		if (getCookie('tracking_consent')) {
+			return showPopup(1500);
 		}
+
+		// First visit: wait for cookie banner to be dismissed first
+		function onConsentResolved() {
+			cleanup = showPopup(800);
+		}
+
+		let cleanup: (() => void) | undefined;
+		window.addEventListener('cookie-consent-resolved', onConsentResolved, { once: true });
+
+		return () => {
+			window.removeEventListener('cookie-consent-resolved', onConsentResolved);
+			cleanup?.();
+		};
 	});
 
 	$effect(() => {

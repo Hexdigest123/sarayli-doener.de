@@ -1,6 +1,7 @@
 import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { pageViews } from '$lib/server/db/schema';
+import { generateVisitorId, parseClientFingerprint } from '$lib/server/fingerprint';
 
 const REFERER_SOURCE_MAP: [pattern: string, source: string, medium: string][] = [
 	['tiktok.com', 'tiktok', 'social'],
@@ -78,9 +79,22 @@ export async function trackPageView(event: RequestEvent): Promise<void> {
 			}
 		}
 
+		const ip = event.getClientAddress();
+		const userAgent = event.request.headers.get('user-agent');
+		const acceptLanguage = event.request.headers.get('accept-language');
+		const clientSignals = parseClientFingerprint(event.cookies.get('_vfp'));
+
+		const visitorId = generateVisitorId({
+			ip,
+			userAgent,
+			acceptLanguage,
+			...clientSignals
+		});
+
 		await db.insert(pageViews).values({
-			ipAddress: event.getClientAddress(),
-			userAgent: event.request.headers.get('user-agent'),
+			ipAddress: ip,
+			visitorId,
+			userAgent,
 			referer,
 			landingPage: `${event.url.pathname}${event.url.search}`,
 			utmSource: source,

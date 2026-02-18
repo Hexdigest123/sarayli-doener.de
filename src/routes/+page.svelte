@@ -8,10 +8,6 @@
 	import SpecialOfferSection from '$lib/components/SpecialOfferSection.svelte';
 </script>
 
-<svelte:head>
-	<title>Saraylı Döner – 100% Selbstgemachter Döner | Gladbeck</title>
-</svelte:head>
-
 <div>
 	<Hero />
 	<Menu />

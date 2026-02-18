@@ -1,14 +1,39 @@
+<script>
+	import * as m from '$lib/paraglide/messages';
+	import { getLocale } from '$lib/paraglide/runtime';
+
+	const breadcrumbSchema = {
+		'@context': 'https://schema.org',
+		'@type': 'BreadcrumbList',
+		itemListElement: [
+			{
+				'@type': 'ListItem',
+				position: 1,
+				name: 'Saraylı Döner',
+				item: 'https://sarayli-doener.de'
+			},
+			{
+				'@type': 'ListItem',
+				position: 2,
+				name: m.impressum_title(),
+				item: 'https://sarayli-doener.de/impressum'
+			}
+		]
+	};
+</script>
+
 <svelte:head>
-	<title>Impressum – Saraylı Döner</title>
+	<title>{m.impressum_title()} – Saraylı Döner</title>
 	<meta
 		name="description"
-		content="Impressum von Saraylı Döner, Horster Str. 372, 45968 Gladbeck. Angaben gemäß § 5 DDG."
+		content={m.impressum_title() + ' – Saraylı Döner, Horster Str. 372, 45968 Gladbeck.'}
 	/>
 	<meta name="robots" content="noindex, nofollow" />
 	<link rel="canonical" href="https://sarayli-doener.de/impressum" />
+	{@html '<script type="application/ld+json">' + JSON.stringify(breadcrumbSchema) + '</script>'}
 </svelte:head>
 
-<div class="min-h-screen bg-cream px-4 py-12 font-body text-gray-900" lang="de">
+<div class="min-h-screen bg-cream px-4 py-12 font-body text-gray-900" lang={getLocale()}>
 	<article class="mx-auto max-w-3xl" aria-labelledby="impressum-heading">
 		<nav aria-label="Breadcrumb">
 			<a
@@ -28,55 +53,45 @@
 						clip-rule="evenodd"
 					/>
 				</svg>
-				Zurück zur Startseite
+				{m.legal_back()}
 			</a>
 		</nav>
 
-		<h1 id="impressum-heading" class="mb-10 font-display text-4xl text-crimson">Impressum</h1>
+		<h1 id="impressum-heading" class="mb-10 font-display text-4xl text-crimson">
+			{m.impressum_title()}
+		</h1>
 
 		<section class="mb-10">
-			<h2 class="mb-4 font-display text-2xl text-crimson">Angaben gemäß § 5 DDG</h2>
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_legal_basis()}</h2>
 			<p class="leading-relaxed">
-				Saraylı Döner<br />
-				[Name des Inhabers]<br />
-				Horster Str. 372<br />
-				45968 Gladbeck<br />
-				Deutschland
+				{@html m.impressum_legal_body().replace(/\n/g, '<br />')}
 			</p>
 		</section>
 
 		<section class="mb-10">
-			<h2 class="mb-4 font-display text-2xl text-crimson">Kontakt</h2>
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_contact_title()}</h2>
 			<p class="leading-relaxed">
-				Telefon: 0 20 43 / 376 40 90<br />
-				E-Mail: [E-Mail-Adresse einfügen]
+				{@html m.impressum_contact_body().replace(/\n/g, '<br />')}
 			</p>
 		</section>
 
 		<section class="mb-10">
-			<h2 class="mb-4 font-display text-2xl text-crimson">Umsatzsteuer-ID</h2>
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_vat_title()}</h2>
 			<p class="leading-relaxed">
-				Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br />
-				[USt-IdNr. einfügen]
+				{@html m.impressum_vat_body().replace(/\n/g, '<br />')}
 			</p>
 		</section>
 
 		<section class="mb-10">
-			<h2 class="mb-4 font-display text-2xl text-crimson">
-				Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
-			</h2>
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_responsible_title()}</h2>
 			<p class="leading-relaxed">
-				[Name des Inhabers]<br />
-				Horster Str. 372<br />
-				45968 Gladbeck
+				{@html m.impressum_responsible_body().replace(/\n/g, '<br />')}
 			</p>
 		</section>
 
 		<section class="mb-10">
-			<h2 class="mb-4 font-display text-2xl text-crimson">EU-Streitschlichtung</h2>
-			<p class="mb-3 leading-relaxed">
-				Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
-			</p>
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_dispute_title()}</h2>
+			<p class="mb-3 leading-relaxed">{m.impressum_dispute_body()}</p>
 			<p class="mb-3">
 				<a
 					href="https://ec.europa.eu/consumers/odr/"
@@ -87,70 +102,32 @@
 					https://ec.europa.eu/consumers/odr/
 				</a>
 			</p>
-			<p class="leading-relaxed">
-				Unsere E-Mail-Adresse finden Sie oben im Impressum. Wir sind nicht bereit oder verpflichtet,
-				an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
-			</p>
+			<p class="leading-relaxed">{m.impressum_dispute_note()}</p>
+		</section>
+
+		<section class="mb-10">
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_consumer_title()}</h2>
+			<p class="leading-relaxed">{m.impressum_consumer_body()}</p>
 		</section>
 
 		<section class="mb-10">
 			<h2 class="mb-4 font-display text-2xl text-crimson">
-				Verbraucherstreitbeilegung / Universalschlichtungsstelle
+				{m.impressum_liability_content_title()}
 			</h2>
-			<p class="leading-relaxed">
-				Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
-				Verbraucherschlichtungsstelle teilzunehmen.
-			</p>
+			<p class="mb-3 leading-relaxed">{m.impressum_liability_content_body_1()}</p>
+			<p class="leading-relaxed">{m.impressum_liability_content_body_2()}</p>
 		</section>
 
 		<section class="mb-10">
-			<h2 class="mb-4 font-display text-2xl text-crimson">Haftung für Inhalte</h2>
-			<p class="mb-3 leading-relaxed">
-				Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach
-				den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter
-				jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen
-				oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
-			</p>
-			<p class="leading-relaxed">
-				Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den
-				allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst
-				ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden
-				von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
-			</p>
-		</section>
-
-		<section class="mb-10">
-			<h2 class="mb-4 font-display text-2xl text-crimson">Haftung für Links</h2>
-			<p class="mb-3 leading-relaxed">
-				Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen
-				Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.
-				Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der
-				Seiten verantwortlich.
-			</p>
-			<p class="leading-relaxed">
-				Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße
-				überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine
-				permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete
-				Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von
-				Rechtsverletzungen werden wir derartige Links umgehend entfernen.
-			</p>
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_liability_links_title()}</h2>
+			<p class="mb-3 leading-relaxed">{m.impressum_liability_links_body_1()}</p>
+			<p class="leading-relaxed">{m.impressum_liability_links_body_2()}</p>
 		</section>
 
 		<section>
-			<h2 class="mb-4 font-display text-2xl text-crimson">Urheberrecht</h2>
-			<p class="mb-3 leading-relaxed">
-				Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem
-				deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der
-				Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung
-				des jeweiligen Autors bzw. Erstellers.
-			</p>
-			<p class="leading-relaxed">
-				Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die
-				Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche
-				gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden,
-				bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden
-				wir derartige Inhalte umgehend entfernen.
-			</p>
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_copyright_title()}</h2>
+			<p class="mb-3 leading-relaxed">{m.impressum_copyright_body_1()}</p>
+			<p class="leading-relaxed">{m.impressum_copyright_body_2()}</p>
 		</section>
 	</article>
 </div>
