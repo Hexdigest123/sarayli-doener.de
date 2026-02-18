@@ -7,6 +7,7 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 RUN DATABASE_URL=postgres://build:build@localhost:5432/build bun run build
+RUN mkdir -p /app/drizzle
 
 # Stage 2: Production runtime
 FROM node:22-alpine AS runner
