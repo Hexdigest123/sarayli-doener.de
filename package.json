@@ -14,7 +14,11 @@
 		"format": "prettier --write .",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
-		"test:e2e": "playwright test"
+		"test:e2e": "playwright test",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:push": "drizzle-kit push",
+		"db:studio": "drizzle-kit studio"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.2",
@@ -27,8 +31,10 @@
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.1.18",
+		"@types/bcryptjs": "^3.0.0",
 		"@types/node": "^24",
 		"@vitest/browser-playwright": "^4.0.18",
+		"drizzle-kit": "^0.31.9",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.14.0",
@@ -45,5 +51,11 @@
 		"vite": "^7.3.1",
 		"vitest": "^4.0.18",
 		"vitest-browser-svelte": "^2.0.2"
+	},
+	"dependencies": {
+		"bcryptjs": "^3.0.3",
+		"chart.js": "^4.5.1",
+		"drizzle-orm": "^0.45.1",
+		"postgres": "^3.4.8"
 	}
 }
