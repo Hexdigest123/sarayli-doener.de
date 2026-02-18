@@ -95,7 +95,7 @@
 			{/each}
 		</div>
 
-		<div class="mt-8 text-center">
+		<div class="mt-8 flex flex-col items-center gap-2">
 			<a
 				href="https://www.instagram.com/{businessInfo.instagramHandle.replace('@', '')}/"
 				target="_blank"
@@ -103,6 +103,14 @@
 				class="text-sm font-medium text-crimson transition-colors hover:text-crimson-dark"
 			>
 				{businessInfo.instagramHandle} on Instagram →
+			</a>
+			<a
+				href={businessInfo.tiktokUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-sm font-medium text-crimson transition-colors hover:text-crimson-dark"
+			>
+				{businessInfo.tiktokHandle} on TikTok →
 			</a>
 		</div>
 	</div>
