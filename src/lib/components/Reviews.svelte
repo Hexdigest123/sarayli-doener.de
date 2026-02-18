@@ -5,6 +5,44 @@
 	let activeIndex = $state(0);
 	let paused = $state(false);
 
+	let touchStartX = $state(0);
+	let touchStartY = $state(0);
+	let touchDeltaX = $state(0);
+	let isSwiping = $state(false);
+
+	function handleTouchStart(e: TouchEvent) {
+		touchStartX = e.touches[0].clientX;
+		touchStartY = e.touches[0].clientY;
+		touchDeltaX = 0;
+		isSwiping = false;
+	}
+
+	function handleTouchMove(e: TouchEvent) {
+		const dx = e.touches[0].clientX - touchStartX;
+		const dy = e.touches[0].clientY - touchStartY;
+
+		if (!isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+			isSwiping = true;
+		}
+
+		if (isSwiping) {
+			e.preventDefault();
+			touchDeltaX = dx;
+		}
+	}
+
+	function handleTouchEnd() {
+		if (Math.abs(touchDeltaX) > 50) {
+			if (touchDeltaX < 0) {
+				goTo((activeIndex + 1) % displayReviews.length);
+			} else {
+				goTo((activeIndex - 1 + displayReviews.length) % displayReviews.length);
+			}
+		}
+		touchDeltaX = 0;
+		isSwiping = false;
+	}
+
 	// Build a lookup of all message functions for dynamic key access
 	const msg: Record<string, () => string> = {};
 	for (const [key, fn] of Object.entries(m)) {
@@ -107,15 +145,26 @@
 		</div>
 
 		<div class="relative mx-auto max-w-xl">
-			<div class="relative min-h-[280px] overflow-hidden">
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div
+				class="relative min-h-[280px] touch-pan-y overflow-hidden"
+				ontouchstart={handleTouchStart}
+				ontouchmove={handleTouchMove}
+				ontouchend={handleTouchEnd}
+			>
 				{#each displayReviews as review, i}
 					<div
-						class="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out"
+						class="absolute inset-0 flex items-center justify-center {isSwiping
+							? ''
+							: 'transition-all duration-700 ease-in-out'}"
 						class:opacity-100={i === activeIndex}
 						class:opacity-0={i !== activeIndex}
-						class:translate-x-0={i === activeIndex}
-						class:translate-x-8={i > activeIndex}
-						class:-translate-x-8={i < activeIndex}
+						class:translate-x-0={i === activeIndex && !isSwiping}
+						class:translate-x-8={i > activeIndex && !isSwiping}
+						class:-translate-x-8={i < activeIndex && !isSwiping}
+						style={i === activeIndex && isSwiping
+							? `transform: translateX(${touchDeltaX}px); opacity: 1;`
+							: ''}
 						aria-hidden={i !== activeIndex}
 					>
 						<div class="w-full rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
