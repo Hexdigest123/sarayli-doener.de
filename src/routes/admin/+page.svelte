@@ -543,11 +543,18 @@
 								<td class="px-4 py-3 whitespace-nowrap text-gray-600">
 									{formatDate(row.createdAt)}
 								</td>
-								<td
-									class="px-4 py-3 font-mono text-xs whitespace-nowrap text-gray-600"
-									title={row.visitorId ?? ''}
-								>
-									{row.visitorId ? row.visitorId.slice(0, 12) + '...' : '—'}
+								<td class="px-4 py-3 font-mono text-xs whitespace-nowrap">
+									{#if row.visitorId}
+										<a
+											href="/admin/visitor/{row.visitorId}"
+											class="text-crimson transition-colors hover:text-crimson-dark hover:underline"
+											title={row.visitorId}
+										>
+											{row.visitorId.slice(0, 12)}...
+										</a>
+									{:else}
+										<span class="text-gray-600">—</span>
+									{/if}
 								</td>
 								<td class="max-w-[180px] truncate px-4 py-3 text-gray-600" title={row.landingPage}>
 									{row.landingPage}

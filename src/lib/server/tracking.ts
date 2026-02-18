@@ -62,6 +62,20 @@ const getLocaleFromPath = (pathname: string): 'de' | 'en' | 'tr' => {
 	return 'de';
 };
 
+export function computeVisitorId(event: RequestEvent): string {
+	const ip = event.getClientAddress();
+	const userAgent = event.request.headers.get('user-agent');
+	const acceptLanguage = event.request.headers.get('accept-language');
+	const clientSignals = parseClientFingerprint(event.cookies.get('_vfp'));
+
+	return generateVisitorId({
+		ip,
+		userAgent,
+		acceptLanguage,
+		...clientSignals
+	});
+}
+
 export async function trackPageView(event: RequestEvent): Promise<void> {
 	try {
 		const referer = event.request.headers.get('referer');
@@ -81,15 +95,7 @@ export async function trackPageView(event: RequestEvent): Promise<void> {
 
 		const ip = event.getClientAddress();
 		const userAgent = event.request.headers.get('user-agent');
-		const acceptLanguage = event.request.headers.get('accept-language');
-		const clientSignals = parseClientFingerprint(event.cookies.get('_vfp'));
-
-		const visitorId = generateVisitorId({
-			ip,
-			userAgent,
-			acceptLanguage,
-			...clientSignals
-		});
+		const visitorId = computeVisitorId(event);
 
 		await db.insert(pageViews).values({
 			ipAddress: ip,
