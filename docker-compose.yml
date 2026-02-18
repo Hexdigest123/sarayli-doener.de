@@ -1,20 +1,73 @@
 services:
-  db:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    ports:
-      - '5432:5432'
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-sarayli}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sarayli_secret}
-      POSTGRES_DB: ${POSTGRES_DB:-sarayli_doener}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sarayli}:${POSTGRES_PASSWORD:-sarayli_secret}@db:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-sarayli_doener}
+      - PORT=3000
+      - ORIGIN=${ORIGIN:-http://localhost:3000}
+      - ADDRESS_HEADER=X-Forwarded-For
+      - XFF_DEPTH=1
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-}
+    ports:
+      - '${APP_PORT:-2010}:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--spider', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: ${RESTART_DELAY:-5s}
+        max_attempts: ${RESTART_MAX_ATTEMPTS:-5}
+        window: ${RESTART_WINDOW:-120s}
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    restart: unless-stopped
+
+  db:
+    image: postgres:${POSTGRES_VERSION:-17}-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-sarayli}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sarayli_secret}
+      - POSTGRES_DB=${POSTGRES_DB:-sarayli_doener}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-sarayli}']
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-sarayli} -d ${POSTGRES_DB:-sarayli_doener}']
       interval: 5s
       timeout: 5s
       retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: ${RESTART_DELAY:-5s}
+        max_attempts: ${RESTART_MAX_ATTEMPTS:-5}
+        window: ${RESTART_WINDOW:-120s}
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    restart: unless-stopped
+
+networks:
+  internal:
+    driver: bridge
 
 volumes:
   pgdata:
