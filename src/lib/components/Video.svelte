@@ -50,11 +50,13 @@
 			></div>
 		</div>
 
-		<div class="flex flex-col gap-6 md:flex-row md:justify-center">
+		<div
+			class="scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 md:snap-none md:flex-row md:justify-center md:overflow-visible md:pb-0"
+		>
 			{#each reels as reel, i}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
-					class="group relative max-w-sm cursor-pointer overflow-hidden rounded-2xl shadow-lg transition-shadow duration-300 hover:shadow-2xl"
+					class="group relative w-[80vw] flex-shrink-0 cursor-pointer snap-center overflow-hidden rounded-2xl shadow-lg transition-shadow duration-300 hover:shadow-2xl md:w-auto md:max-w-sm md:flex-shrink"
 					onmouseenter={() => handleHover(i)}
 					role="button"
 					tabindex="0"
@@ -85,7 +87,7 @@
 							<div
 								class="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:scale-110"
 							>
-								<svg class="ml-1 h-7 w-7 text-crimson" fill="currentColor" viewBox="0 0 24 24">
+								<svg class="ml-0.5 h-7 w-7 text-crimson" fill="currentColor" viewBox="0 0 24 24">
 									<path d="M8 5v14l11-7z" />
 								</svg>
 							</div>

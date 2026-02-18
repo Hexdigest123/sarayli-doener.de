@@ -151,7 +151,7 @@
 		<!-- Carousel Container -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
-			class="group relative mx-auto mt-12 max-w-6xl"
+			class="group relative mx-auto mt-12 max-w-6xl overflow-x-clip"
 			onmouseenter={() => (isHovering = true)}
 			onmouseleave={() => (isHovering = false)}
 		>
@@ -256,16 +256,19 @@
 			{/if}
 
 			<!-- Dots Indicator -->
-			<div class="mt-8 flex justify-center gap-2">
+			<div class="mt-8 flex justify-center">
 				{#each Array(maxIndex + 1) as _, i}
 					<button
-						class="h-2 rounded-full transition-all duration-300 focus:ring-2 focus:ring-gold focus:outline-none {i ===
-						currentIndex
-							? 'w-8 bg-crimson'
-							: 'w-2 bg-gray-300 hover:bg-crimson/50'}"
+						class="flex min-h-[44px] min-w-[44px] items-center justify-center focus:outline-none"
 						onclick={() => goToSlide(i)}
 						aria-label="Go to slide {i + 1}"
-					></button>
+					>
+						<span
+							class="block h-2 rounded-full transition-all duration-300 {i === currentIndex
+								? 'w-8 bg-crimson'
+								: 'w-2 bg-gray-300 hover:bg-crimson/50'}"
+						></span>
+					</button>
 				{/each}
 			</div>
 		</div>

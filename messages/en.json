@@ -101,5 +101,18 @@
 	"review_1_text": "Amazing döner place! The meat tastes really fresh and aromatic – by far one of the best döners I've had recently.",
 	"review_2_text": "This was my first time here and I'm absolutely thrilled! The meat was incredibly tasty, juicy and perfectly seasoned. You can immediately tell the high quality.",
 	"review_3_text": "Super juicy döner, staff is super friendly and the restaurant is beautifully set up too.",
-	"review_4_text": "Really good döner! I came from far away. Would love to come back!"
+	"review_4_text": "Really good döner! I came from far away. Would love to come back!",
+	"footer_maps_hint": "Click to open in Google Maps",
+	"lang_label": "Language",
+	"cookie_title": "Cookie Notice",
+	"cookie_text": "We use cookies to optimize our website and provide you with the best possible experience.",
+	"cookie_accept": "Accept All",
+	"cookie_settings": "Settings",
+	"cookie_settings_title": "Cookie Settings",
+	"cookie_necessary_title": "Necessary Cookies",
+	"cookie_necessary_desc": "Required for the basic functions of the website.",
+	"cookie_analytics_title": "Analytics Cookies",
+	"cookie_analytics_desc": "Help us understand how visitors use our site.",
+	"cookie_save": "Save Selection",
+	"cookie_learn_more": "Learn more"
 }

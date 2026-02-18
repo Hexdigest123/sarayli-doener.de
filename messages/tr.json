@@ -101,5 +101,18 @@
 	"review_1_text": "Süper dönerci! Et gerçekten taze ve aromatik – son zamanlarda yediğim en iyi dönerlerden biri, açık ara.",
 	"review_2_text": "Bugün ilk kez geldim ve kesinlikle hayran kaldım! Et inanılmaz lezzetli, sulu ve mükemmel baharatlanmış. Yüksek kalite hemen fark ediliyor.",
 	"review_3_text": "Süper sulu döner, çalışanlar çok güler yüzlü ve mekan da çok güzel döşenmiş.",
-	"review_4_text": "Gerçekten güzel döner! Uzaktan geliyorum. Tekrar geleceğim!"
+	"review_4_text": "Gerçekten güzel döner! Uzaktan geliyorum. Tekrar geleceğim!",
+	"footer_maps_hint": "Google Maps'te açmak için tıklayın",
+	"lang_label": "Dil",
+	"cookie_title": "Çerez Bildirimi",
+	"cookie_text": "Web sitemizi optimize etmek ve size en iyi deneyimi sunmak için çerezler kullanıyoruz.",
+	"cookie_accept": "Tümünü Kabul Et",
+	"cookie_settings": "Ayarlar",
+	"cookie_settings_title": "Çerez Ayarları",
+	"cookie_necessary_title": "Gerekli Çerezler",
+	"cookie_necessary_desc": "Web sitesinin temel işlevleri için gereklidir.",
+	"cookie_analytics_title": "Analiz Çerezleri",
+	"cookie_analytics_desc": "Ziyaretçilerin sitemizi nasıl kullandığını anlamamıza yardımcı olur.",
+	"cookie_save": "Seçimi Kaydet",
+	"cookie_learn_more": "Daha fazla bilgi"
 }

@@ -19,6 +19,8 @@
 		<div
 			class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 via-40% to-transparent to-75%"
 		></div>
+		<!-- Stronger overlay on mobile for text readability -->
+		<div class="absolute inset-0 bg-white/40 md:hidden"></div>
 	</div>
 
 	<!-- Content Container -->
@@ -36,7 +38,7 @@
 			<!-- Text Content -->
 			<div class="space-y-4">
 				<h1
-					class="font-display text-5xl leading-tight font-bold tracking-tight text-crimson md:text-7xl"
+					class="font-display text-3xl leading-tight font-bold tracking-tight text-crimson md:text-5xl lg:text-7xl"
 				>
 					{m.hero_title()}
 				</h1>

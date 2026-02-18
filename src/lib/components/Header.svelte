@@ -65,6 +65,8 @@
 			{/each}
 		</nav>
 
+		<a href="#hero" class="font-display text-lg font-bold text-crimson md:hidden">Saraylı Döner</a>
+
 		<div class="flex items-center gap-4">
 			<div class="relative hidden md:block">
 				<button
@@ -117,7 +119,7 @@
 			</div>
 
 			<button
-				class="text-gray-700 hover:text-crimson focus:outline-none md:hidden"
+				class="p-2.5 text-gray-700 hover:text-crimson focus:outline-none md:hidden"
 				onclick={toggleMobileMenu}
 				aria-label="Toggle menu"
 			>
@@ -190,12 +192,12 @@
 			</div>
 
 			<div class="flex-1 overflow-y-auto py-4">
-				<nav class="flex flex-col space-y-4 px-4">
+				<nav class="flex flex-col px-4">
 					{#each navLinks as link}
 						<a
 							href={link.href}
 							onclick={closeMobileMenu}
-							class="border-b border-gray-50 pb-2 font-display text-lg font-medium text-gray-800 hover:text-crimson"
+							class="border-b border-gray-50 py-3 font-display text-lg font-medium text-gray-800 hover:text-crimson"
 						>
 							{link.label()}
 						</a>
@@ -204,14 +206,14 @@
 
 				<div class="mt-8 px-4">
 					<h3 class="mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase">
-						Language
+						{m.lang_label()}
 					</h3>
 					<div class="flex flex-col space-y-2">
 						{#each locales as loc}
 							<a
 								href={localizeHref(page.url.pathname, { locale: loc })}
 								data-sveltekit-reload
-								class={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${
+								class={`flex items-center gap-2 rounded-md px-3 py-3 text-sm font-medium ${
 									getLocale() === loc ? 'bg-crimson text-white' : 'text-gray-700 hover:bg-gray-100'
 								}`}
 								onclick={closeMobileMenu}

@@ -21,6 +21,34 @@ html {
 	scroll-behavior: smooth;
 }
 
+/* Scrollbar hide utility */
+.scrollbar-hide {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+
+/* Scroll fade right indicator for horizontal scroll containers */
+.scroll-fade-right::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 2.5rem;
+	background: linear-gradient(to right, transparent, white);
+	pointer-events: none;
+	z-index: 1;
+}
+
+@media (min-width: 768px) {
+	.scroll-fade-right::after {
+		display: none;
+	}
+}
+
 body {
 	font-family: var(--font-body);
 	color: #1a1a1a;

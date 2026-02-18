@@ -11,11 +11,11 @@
 	<title>Saraylı Döner – 100% Selbstgemachter Döner | Gladbeck</title>
 </svelte:head>
 
-<main>
+<div>
 	<Hero />
 	<Menu />
 	<Gallery />
 	<Reviews />
 	<Video />
-</main>
+</div>
 <Footer />

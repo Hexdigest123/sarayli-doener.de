@@ -2,9 +2,17 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
+	import CookieBanner from '$lib/components/CookieBanner.svelte';
 	import { getLocale } from '$lib/paraglide/runtime';
+	import { page } from '$app/state';
 
 	let { children } = $props();
+
+	const isAdmin = $derived(page.url.pathname.startsWith('/admin'));
+	const isLegalPage = $derived(
+		page.url.pathname.startsWith('/impressum') || page.url.pathname.startsWith('/datenschutz')
+	);
+	const hideMainNav = $derived(isAdmin || isLegalPage);
 
 	const SITE_URL = 'https://sarayli-doener.de';
 
@@ -104,7 +112,12 @@
 	Skip to content
 </a>
 
-<Header />
+{#if !hideMainNav}
+	<Header />
+{/if}
 <main id="main">
 	{@render children()}
 </main>
+{#if !isAdmin}
+	<CookieBanner />
+{/if}

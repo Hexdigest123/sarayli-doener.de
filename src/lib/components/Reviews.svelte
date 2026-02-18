@@ -107,7 +107,7 @@
 		</div>
 
 		<div class="relative mx-auto max-w-xl">
-			<div class="relative min-h-[200px] overflow-hidden">
+			<div class="relative min-h-[280px] overflow-hidden">
 				{#each displayReviews as review, i}
 					<div
 						class="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out"
@@ -150,15 +150,19 @@
 				{/each}
 			</div>
 
-			<div class="mt-6 flex items-center justify-center gap-2.5">
+			<div class="mt-6 flex items-center justify-center">
 				{#each displayReviews as _, i}
 					<button
 						onclick={() => goTo(i)}
-						class="h-2.5 rounded-full transition-all duration-300 {i === activeIndex
-							? 'w-8 bg-crimson'
-							: 'w-2.5 bg-gray-300 hover:bg-gray-400'}"
+						class="flex min-h-[44px] min-w-[44px] items-center justify-center focus:outline-none"
 						aria-label="Go to review {i + 1}"
-					></button>
+					>
+						<span
+							class="block h-2.5 rounded-full transition-all duration-300 {i === activeIndex
+								? 'w-8 bg-crimson'
+								: 'w-2.5 bg-gray-300 hover:bg-gray-400'}"
+						></span>
+					</button>
 				{/each}
 			</div>
 		</div>

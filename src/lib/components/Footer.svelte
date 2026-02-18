@@ -58,9 +58,9 @@
 								{businessInfo.address}
 							</p>
 							<p
-								class="mt-4 text-sm text-xs font-medium tracking-wide text-white/50 uppercase transition-colors group-hover:text-gold"
+								class="mt-4 text-xs font-medium tracking-wide text-white/50 uppercase transition-colors group-hover:text-gold"
 							>
-								Click to open in Google Maps
+								{m.footer_maps_hint()}
 							</p>
 						</div>
 					</div>
@@ -68,7 +68,7 @@
 			</div>
 
 			<div class="flex flex-col gap-10 md:pt-4">
-				<div class="space-y-2">
+				<div class="hidden space-y-2 md:block">
 					<h3 class="text-sm font-semibold tracking-wider text-gold uppercase">
 						{m.footer_address()}
 					</h3>
@@ -172,10 +172,25 @@
 
 			<div class="flex items-center gap-4">
 				<a
+					href="/impressum"
+					aria-label="Impressum anzeigen"
+					class="py-3 text-sm font-light text-white/50 transition-colors hover:text-gold"
+				>
+					Impressum
+				</a>
+				<a
+					href="/datenschutz"
+					aria-label="Datenschutzerklärung anzeigen"
+					class="py-3 text-sm font-light text-white/50 transition-colors hover:text-gold"
+				>
+					Datenschutz
+				</a>
+				<span class="text-white/20">|</span>
+				<a
 					href={businessInfo.instagramUrl}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-white/40 transition-colors hover:text-gold"
+					class="p-3 text-white/40 transition-colors hover:text-gold"
 					aria-label="Instagram"
 				>
 					<svg
@@ -198,7 +213,7 @@
 					href={businessInfo.tiktokUrl}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-white/40 transition-colors hover:text-gold"
+					class="p-3 text-white/40 transition-colors hover:text-gold"
 					aria-label="TikTok"
 				>
 					<svg

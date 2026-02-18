@@ -37,21 +37,23 @@
 			<div class="mx-auto mt-4 mb-8 h-1 w-24 rounded-full bg-gold"></div>
 		</div>
 
-		<div
-			class="scrollbar-hide flex gap-2 overflow-x-auto pb-2 md:justify-center"
-			style="-webkit-overflow-scrolling: touch;"
-		>
-			{#each menuCategories as category}
-				<button
-					class="rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-all {activeCategory ===
-					category.id
-						? 'bg-crimson text-white'
-						: 'border border-gray-200 bg-white text-gray-700 hover:bg-cream-dark'}"
-					onclick={() => (activeCategory = category.id)}
-				>
-					{getCategoryName(category.id)}
-				</button>
-			{/each}
+		<div class="scroll-fade-right relative md:contents">
+			<div
+				class="scrollbar-hide flex gap-2 overflow-x-auto pb-2 md:justify-center"
+				style="-webkit-overflow-scrolling: touch;"
+			>
+				{#each menuCategories as category}
+					<button
+						class="rounded-full px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all {activeCategory ===
+						category.id
+							? 'bg-crimson text-white'
+							: 'border border-gray-200 bg-white text-gray-700 hover:bg-cream-dark'}"
+						onclick={() => (activeCategory = category.id)}
+					>
+						{getCategoryName(category.id)}
+					</button>
+				{/each}
+			</div>
 		</div>
 
 		<div class="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2">
