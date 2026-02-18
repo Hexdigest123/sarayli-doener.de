@@ -6,7 +6,7 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 COPY . .
-RUN bun run build
+RUN DATABASE_URL=postgres://build:build@localhost:5432/build bun run build
 
 # Stage 2: Production runtime
 FROM node:22-alpine AS runner
