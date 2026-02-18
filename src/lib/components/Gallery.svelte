@@ -24,7 +24,7 @@
 			alt: 'Döner Teller'
 		},
 		{
-			src: '/images/food/food-1.jpg',
+			src: '/images/food/food-1.webp',
 			alt: 'Getränke Auswahl'
 		},
 		{
@@ -40,7 +40,7 @@
 			alt: 'Pom-Döner mit Pommes'
 		},
 		{
-			src: '/images/food/food-2.jpg',
+			src: '/images/food/food-2.webp',
 			alt: 'Frisches Kalbfleisch'
 		},
 		{
