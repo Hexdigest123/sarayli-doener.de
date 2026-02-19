@@ -1,6 +1,9 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
+	import { localizeHref } from '$lib/paraglide/runtime';
 	import { cart } from '$lib/stores/cart.svelte';
+
+	let { data } = $props();
 
 	$effect(() => {
 		cart.clear();
@@ -27,12 +30,28 @@
 			</h1>
 			<p class="mx-auto mt-3 max-w-xl font-body text-gray-700">{m.checkout_success_message()}</p>
 
-			<a
-				href="/"
-				class="mt-7 inline-flex rounded-lg bg-crimson px-5 py-2.5 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark"
-			>
-				{m.checkout_success_back()}
-			</a>
+			{#if data.orderNumber}
+				<div class="mx-auto mt-6 max-w-sm rounded-xl border border-gray-100 bg-cream p-4">
+					<p class="font-body text-sm text-gray-500">{m.order_status_your_order_id()}</p>
+					<p class="mt-1 font-display text-2xl font-bold text-crimson">{data.orderNumber}</p>
+				</div>
+
+				<a
+					href={localizeHref(`/order/status?id=${data.orderNumber}`)}
+					class="mt-5 inline-flex rounded-lg border border-crimson/20 bg-white px-5 py-2.5 font-body text-sm font-semibold text-crimson transition-colors hover:bg-crimson hover:text-white"
+				>
+					{m.order_status_check_status()}
+				</a>
+			{/if}
+
+			<div class="mt-4">
+				<a
+					href="/"
+					class="inline-flex rounded-lg bg-crimson px-5 py-2.5 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark"
+				>
+					{m.checkout_success_back()}
+				</a>
+			</div>
 		</div>
 	</div>
 </section>

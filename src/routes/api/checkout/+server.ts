@@ -5,6 +5,8 @@ import { db } from '$lib/server/db';
 import { orders, orderItems } from '$lib/server/db/schema';
 import { menuCategories, doenerExtras, stripePriceMap } from '$lib/config';
 import { isStoreOpen } from '$lib/server/store-status';
+import { generateOrderNumber } from '$lib/server/order-number';
+import { computeVisitorId } from '$lib/server/tracking';
 import { eq } from 'drizzle-orm';
 import deMessages from '../../../../messages/de.json';
 
@@ -40,7 +42,8 @@ for (const category of menuCategories) {
 	}
 }
 
-export const POST: RequestHandler = async ({ request, url }) => {
+export const POST: RequestHandler = async (event) => {
+	const { request, url } = event;
 	let body: unknown;
 	try {
 		body = await request.json();
@@ -101,9 +104,13 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		});
 	}
 
+	const orderNumber = await generateOrderNumber();
+	const visitorId = computeVisitorId(event);
+
 	const [createdOrder] = await db
 		.insert(orders)
 		.values({
+			orderNumber,
 			status: 'pending',
 			orderType,
 			customerName,
@@ -111,6 +118,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 			customerEmail: customerEmail || null,
 			pickupTime: pickupTime || null,
 			totalAmount: totalCents,
+			visitorId,
 			notes: notes || null
 		})
 		.returning();
@@ -159,6 +167,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		}),
 		metadata: {
 			order_id: String(createdOrder.id),
+			order_number: orderNumber,
 			order_type: orderType,
 			customer_name: customerName,
 			customer_phone: customerPhone,

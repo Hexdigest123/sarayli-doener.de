@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
+	import { localizeHref } from '$lib/paraglide/runtime';
 </script>
 
 <section class="bg-cream py-28 md:py-32">
@@ -29,7 +30,7 @@
 
 			<div class="mt-7 flex flex-wrap items-center justify-center gap-3">
 				<a
-					href="/checkout"
+					href={localizeHref('/checkout')}
 					class="inline-flex rounded-lg bg-crimson px-5 py-2.5 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark"
 				>
 					{m.checkout_cancel_retry()}
