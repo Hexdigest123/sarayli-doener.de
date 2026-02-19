@@ -50,11 +50,12 @@ export const doenerExtras: DoenerExtra[] = [
 	{ id: 'cocktailsosse', label: 'Cocktailsoße' },
 	{ id: 'tzatziki', label: 'Tzatziki' },
 	{ id: 'zwiebeln', label: 'Zwiebeln' },
-	{ id: 'schaeferkaese', label: 'Schäferkäse' }
+	{ id: 'schafskaese', label: 'Schafskäse' },
+	{ id: 'scharfe_sosse', label: 'Scharfe Soße' }
 ];
 
-// Item IDs that support extras selection
-export const DOENER_ITEM_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8]);
+// Item IDs that support extras selection (Döner items + Menüs containing Döner)
+export const DOENER_ITEM_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 34, 35]);
 
 // Stripe Price IDs (test mode) — maps menu item ID to Stripe Price ID
 // These are pre-created products with German names in Stripe Dashboard

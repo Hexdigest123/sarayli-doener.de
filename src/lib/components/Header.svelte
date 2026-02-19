@@ -8,6 +8,7 @@
 	let isLangMenuOpen = $state(false);
 	let isScrolled = $state(false);
 	let isCartOpen = $state(false);
+	let storeOpen = $state(true);
 
 	$effect(() => {
 		const handleScroll = () => {
@@ -15,6 +16,15 @@
 		};
 		window.addEventListener('scroll', handleScroll);
 		return () => window.removeEventListener('scroll', handleScroll);
+	});
+
+	$effect(() => {
+		fetch('/api/store-status')
+			.then((r) => r.json())
+			.then((data) => {
+				storeOpen = data.open;
+			})
+			.catch(() => {});
 	});
 
 	function toggleLangMenu() {
@@ -34,11 +44,12 @@
 	}
 
 	const navLinks = [
-		{ href: '#menu', label: m.nav_menu },
-		{ href: '#gallery', label: m.nav_gallery },
-		{ href: '#reviews', label: m.nav_reviews },
-		{ href: '#video', label: m.nav_video },
-		{ href: '#contact', label: m.nav_contact }
+		{ href: '/#menu', label: m.nav_menu },
+		{ href: '/#gallery', label: m.nav_gallery },
+		{ href: '/#reviews', label: m.nav_reviews },
+		{ href: '/#video', label: m.nav_video },
+		{ href: '/#contact', label: m.nav_contact },
+		{ href: '/order/status', label: m.nav_order_status }
 	];
 </script>
 
@@ -50,18 +61,22 @@
 	<div class="container mx-auto flex items-center justify-between px-4">
 		<nav class="hidden items-center gap-8 md:flex">
 			{#each navLinks as link}
-				<a
-					href={link.href}
-					class="font-body text-sm font-medium tracking-wide text-gray-700 transition-colors hover:text-crimson"
-				>
+			<a
+				href={link.href.startsWith('/#') ? link.href : localizeHref(link.href)}
+				class="font-body text-sm font-medium tracking-wide text-gray-700 transition-colors hover:text-crimson"
+			>
 					{link.label()}
 				</a>
 			{/each}
 		</nav>
 
-		<a href="#hero" class="font-display text-lg font-bold text-crimson md:hidden">Saraylı Döner</a>
+		<a href="/#hero" class="font-display text-lg font-bold text-crimson md:hidden">Saraylı Döner</a>
 
 		<div class="flex items-center gap-2">
+			<span class="hidden items-center gap-1.5 rounded-full border px-2.5 py-1 font-body text-xs font-medium sm:inline-flex {storeOpen ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}">
+				<span class="h-1.5 w-1.5 rounded-full {storeOpen ? 'bg-emerald-500' : 'bg-red-500'}"></span>
+				{storeOpen ? m.open_now() : m.closed_now()}
+			</span>
 			<CartButton onclick={() => (isCartOpen = true)} />
 
 			<div class="relative">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
+	import { localizeHref } from '$lib/paraglide/runtime';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { doenerExtras } from '$lib/config';
 
@@ -12,11 +13,14 @@
 		}
 	}
 
-	const extrasLabelMap = new Map(doenerExtras.map((e) => [e.id, e.label]));
-
 	function getExtrasLabel(extras?: string[]): string {
 		if (!extras || extras.length === 0) return '';
-		return extras.map((id) => extrasLabelMap.get(id) ?? id).join(', ');
+		return extras.map((id) => {
+			const key = `extra_${id}`;
+			if (msg[key]) return msg[key]();
+			const extra = doenerExtras.find((e) => e.id === id);
+			return extra?.label ?? id;
+		}).join(', ');
 	}
 
 	const formatPrice = (price: number) => `${price.toFixed(2).replace('.', ',')} €`;
@@ -143,7 +147,7 @@
 						<span class="font-display text-xl font-bold text-crimson">{formatPrice(cart.totalPrice)}</span>
 					</div>
 					<a
-						href="/checkout"
+						href={localizeHref('/checkout')}
 						class="inline-flex w-full items-center justify-center rounded-lg bg-crimson px-4 py-3 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark"
 						onclick={onclose}
 					>

@@ -1,5 +1,5 @@
 import { sequence } from '@sveltejs/kit/hooks';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { handleTracking } from '$lib/server/tracking';
 import { validateSession, SESSION_COOKIE_NAME } from '$lib/server/auth';
@@ -22,3 +22,12 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 };
 
 export const handle: Handle = sequence(handleParaglide, handleAuth, handleTracking);
+
+export const handleError: HandleServerError = ({ error, status }) => {
+	if (status !== 404) {
+		console.error('Server error:', error);
+	}
+	return {
+		message: status === 404 ? 'Not Found' : 'Internal Error'
+	};
+};

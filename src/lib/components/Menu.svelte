@@ -187,7 +187,7 @@
 								onclick={() => toggleExtra(extra.id)}
 								class={`rounded-lg border px-3 py-2 text-left font-body text-sm transition-colors ${selectedExtras.has(extra.id) ? 'border-crimson bg-crimson/10 font-semibold text-crimson' : 'border-gray-200 text-gray-700 hover:border-crimson/40'}`}
 							>
-								{extra.label}
+								{msg[`extra_${extra.id}`]?.() ?? extra.label}
 							</button>
 						{/each}
 					</div>
