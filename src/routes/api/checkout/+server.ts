@@ -4,7 +4,7 @@ import { stripe } from '$lib/server/stripe';
 import { db } from '$lib/server/db';
 import { orders, orderItems } from '$lib/server/db/schema';
 import { menuCategories, doenerExtras, stripePriceMap } from '$lib/config';
-import { isStoreOpen } from '$lib/server/store-status';
+import { isStoreOpen, isShopEnabled } from '$lib/server/store-status';
 import { generateOrderNumber } from '$lib/server/order-number';
 import { computeVisitorId } from '$lib/server/tracking';
 import { eq } from 'drizzle-orm';
@@ -30,7 +30,10 @@ const de = deMessages as Record<string, string>;
 
 const extrasLabelMap = new Map(doenerExtras.map((e) => [e.id, e.label]));
 
-const menuItemMap = new Map<number, { price: number; nameKey: string; displayName: string; stripePriceId: string | undefined }>();
+const menuItemMap = new Map<
+	number,
+	{ price: number; nameKey: string; displayName: string; stripePriceId: string | undefined }
+>();
 for (const category of menuCategories) {
 	for (const item of category.items) {
 		menuItemMap.set(item.id, {
@@ -51,21 +54,24 @@ export const POST: RequestHandler = async (event) => {
 		throw error(400, 'Invalid JSON body');
 	}
 
-	const {
-		items,
-		orderType,
-		pickupTime,
-		customerName,
-		customerPhone,
-		customerEmail,
-		notes
-	} = body as CheckoutBody;
+	const { items, orderType, pickupTime, customerName, customerPhone, customerEmail, notes } =
+		body as CheckoutBody;
+
+	if (!(await isShopEnabled())) {
+		throw error(503, 'Online ordering is currently disabled');
+	}
 
 	if (!(await isStoreOpen())) {
 		throw error(503, 'Store is currently closed');
 	}
 
-	if (!Array.isArray(items) || items.length === 0 || !orderType || !customerName || !customerPhone) {
+	if (
+		!Array.isArray(items) ||
+		items.length === 0 ||
+		!orderType ||
+		!customerName ||
+		!customerPhone
+	) {
 		throw error(400, 'Missing required fields');
 	}
 
@@ -91,7 +97,9 @@ export const POST: RequestHandler = async (event) => {
 
 		const quantity = Math.max(1, Math.min(99, Math.floor(item.quantity)));
 		const priceCents = Math.round(menuItem.price * 100);
-		const extras = Array.isArray(item.extras) ? item.extras.filter((e): e is string => typeof e === 'string') : [];
+		const extras = Array.isArray(item.extras)
+			? item.extras.filter((e): e is string => typeof e === 'string')
+			: [];
 
 		totalCents += priceCents * quantity;
 		validatedItems.push({
@@ -171,15 +179,16 @@ export const POST: RequestHandler = async (event) => {
 			order_type: orderType,
 			customer_name: customerName,
 			customer_phone: customerPhone,
-			...(Object.keys(extrasPerItem).length > 0
-				? { extras: JSON.stringify(extrasPerItem) }
-				: {})
+			...(Object.keys(extrasPerItem).length > 0 ? { extras: JSON.stringify(extrasPerItem) } : {})
 		},
 		success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
 		cancel_url: `${url.origin}/checkout/cancel`
 	});
 
-	await db.update(orders).set({ stripeSessionId: session.id }).where(eq(orders.id, createdOrder.id));
+	await db
+		.update(orders)
+		.set({ stripeSessionId: session.id })
+		.where(eq(orders.id, createdOrder.id));
 
 	return json({ url: session.url });
 };

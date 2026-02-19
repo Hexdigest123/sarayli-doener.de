@@ -34,15 +34,17 @@
 	let submitError = $state('');
 	let storeClosed = $state(false);
 	let storeClosedMessage = $state('');
+	let shopDisabled = $state(false);
 
 	const extrasLabelMap = new Map(doenerExtras.map((e) => [e.id, e.label]));
 
 	$effect(() => {
 		fetch('/api/store-status')
 			.then((r) => r.json())
-			.then((data: { open: boolean; closedMessage: string | null }) => {
+			.then((data: { open: boolean; closedMessage: string | null; shopEnabled: boolean }) => {
 				storeClosed = !data.open;
 				storeClosedMessage = data.closedMessage ?? '';
+				shopDisabled = !data.shopEnabled;
 			})
 			.catch(() => {});
 	});
@@ -107,7 +109,24 @@
 			{msg.checkout_title?.() ?? 'Checkout'}
 		</h1>
 
-		{#if storeClosed}
+		{#if shopDisabled}
+			<div
+				class="mx-auto mb-6 max-w-xl rounded-2xl border border-gray-200 bg-gray-50 p-6 text-center shadow-sm"
+			>
+				<p class="font-display text-lg font-bold text-gray-700">
+					{msg.shop_disabled_title?.() ?? 'Online-Bestellungen sind derzeit nicht verfügbar'}
+				</p>
+				<p class="mt-2 font-body text-sm text-gray-500">
+					{msg.shop_disabled_subtitle?.() ?? 'Bitte besuchen Sie uns vor Ort.'}
+				</p>
+				<a
+					href="/"
+					class="mt-4 inline-flex rounded-lg bg-crimson px-5 py-2.5 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark"
+				>
+					{msg.checkout_back?.() ?? 'Zurück zur Speisekarte'}
+				</a>
+			</div>
+		{:else if storeClosed}
 			<div
 				class="mx-auto mb-6 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-6 text-center shadow-sm"
 			>

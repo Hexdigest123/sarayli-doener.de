@@ -8,6 +8,7 @@ export const GET: RequestHandler = async () => {
 		open: settings.isOpen,
 		closedMessage: settings.closedMessage,
 		mode: settings.mode,
-		schedule: settings.schedule
+		schedule: settings.schedule,
+		shopEnabled: settings.shopEnabled
 	});
 };

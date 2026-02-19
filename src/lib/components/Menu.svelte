@@ -4,6 +4,16 @@
 	import { cart } from '$lib/stores/cart.svelte';
 
 	let activeCategory = $state('doener');
+	let shopEnabled = $state(true);
+
+	$effect(() => {
+		fetch('/api/store-status')
+			.then((r) => r.json())
+			.then((data: { shopEnabled: boolean }) => {
+				shopEnabled = data.shopEnabled;
+			})
+			.catch(() => {});
+	});
 
 	// Build a lookup of all message functions for dynamic key access
 	const msg: Record<string, () => string> = {};
@@ -139,14 +149,16 @@
 							<span class="font-bold whitespace-nowrap text-crimson">
 								{item.price.toFixed(2).replace('.', ',')} €
 							</span>
-						<button
-							onclick={() => handleAddClick(item)}
-							class={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold text-white transition-colors ${justAdded[item.id] ? 'bg-gold' : 'bg-crimson hover:bg-crimson-dark active:bg-gold'}`}
-							title={m.cart_add()}
-							aria-label={m.cart_add()}
-						>
-							+
-						</button>
+							{#if shopEnabled}
+								<button
+									onclick={() => handleAddClick(item)}
+									class={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold text-white transition-colors ${justAdded[item.id] ? 'bg-gold' : 'bg-crimson hover:bg-crimson-dark active:bg-gold'}`}
+									title={m.cart_add()}
+									aria-label={m.cart_add()}
+								>
+									+
+								</button>
+							{/if}
 						</div>
 					</div>
 					{#if item.descKey || item.sizeKey}
@@ -194,7 +206,10 @@
 
 					<div class="flex gap-2">
 						<button
-							onclick={() => { selectedExtras = new Set(); confirmExtras(); }}
+							onclick={() => {
+								selectedExtras = new Set();
+								confirmExtras();
+							}}
 							class="flex-1 rounded-lg border border-gray-200 px-3 py-2.5 font-body text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
 						>
 							{msg.extras_skip?.() ?? 'Ohne Extras'}

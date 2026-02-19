@@ -86,6 +86,7 @@ export const storeSettings = pgTable('store_settings', {
 	isOpen: integer('is_open').notNull().default(1),
 	mode: text('mode').notNull().default('auto'),
 	closedMessage: text('closed_message'),
+	shopEnabled: integer('shop_enabled').notNull().default(1),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
 

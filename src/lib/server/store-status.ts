@@ -26,26 +26,52 @@ export async function isStoreOpen(): Promise<boolean> {
 	return isWithinSchedule();
 }
 
+export async function isShopEnabled(): Promise<boolean> {
+	const row = await getRow();
+	return row?.shopEnabled !== 0;
+}
+
 export async function getStoreSettings() {
 	const row = await getRow();
 	const mode = row?.mode ?? 'auto';
-	const open = mode === 'manual' ? (row?.isOpen === 1) : isWithinSchedule();
+	const open = mode === 'manual' ? row?.isOpen === 1 : isWithinSchedule();
 
 	return {
 		isOpen: open,
 		mode,
 		closedMessage: row?.closedMessage ?? null,
+		shopEnabled: row?.shopEnabled !== 0,
 		schedule: { openHour: OPEN_HOUR, closeHour: CLOSE_HOUR }
 	};
 }
 
-export async function setStoreMode(mode: 'auto' | 'manual', open?: boolean, closedMessage?: string | null) {
+export async function setStoreMode(
+	mode: 'auto' | 'manual',
+	open?: boolean,
+	closedMessage?: string | null
+) {
 	const existing = await getRow();
 
 	const values = {
 		mode,
 		isOpen: mode === 'manual' ? (open ? 1 : 0) : (existing?.isOpen ?? 1),
-		closedMessage: (mode === 'manual' && !open) ? (closedMessage ?? existing?.closedMessage ?? null) : null,
+		closedMessage:
+			mode === 'manual' && !open ? (closedMessage ?? existing?.closedMessage ?? null) : null,
+		updatedAt: new Date()
+	};
+
+	if (existing) {
+		await db.update(storeSettings).set(values).where(eq(storeSettings.id, SETTINGS_ROW_ID));
+	} else {
+		await db.insert(storeSettings).values({ id: SETTINGS_ROW_ID, ...values });
+	}
+}
+
+export async function setShopEnabled(enabled: boolean) {
+	const existing = await getRow();
+
+	const values = {
+		shopEnabled: enabled ? 1 : 0,
 		updatedAt: new Date()
 	};
 

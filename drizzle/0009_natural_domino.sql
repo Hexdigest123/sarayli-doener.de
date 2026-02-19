@@ -1,0 +1,1 @@
+ALTER TABLE "store_settings" ADD COLUMN "shop_enabled" integer DEFAULT 1 NOT NULL;
