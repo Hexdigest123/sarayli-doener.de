@@ -31,15 +31,19 @@
 		interactedStates[index] = true;
 	}
 
-	function togglePlay(index: number) {
+	async function togglePlay(index: number) {
 		if (!videoEls[index]) return;
 		if (!interactedStates[index]) {
 			videoEls[index]!.preload = 'auto';
 			interactedStates[index] = true;
 		}
 		if (videoEls[index]!.paused) {
-			videoEls[index]!.play();
-			playingStates[index] = true;
+			try {
+				await videoEls[index]!.play();
+				playingStates[index] = true;
+			} catch {
+				playingStates[index] = false;
+			}
 		} else {
 			videoEls[index]!.pause();
 			playingStates[index] = false;
@@ -89,11 +93,11 @@
 				>
 					<video
 						bind:this={videoEls[i]}
-						src={reel.src}
+						src="{reel.src}#t=0.001"
 						preload="metadata"
 						playsinline
 						onended={() => handleEnded(i)}
-						class="aspect-[9/16] w-full object-cover"
+						class="aspect-[9/16] w-full bg-black object-cover"
 					>
 						<track kind="captions" />
 					</video>
