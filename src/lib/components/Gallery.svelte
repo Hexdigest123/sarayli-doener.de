@@ -113,11 +113,7 @@
 		stopAutoplay();
 		autoplayInterval = setInterval(() => {
 			if (isHovering || lightboxOpen) return;
-			if (currentIndex < maxIndex) {
-				currentIndex += 1;
-			} else {
-				currentIndex = 0;
-			}
+			nextSlide();
 		}, 3000);
 	}
 
@@ -136,15 +132,11 @@
 	onDestroy(() => stopAutoplay());
 
 	function nextSlide() {
-		if (currentIndex < maxIndex) {
-			currentIndex += 1;
-		}
+		currentIndex = (currentIndex + 1) % (maxIndex + 1);
 	}
 
 	function prevSlide() {
-		if (currentIndex > 0) {
-			currentIndex -= 1;
-		}
+		currentIndex = (currentIndex - 1 + maxIndex + 1) % (maxIndex + 1);
 	}
 
 	function goToSlide(index: number) {
@@ -254,51 +246,45 @@
 			</div>
 
 			<!-- Navigation Arrows -->
-			{#if currentIndex > 0}
-				<button
-					class="absolute top-1/2 left-0 z-10 hidden h-12 w-12 -translate-x-4 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-crimson shadow-lg backdrop-blur-sm transition-all hover:bg-crimson hover:text-white focus:ring-2 focus:ring-gold focus:outline-none md:flex md:-translate-x-12"
-					onclick={prevSlide}
-					aria-label="Previous images"
-					transition:fade={{ duration: 200 }}
+			<button
+				class="absolute top-1/2 left-0 z-10 hidden h-12 w-12 -translate-x-4 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-crimson shadow-lg backdrop-blur-sm transition-all hover:bg-crimson hover:text-white focus:ring-2 focus:ring-gold focus:outline-none md:flex md:-translate-x-12"
+				onclick={prevSlide}
+				aria-label="Previous images"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path d="m15 18-6-6 6-6" />
-					</svg>
-				</button>
-			{/if}
+					<path d="m15 18-6-6 6-6" />
+				</svg>
+			</button>
 
-			{#if currentIndex < maxIndex}
-				<button
-					class="absolute top-1/2 right-0 z-10 hidden h-12 w-12 translate-x-4 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-crimson shadow-lg backdrop-blur-sm transition-all hover:bg-crimson hover:text-white focus:ring-2 focus:ring-gold focus:outline-none md:flex md:translate-x-12"
-					onclick={nextSlide}
-					aria-label="Next images"
-					transition:fade={{ duration: 200 }}
+			<button
+				class="absolute top-1/2 right-0 z-10 hidden h-12 w-12 translate-x-4 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-crimson shadow-lg backdrop-blur-sm transition-all hover:bg-crimson hover:text-white focus:ring-2 focus:ring-gold focus:outline-none md:flex md:translate-x-12"
+				onclick={nextSlide}
+				aria-label="Next images"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path d="m9 18 6-6-6-6" />
-					</svg>
-				</button>
-			{/if}
+					<path d="m9 18 6-6-6-6" />
+				</svg>
+			</button>
 
 			<!-- Dots Indicator -->
 			<div class="mt-8 flex justify-center">
