@@ -55,7 +55,7 @@ export const doenerExtras: DoenerExtra[] = [
 ];
 
 // Item IDs that support extras selection (Döner items + Menüs containing Döner)
-export const DOENER_ITEM_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 34, 35]);
+export const DOENER_ITEM_IDS = new Set([1, 2, 3, 4]);
 
 // Stripe Price IDs (test mode) — maps menu item ID to Stripe Price ID
 // These are pre-created products with German names in Stripe Dashboard
@@ -119,7 +119,7 @@ export const menuCategories: MenuCategory[] = [
 				image: '/images/kebab-small.webp'
 			},
 			{ id: 2, nameKey: 'menu_item_2_name', price: 12.0, descKey: 'menu_item_2_desc' },
-			{ id: 3, nameKey: 'menu_item_3_name', price: 6.0 },
+			{ id: 3, nameKey: 'menu_item_3_name', price: 6.0, descKey: 'menu_item_3_desc' },
 			{ id: 4, nameKey: 'menu_item_4_name', price: 9.0, descKey: 'menu_item_4_desc' },
 			{
 				id: 5,
