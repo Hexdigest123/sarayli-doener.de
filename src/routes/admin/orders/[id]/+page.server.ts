@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	};
 };
 
-const VALID_STATUSES = ['pending', 'paid', 'fulfilled', 'cancelled', 'refunded'] as const;
+const VALID_STATUSES = ['pending', 'paid', 'in_process', 'fulfilled', 'cancelled', 'refunded', 'cancellation_requested'] as const;
 
 export const actions: Actions = {
 	updateStatus: async ({ params, request }) => {
@@ -46,6 +46,17 @@ export const actions: Actions = {
 
 		if (!VALID_STATUSES.includes(newStatus as (typeof VALID_STATUSES)[number])) {
 			return fail(400, { error: 'Invalid status' });
+		}
+
+		const [existing] = await db.select({ status: orders.status }).from(orders).where(eq(orders.id, orderId));
+		if (!existing) {
+			return fail(404, { error: 'Order not found' });
+		}
+		if (existing.status === 'refunded') {
+			return fail(400, { error: 'Refunded orders cannot be changed' });
+		}
+		if (newStatus === 'refunded') {
+			return fail(400, { error: 'Use the Refund action to refund orders through Stripe' });
 		}
 
 		const updates: Record<string, unknown> = { status: newStatus };

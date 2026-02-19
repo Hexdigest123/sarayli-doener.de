@@ -2,14 +2,21 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { doenerExtras } from '$lib/config';
+	import * as m from '$lib/paraglide/messages';
+
+	const extrasLabelMap = new Map(doenerExtras.map((e) => [e.id, e.label]));
 
 	let { data } = $props();
 
 	let filterStatus = $state(data.filters.status);
 	let filterDateFrom = $state(data.filters.dateFrom);
 	let filterDateTo = $state(data.filters.dateTo);
+	let currentSort = $state(data.filters.sort);
+	let currentDir = $state(data.filters.dir);
 	let expandedOrders = $state<Set<number>>(new Set());
 	let refundOrderId = $state<number | null>(null);
+	let refundOrderNumber = $state('');
 	let refundOrderName = $state('');
 	let refundOrderTotal = $state(0);
 
@@ -17,9 +24,15 @@
 		filterStatus = data.filters.status;
 		filterDateFrom = data.filters.dateFrom;
 		filterDateTo = data.filters.dateTo;
+		currentSort = data.filters.sort;
+		currentDir = data.filters.dir;
 	});
 
-	const statuses = ['pending', 'paid', 'fulfilled', 'cancelled', 'refunded'];
+	const statuses = ['pending', 'paid', 'in_process', 'fulfilled', 'cancelled', 'cancellation_requested'];
+
+	function isLocked(status: string): boolean {
+		return status === 'refunded';
+	}
 
 	function toggleExpanded(orderId: number) {
 		const next = new Set(expandedOrders);
@@ -61,11 +74,58 @@
 		});
 	}
 
+	function toDateStr(d: Date): string {
+		return d.toISOString().split('T')[0];
+	}
+
+	function setPreset(preset: 'today' | 'week' | 'month' | 'year') {
+		const now = new Date();
+		let from: Date;
+		switch (preset) {
+			case 'today':
+				from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+				break;
+			case 'week': {
+				const day = now.getDay();
+				const diff = day === 0 ? 6 : day - 1;
+				from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
+				break;
+			}
+			case 'month':
+				from = new Date(now.getFullYear(), now.getMonth(), 1);
+				break;
+			case 'year':
+				from = new Date(now.getFullYear(), 0, 1);
+				break;
+		}
+		filterDateFrom = toDateStr(from);
+		filterDateTo = toDateStr(now);
+		updateParams({
+			dateFrom: filterDateFrom,
+			dateTo: filterDateTo,
+			status: filterStatus,
+			page: '1'
+		});
+	}
+
 	function resetFilters() {
 		filterStatus = '';
 		filterDateFrom = '';
 		filterDateTo = '';
-		updateParams({ status: '', dateFrom: '', dateTo: '', page: '1' });
+		updateParams({ status: '', dateFrom: '', dateTo: '', page: '1', sort: '', dir: '' });
+	}
+
+	function toggleSort(column: string) {
+		let dir = 'desc';
+		if (currentSort === column && currentDir === 'desc') {
+			dir = 'asc';
+		}
+		updateParams({ sort: column, dir, page: '1' });
+	}
+
+	function sortIndicator(column: string): string {
+		if (currentSort !== column) return '';
+		return currentDir === 'asc' ? ' ▲' : ' ▼';
 	}
 
 	function formatDate(iso: string): string {
@@ -88,12 +148,16 @@
 				return 'bg-amber-100 text-amber-700';
 			case 'paid':
 				return 'bg-blue-100 text-blue-700';
+			case 'in_process':
+				return 'bg-purple-100 text-purple-700';
 			case 'fulfilled':
 				return 'bg-emerald-100 text-emerald-700';
 			case 'cancelled':
 				return 'bg-gray-100 text-gray-700';
 			case 'refunded':
 				return 'bg-red-100 text-red-700';
+			case 'cancellation_requested':
+				return 'bg-orange-100 text-orange-700';
 			default:
 				return 'bg-gray-100 text-gray-700';
 		}
@@ -105,19 +169,24 @@
 				return 'border-amber-300 text-amber-700 bg-amber-50';
 			case 'paid':
 				return 'border-blue-300 text-blue-700 bg-blue-50';
+			case 'in_process':
+				return 'border-purple-300 text-purple-700 bg-purple-50';
 			case 'fulfilled':
 				return 'border-emerald-300 text-emerald-700 bg-emerald-50';
 			case 'cancelled':
 				return 'border-gray-300 text-gray-700 bg-gray-50';
 			case 'refunded':
 				return 'border-red-300 text-red-700 bg-red-50';
+			case 'cancellation_requested':
+				return 'border-orange-300 text-orange-700 bg-orange-50';
 			default:
 				return 'border-gray-300 text-gray-700 bg-gray-50';
 		}
 	}
 
-	function openRefundModal(order: { id: number; customerName: string; totalAmount: number }) {
+	function openRefundModal(order: { id: number; orderNumber: string; customerName: string; totalAmount: number }) {
 		refundOrderId = order.id;
+		refundOrderNumber = order.orderNumber;
 		refundOrderName = order.customerName;
 		refundOrderTotal = order.totalAmount;
 	}
@@ -158,6 +227,16 @@
 
 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6">
 	<div class="mb-6 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
+		<div class="mb-3 flex flex-wrap gap-2">
+			{#each [{ key: 'today', label: 'Today' }, { key: 'week', label: 'This Week' }, { key: 'month', label: 'This Month' }, { key: 'year', label: 'This Year' }] as preset}
+				<button
+					onclick={() => setPreset(preset.key as 'today' | 'week' | 'month' | 'year')}
+					class="rounded-lg border border-gray-200 px-3 py-1.5 font-body text-xs font-medium text-gray-600 transition-colors hover:border-crimson hover:text-crimson"
+				>
+					{preset.label}
+				</button>
+			{/each}
+		</div>
 		<div class="flex flex-wrap items-end gap-4">
 			<div>
 				<label for="statusFilter" class="mb-1 block font-body text-xs text-gray-500">Status</label>
@@ -213,13 +292,35 @@
 					<thead>
 						<tr class="border-b border-gray-100 bg-gray-50">
 							<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase"></th>
-							<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Order</th>
-							<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Time</th>
-							<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Customer</th>
-							<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Type</th>
+							<th
+								class="cursor-pointer select-none px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase transition-colors hover:text-crimson"
+								onclick={() => toggleSort('orderNumber')}
+							>Order{sortIndicator('orderNumber')}</th>
+							<th
+								class="cursor-pointer select-none px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase transition-colors hover:text-crimson"
+								onclick={() => toggleSort('createdAt')}
+							>Time{sortIndicator('createdAt')}</th>
+							<th
+								class="cursor-pointer select-none px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase transition-colors hover:text-crimson"
+								onclick={() => toggleSort('customerName')}
+							>Customer{sortIndicator('customerName')}</th>
+							<th
+								class="cursor-pointer select-none px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase transition-colors hover:text-crimson"
+								onclick={() => toggleSort('orderType')}
+							>Type{sortIndicator('orderType')}</th>
+							<th
+								class="cursor-pointer select-none px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase transition-colors hover:text-crimson"
+								onclick={() => toggleSort('pickupTime')}
+							>Pickup Time{sortIndicator('pickupTime')}</th>
 							<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Items</th>
-							<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Total</th>
-							<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Status</th>
+							<th
+								class="cursor-pointer select-none px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase transition-colors hover:text-crimson"
+								onclick={() => toggleSort('totalAmount')}
+							>Total{sortIndicator('totalAmount')}</th>
+							<th
+								class="cursor-pointer select-none px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase transition-colors hover:text-crimson"
+								onclick={() => toggleSort('status')}
+							>Status{sortIndicator('status')}</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -241,7 +342,7 @@
 								</td>
 								<td class="px-4 py-3 whitespace-nowrap">
 									<a href="/admin/orders/{order.id}" class="font-medium text-crimson hover:underline" onclick={(e) => e.stopPropagation()}>
-										#{order.id}
+										{order.orderNumber}
 									</a>
 								</td>
 								<td class="px-4 py-3 whitespace-nowrap text-gray-600">{formatDate(order.createdAt)}</td>
@@ -249,29 +350,39 @@
 									<div class="font-medium text-gray-800">{order.customerName}</div>
 									<div class="text-xs text-gray-500">{order.customerPhone}</div>
 								</td>
-								<td class="px-4 py-3 whitespace-nowrap text-gray-600">{order.orderType === 'pickup' ? 'Pickup' : 'Dine-in'}{#if order.pickupTime} · {order.pickupTime}{/if}</td>
+								<td class="px-4 py-3 whitespace-nowrap text-gray-600">{order.orderType === 'pickup' ? m.order_pickup() : m.order_dine_in()}</td>
+								<td class="px-4 py-3 whitespace-nowrap text-gray-600">{order.pickupTime ?? '—'}</td>
 								<td class="px-4 py-3 whitespace-nowrap text-gray-600">{order.itemCount}</td>
 								<td class="px-4 py-3 whitespace-nowrap font-medium text-gray-800">{formatPrice(order.totalAmount)}</td>
 								<td class="px-4 py-3 whitespace-nowrap" onclick={(e) => e.stopPropagation()}>
-									<form method="POST" action="?/updateStatus" use:enhance>
-										<input type="hidden" name="orderId" value={order.id} />
-										<select
-											name="status"
-											class="rounded-lg border px-2 py-1 text-xs font-medium focus:ring-1 focus:ring-crimson {statusSelectClass(order.status)}"
-											value={order.status}
-											onchange={(e) => e.currentTarget.form?.requestSubmit()}
-										>
-											{#each statuses as s}
-												<option value={s} selected={s === order.status}>{s}</option>
-											{/each}
-										</select>
-									</form>
+									{#if isLocked(order.status)}
+										<span class="inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium {statusSelectClass(order.status)}">
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+												<path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+											</svg>
+											{order.status}
+										</span>
+									{:else}
+										<form method="POST" action="?/updateStatus" use:enhance>
+											<input type="hidden" name="orderId" value={order.id} />
+											<select
+												name="status"
+												class="rounded-lg border px-2 py-1 text-xs font-medium focus:ring-1 focus:ring-crimson {statusSelectClass(order.status)}"
+												value={order.status}
+												onchange={(e) => e.currentTarget.form?.requestSubmit()}
+											>
+												{#each statuses as s}
+													<option value={s} selected={s === order.status}>{s}</option>
+												{/each}
+											</select>
+										</form>
+									{/if}
 								</td>
 							</tr>
 
 							{#if expandedOrders.has(order.id)}
 								<tr class="{i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}">
-									<td colspan="8" class="px-4 pb-4 pt-0">
+									<td colspan="9" class="px-4 pb-4 pt-0">
 										<div class="ml-7 rounded-lg border border-gray-100 bg-cream/50 p-3">
 											{#if order.items.length === 0}
 												<p class="text-xs text-gray-400">No items</p>
@@ -292,7 +403,7 @@
 																	{#if item.extras}
 																		{@const extras = parseExtras(item.extras)}
 																		{#if extras.length > 0}
-																			<span class="ml-1 text-amber-600">({extras.join(', ')})</span>
+																			<span class="ml-1 text-amber-600">({extras.map((id) => extrasLabelMap.get(id) ?? id).join(', ')})</span>
 																		{/if}
 																	{/if}
 																</td>
@@ -308,14 +419,14 @@
 													</p>
 												{/if}
 
-												{#if order.status === 'paid' || order.status === 'pending'}
+												{#if order.status === 'paid' || order.status === 'pending' || order.status === 'cancellation_requested'}
 													<div class="mt-2 border-t border-gray-200 pt-2">
 														<button
 															type="button"
 															onclick={() => openRefundModal(order)}
 															class="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-50"
 														>
-															Refund &amp; Cancel
+															Refund
 														</button>
 													</div>
 												{/if}
@@ -330,9 +441,20 @@
 			</div>
 
 			<div class="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 sm:flex-row">
-				<p class="font-body text-sm text-gray-500">
-					Showing {showFrom}-{showTo} of {data.pagination.total.toLocaleString('de-DE')}
-				</p>
+				<div class="flex items-center gap-3">
+					<p class="font-body text-sm text-gray-500">
+						Showing {showFrom}-{showTo} of {data.pagination.total.toLocaleString('de-DE')}
+					</p>
+					<select
+						class="rounded-lg border-gray-300 py-1 font-body text-xs focus:border-crimson focus:ring-crimson"
+						value={data.filters.perPage}
+						onchange={(e) => updateParams({ perPage: e.currentTarget.value, page: '1' })}
+					>
+						{#each [25, 50, 100, 250] as size}
+							<option value={size}>{size} / page</option>
+						{/each}
+					</select>
+				</div>
 				<div class="flex items-center gap-2">
 					<button
 						onclick={() => updateParams({ page: String(data.pagination.page - 1) })}
@@ -377,7 +499,7 @@
 			</div>
 			<h3 class="mb-1 font-display text-lg font-bold text-gray-900">Confirm Refund</h3>
 			<p class="mb-4 font-body text-sm text-gray-600">
-				Refund order <span class="font-semibold">#{refundOrderId}</span> from
+				Refund order <span class="font-semibold">{refundOrderNumber}</span> from
 				<span class="font-semibold">{refundOrderName}</span> for
 				<span class="font-semibold text-crimson">{formatPrice(refundOrderTotal)}</span>?
 				This will refund the payment via Stripe and cannot be undone.
@@ -389,11 +511,15 @@
 				>
 					Cancel
 				</button>
-				<form method="POST" action="?/refund" use:enhance class="flex-1">
+				<form method="POST" action="?/refund" use:enhance={() => {
+					return async ({ update }) => {
+						await update();
+						closeRefundModal();
+					};
+				}} class="flex-1">
 					<input type="hidden" name="orderId" value={refundOrderId} />
 					<button
 						type="submit"
-						onclick={closeRefundModal}
 						class="w-full rounded-lg bg-red-600 px-3 py-2.5 font-body text-sm font-semibold text-white transition-colors hover:bg-red-700"
 					>
 						Refund

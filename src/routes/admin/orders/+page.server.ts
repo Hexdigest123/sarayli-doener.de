@@ -3,16 +3,32 @@ import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { orderItems, orders } from '$lib/server/db/schema';
 import { stripe } from '$lib/server/stripe';
-import { and, count, desc, eq, gte, inArray, lte, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, inArray, lte, type SQL } from 'drizzle-orm';
 
-const VALID_STATUSES = ['pending', 'paid', 'fulfilled', 'cancelled', 'refunded'] as const;
+const VALID_STATUSES = ['pending', 'paid', 'in_process', 'fulfilled', 'cancelled', 'refunded', 'cancellation_requested'] as const;
 
 export const load: PageServerLoad = async ({ url }) => {
 	const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
-	const perPage = 25;
+	const allowedPerPage = [25, 50, 100, 250];
+	const rawPerPage = Number(url.searchParams.get('perPage')) || 25;
+	const perPage = allowedPerPage.includes(rawPerPage) ? rawPerPage : 25;
 	const statusFilter = url.searchParams.get('status') || '';
 	const dateFrom = url.searchParams.get('dateFrom') || '';
 	const dateTo = url.searchParams.get('dateTo') || '';
+	const sortBy = url.searchParams.get('sort') || 'createdAt';
+	const sortDir = url.searchParams.get('dir') === 'asc' ? 'asc' : 'desc';
+
+	const sortColumns: Record<string, typeof orders.createdAt> = {
+		createdAt: orders.createdAt,
+		orderNumber: orders.orderNumber,
+		customerName: orders.customerName,
+		totalAmount: orders.totalAmount,
+		status: orders.status,
+		orderType: orders.orderType,
+		pickupTime: orders.pickupTime
+	};
+	const sortColumn = sortColumns[sortBy] ?? orders.createdAt;
+	const orderByClause = sortDir === 'asc' ? asc(sortColumn) : desc(sortColumn);
 
 	const conditions: SQL[] = [];
 	if (statusFilter) {
@@ -34,7 +50,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			.select()
 			.from(orders)
 			.where(whereClause)
-			.orderBy(desc(orders.createdAt))
+			.orderBy(orderByClause)
 			.limit(perPage)
 			.offset((page - 1) * perPage),
 		db.select({ count: count() }).from(orders).where(whereClause)
@@ -85,7 +101,10 @@ export const load: PageServerLoad = async ({ url }) => {
 		filters: {
 			status: statusFilter,
 			dateFrom,
-			dateTo
+			dateTo,
+			sort: sortBy,
+			dir: sortDir,
+			perPage
 		}
 	};
 };
@@ -103,6 +122,17 @@ export const actions: Actions = {
 
 		if (!VALID_STATUSES.includes(newStatus as (typeof VALID_STATUSES)[number])) {
 			return fail(400, { error: 'Invalid status' });
+		}
+
+		const [existing] = await db.select({ status: orders.status }).from(orders).where(eq(orders.id, orderId));
+		if (!existing) {
+			return fail(404, { error: 'Order not found' });
+		}
+		if (existing.status === 'refunded') {
+			return fail(400, { error: 'Refunded orders cannot be changed' });
+		}
+		if (newStatus === 'refunded') {
+			return fail(400, { error: 'Use the Refund action to refund orders through Stripe' });
 		}
 
 		const updates: Record<string, unknown> = { status: newStatus };
@@ -131,12 +161,8 @@ export const actions: Actions = {
 			return fail(404, { error: 'Order not found' });
 		}
 
-		if (order.status === 'fulfilled') {
-			return fail(400, { error: 'Cannot refund a fulfilled order' });
-		}
-
-		if (order.status === 'refunded') {
-			return fail(400, { error: 'Already refunded' });
+		if (!['paid', 'pending', 'cancellation_requested'].includes(order.status)) {
+			return fail(400, { error: 'Cannot refund an order with status: ' + order.status });
 		}
 
 		if (!order.stripePaymentIntentId) {
