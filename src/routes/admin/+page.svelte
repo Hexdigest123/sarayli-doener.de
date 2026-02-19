@@ -595,9 +595,20 @@
 			<div
 				class="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 sm:flex-row"
 			>
-				<p class="font-body text-sm text-gray-500">
-					Showing {showFrom}–{showTo} of {data.pagination.total.toLocaleString('de-DE')}
-				</p>
+				<div class="flex items-center gap-3">
+					<p class="font-body text-sm text-gray-500">
+						Showing {showFrom}–{showTo} of {data.pagination.total.toLocaleString('de-DE')}
+					</p>
+					<select
+						class="rounded-lg border-gray-300 py-1 font-body text-xs focus:border-crimson focus:ring-crimson"
+						value={data.filters.perPage}
+						onchange={(e) => updateParams({ perPage: e.currentTarget.value, page: '1' })}
+					>
+						{#each [25, 50, 100, 250] as size}
+							<option value={size}>{size} / page</option>
+						{/each}
+					</select>
+				</div>
 				<div class="flex items-center gap-2">
 					<button
 						onclick={() => updateParams({ page: String(data.pagination.page - 1) })}

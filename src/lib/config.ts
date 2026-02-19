@@ -36,8 +36,77 @@ export interface BusinessInfo {
 	tiktokHandle: string;
 }
 
-// Menu categories with all 33 items
+// Döner extras (free toppings for döner items)
+export interface DoenerExtra {
+	id: string;
+	label: string;
+}
+
+export const doenerExtras: DoenerExtra[] = [
+	{ id: 'salat', label: 'Salat' },
+	{ id: 'tomaten_gurken', label: 'Tomaten & Gurken' },
+	{ id: 'rotkraut', label: 'Rotkraut' },
+	{ id: 'sauerkraut', label: 'Sauerkraut' },
+	{ id: 'cocktailsosse', label: 'Cocktailsoße' },
+	{ id: 'tzatziki', label: 'Tzatziki' },
+	{ id: 'zwiebeln', label: 'Zwiebeln' },
+	{ id: 'schafskaese', label: 'Schafskäse' },
+	{ id: 'scharfe_sosse', label: 'Scharfe Soße' }
+];
+
+// Item IDs that support extras selection (Döner items + Menüs containing Döner)
+export const DOENER_ITEM_IDS = new Set([1, 2, 3, 4]);
+
+// Stripe Price IDs (test mode) — maps menu item ID to Stripe Price ID
+// These are pre-created products with German names in Stripe Dashboard
+export const stripePriceMap: Record<number, string> = {
+	1: 'price_1T2MkuDSZiPWUa6dJdlxJhrx',
+	2: 'price_1T2MkuDSZiPWUa6dGezRx42O',
+	3: 'price_1T2MkvDSZiPWUa6dNHddthiz',
+	4: 'price_1T2MkwDSZiPWUa6dM2uCie7n',
+	5: 'price_1T2MkwDSZiPWUa6dbbSzukuA',
+	6: 'price_1T2MkxDSZiPWUa6d9AHWCsdN',
+	7: 'price_1T2MkyDSZiPWUa6d2GYQVKGP',
+	8: 'price_1T2MkyDSZiPWUa6d8JURYj7a',
+	9: 'price_1T2MkzDSZiPWUa6d3RXA7qYx',
+	10: 'price_1T2MkzDSZiPWUa6ddZ2wap38',
+	11: 'price_1T2Ml0DSZiPWUa6dwwq8hB1g',
+	12: 'price_1T2Ml1DSZiPWUa6dmQxZLHFk',
+	13: 'price_1T2Ml1DSZiPWUa6dZuiiLqsr',
+	14: 'price_1T2Ml2DSZiPWUa6dykU2k6Fe',
+	15: 'price_1T2Ml3DSZiPWUa6dRsKFh3VI',
+	16: 'price_1T2Ml3DSZiPWUa6deKXKQjWv',
+	17: 'price_1T2Ml4DSZiPWUa6doCSmngj1',
+	18: 'price_1T2Ml5DSZiPWUa6dwS9ALXfq',
+	19: 'price_1T2Ml5DSZiPWUa6dQ3oU2OlK',
+	20: 'price_1T2Ml6DSZiPWUa6diqlxUOWQ',
+	21: 'price_1T2Ml6DSZiPWUa6doZRvAuSO',
+	22: 'price_1T2Ml7DSZiPWUa6d8cluWgcE',
+	23: 'price_1T2Ml7DSZiPWUa6d0s1yFjT7',
+	24: 'price_1T2Ml8DSZiPWUa6dK0ahK4El',
+	25: 'price_1T2Ml9DSZiPWUa6dvtXnVvmd',
+	26: 'price_1T2Ml9DSZiPWUa6dskMQhk9s',
+	27: 'price_1T2MlADSZiPWUa6dwshf6Ezc',
+	28: 'price_1T2MlBDSZiPWUa6dB9GUttRT',
+	29: 'price_1T2MlBDSZiPWUa6dnOhVLqc9',
+	30: 'price_1T2MlCDSZiPWUa6dhHzm30v6',
+	31: 'price_1T2MlCDSZiPWUa6du39lXRVY',
+	32: 'price_1T2MlDDSZiPWUa6dOxtHpgUF',
+	33: 'price_1T2MlEDSZiPWUa6dcerPGrQt',
+	34: 'price_1T2MktDSZiPWUa6d5N7swuhA',
+	35: 'price_1T2MktDSZiPWUa6d1b7PzyVI'
+};
+
+// Menu categories with all items
 export const menuCategories: MenuCategory[] = [
+	{
+		id: 'menues',
+		name: 'MENÜS',
+		items: [
+			{ id: 34, nameKey: 'menu_item_34_name', price: 22.0, descKey: 'menu_item_34_desc' },
+			{ id: 35, nameKey: 'menu_item_35_name', price: 16.0, descKey: 'menu_item_35_desc' }
+		]
+	},
 	{
 		id: 'doener',
 		name: 'DÖNER SPEZIALITÄTEN',
@@ -50,7 +119,7 @@ export const menuCategories: MenuCategory[] = [
 				image: '/images/kebab-small.webp'
 			},
 			{ id: 2, nameKey: 'menu_item_2_name', price: 12.0, descKey: 'menu_item_2_desc' },
-			{ id: 3, nameKey: 'menu_item_3_name', price: 6.0 },
+			{ id: 3, nameKey: 'menu_item_3_name', price: 6.0, descKey: 'menu_item_3_desc' },
 			{ id: 4, nameKey: 'menu_item_4_name', price: 9.0, descKey: 'menu_item_4_desc' },
 			{
 				id: 5,
