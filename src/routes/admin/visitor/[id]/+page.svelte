@@ -91,7 +91,7 @@
 				<h2 class="mb-4 font-display text-lg text-crimson">Activity Timeline</h2>
 				<div class="relative space-y-6 border-l-2 border-gray-100 pl-4">
 					{#each timeline as item}
-						<div class="relative">
+						<div class="relative min-w-0">
 							<div class="mb-1 flex items-center gap-2">
 								<span class="font-mono text-xs text-gray-400">{formatDate(item.time)}</span>
 								{#if item.type === 'pageview'}
@@ -114,23 +114,28 @@
 									</span>
 								{/if}
 							</div>
-							<div class="text-sm text-gray-700">
+							<div class="min-w-0 text-sm text-gray-700">
 								{#if item.type === 'pageview'}
-									<div class="font-medium">{item.landingPage}</div>
+									<div class="truncate font-medium" title={item.landingPage}>
+										{item.landingPage}
+									</div>
 									{#if item.utmSource}
-										<div class="mt-1 text-xs text-gray-500">
+										<div
+											class="mt-1 truncate text-xs text-gray-500"
+											title="Source: {item.utmSource} / {item.utmMedium}"
+										>
 											Source: {item.utmSource} / {item.utmMedium}
 										</div>
 									{/if}
 								{:else if item.type === 'scroll_depth'}
 									{@const meta = getMetadata(item)}
-									<div>
+									<div class="truncate" title="Reached {meta.threshold}% on {item.page}">
 										Reached {meta.threshold}% on {item.page}
 									</div>
 									<div class="text-xs text-gray-500">Max: {meta.maxPercent}%</div>
 								{:else if item.type === 'click'}
 									{@const meta = getMetadata(item)}
-									<div>
+									<div class="truncate" title="{meta.tag}: {meta.text}">
 										{meta.tag}: {meta.text}
 									</div>
 									{#if meta.href}
@@ -150,7 +155,14 @@
 					<h2 class="font-display text-lg text-crimson">Page Views</h2>
 				</div>
 				<div class="overflow-x-auto">
-					<table class="w-full text-left font-body text-sm">
+					<table class="w-full table-fixed text-left font-body text-sm">
+						<colgroup>
+							<col class="w-[160px]" />
+							<col />
+							<col class="w-[100px]" />
+							<col class="w-[100px]" />
+							<col class="w-[80px]" />
+						</colgroup>
 						<thead>
 							<tr class="border-b border-gray-100 bg-gray-50">
 								<th class="px-4 py-3 font-semibold text-gray-500">Time</th>
@@ -166,7 +178,9 @@
 									<td class="px-4 py-3 whitespace-nowrap text-gray-600">
 										{formatDate(view.createdAt)}
 									</td>
-									<td class="px-4 py-3 text-gray-800">{view.landingPage}</td>
+									<td class="truncate px-4 py-3 text-gray-800" title={view.landingPage}
+										>{view.landingPage}</td
+									>
 									<td class="px-4 py-3 text-gray-600">{view.utmSource || '—'}</td>
 									<td class="px-4 py-3 text-gray-600">{view.utmMedium || '—'}</td>
 									<td class="px-4 py-3 text-gray-600 uppercase">{view.locale || '—'}</td>
@@ -182,7 +196,13 @@
 					<h2 class="font-display text-lg text-crimson">Events</h2>
 				</div>
 				<div class="overflow-x-auto">
-					<table class="w-full text-left font-body text-sm">
+					<table class="w-full table-fixed text-left font-body text-sm">
+						<colgroup>
+							<col class="w-[160px]" />
+							<col class="w-[110px]" />
+							<col class="w-[180px]" />
+							<col />
+						</colgroup>
 						<thead>
 							<tr class="border-b border-gray-100 bg-gray-50">
 								<th class="px-4 py-3 font-semibold text-gray-500">Time</th>
@@ -208,17 +228,25 @@
 											{event.eventType}
 										</span>
 									</td>
-									<td class="px-4 py-3 text-gray-800">{event.page}</td>
+									<td class="truncate px-4 py-3 text-gray-800" title={event.page}>{event.page}</td>
 									<td class="px-4 py-3 text-gray-600">
 										{#if event.eventType === 'scroll_depth'}
-											Reached {meta.threshold}% (max {meta.maxPercent}%)
+											<span class="block truncate"
+												>Reached {meta.threshold}% (max {meta.maxPercent}%)</span
+											>
 										{:else if event.eventType === 'click'}
-											{meta.tag}: {meta.text}
+											<span class="block truncate" title="{meta.tag}: {meta.text}"
+												>{meta.tag}: {meta.text}</span
+											>
 											{#if meta.href}
-												<span class="ml-1 text-gray-400">({meta.href})</span>
+												<span class="ml-1 block truncate text-gray-400" title={String(meta.href)}
+													>({meta.href})</span
+												>
 											{/if}
 										{:else}
-											<pre class="text-xs">{JSON.stringify(meta)}</pre>
+											<pre class="truncate text-xs" title={JSON.stringify(meta)}>{JSON.stringify(
+													meta
+												)}</pre>
 										{/if}
 									</td>
 								</tr>
