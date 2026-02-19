@@ -1,6 +1,18 @@
 import { db } from '$lib/server/db';
 import { storeSettings } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { env } from '$env/dynamic/private';
+
+const REQUIRED_STRIPE_KEYS = [
+	'STRIPE_SECRET_KEY',
+	'STRIPE_PUBLISHABLE_KEY',
+	'STRIPE_WEBHOOK_SECRET'
+] as const;
+
+export function getStripeConfigStatus(): { configured: boolean; missingKeys: string[] } {
+	const missing = REQUIRED_STRIPE_KEYS.filter((key) => !env[key]);
+	return { configured: missing.length === 0, missingKeys: missing };
+}
 
 const SETTINGS_ROW_ID = 1;
 const OPEN_HOUR = 11;
@@ -27,6 +39,8 @@ export async function isStoreOpen(): Promise<boolean> {
 }
 
 export async function isShopEnabled(): Promise<boolean> {
+	const { configured } = getStripeConfigStatus();
+	if (!configured) return false;
 	const row = await getRow();
 	return row?.shopEnabled !== 0;
 }
@@ -35,12 +49,16 @@ export async function getStoreSettings() {
 	const row = await getRow();
 	const mode = row?.mode ?? 'auto';
 	const open = mode === 'manual' ? row?.isOpen === 1 : isWithinSchedule();
+	const stripe = getStripeConfigStatus();
 
 	return {
 		isOpen: open,
 		mode,
 		closedMessage: row?.closedMessage ?? null,
-		shopEnabled: row?.shopEnabled !== 0,
+		shopEnabled: stripe.configured && row?.shopEnabled !== 0,
+		shopEnabledByAdmin: row?.shopEnabled !== 0,
+		stripeConfigured: stripe.configured,
+		stripeMissingKeys: stripe.missingKeys,
 		schedule: { openHour: OPEN_HOUR, closeHour: CLOSE_HOUR }
 	};
 }

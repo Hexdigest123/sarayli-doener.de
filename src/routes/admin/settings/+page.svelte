@@ -71,12 +71,50 @@
 					{data.shopEnabled ? 'Web Shop Enabled' : 'Web Shop Disabled'}
 				</h2>
 				<p class="font-body text-sm text-gray-500">
-					{data.shopEnabled
-						? 'Customers can add items to cart and place orders online.'
-						: 'Online ordering is disabled. Menu is still visible.'}
+					{#if !data.stripeConfigured}
+						Stripe is not configured. Online ordering is unavailable.
+					{:else if data.shopEnabled}
+						Customers can add items to cart and place orders online.
+					{:else}
+						Online ordering is disabled. Menu is still visible.
+					{/if}
 				</p>
 			</div>
 		</div>
+
+		{#if !data.stripeConfigured}
+			<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+				<div class="flex items-start gap-2">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="mt-0.5 h-4 w-4 shrink-0 text-red-500"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+					<div>
+						<p class="font-body text-sm font-semibold text-red-700">
+							Missing environment variables
+						</p>
+						<p class="mt-1 font-body text-xs text-red-600">
+							The following Stripe keys are required for online ordering:
+						</p>
+						<ul class="mt-1.5 list-inside list-disc font-body text-xs text-red-600">
+							{#each data.stripeMissingKeys as key}
+								<li>
+									<code class="rounded bg-red-100 px-1 py-0.5 font-mono text-[11px]">{key}</code>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				</div>
+			</div>
+		{/if}
 
 		<div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
 			<p class="mb-3 font-body text-sm font-medium text-gray-700">Online Ordering</p>
@@ -84,9 +122,12 @@
 				<form method="POST" action="?/enableShop" use:enhance>
 					<button
 						type="submit"
-						class="w-full rounded-lg border px-4 py-2.5 font-body text-sm font-semibold transition-colors {data.shopEnabled
-							? 'border-emerald-600 bg-emerald-600 text-white'
-							: 'border-gray-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50'}"
+						disabled={!data.stripeConfigured}
+						class="w-full rounded-lg border px-4 py-2.5 font-body text-sm font-semibold transition-colors {!data.stripeConfigured
+							? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+							: data.shopEnabledByAdmin
+								? 'border-emerald-600 bg-emerald-600 text-white'
+								: 'border-gray-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50'}"
 					>
 						Enabled
 					</button>
@@ -94,15 +135,18 @@
 				<form method="POST" action="?/disableShop" use:enhance>
 					<button
 						type="submit"
-						class="w-full rounded-lg border px-4 py-2.5 font-body text-sm font-semibold transition-colors {!data.shopEnabled
-							? 'border-gray-600 bg-gray-600 text-white'
-							: 'border-gray-200 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'}"
+						disabled={!data.stripeConfigured}
+						class="w-full rounded-lg border px-4 py-2.5 font-body text-sm font-semibold transition-colors {!data.stripeConfigured
+							? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+							: !data.shopEnabledByAdmin
+								? 'border-gray-600 bg-gray-600 text-white'
+								: 'border-gray-200 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'}"
 					>
 						Disabled
 					</button>
 				</form>
 			</div>
-			{#if !data.shopEnabled}
+			{#if !data.shopEnabled && data.stripeConfigured}
 				<p class="mt-3 font-body text-xs text-gray-500">
 					Cart icon, add-to-cart buttons, and checkout are hidden from customers.
 				</p>

@@ -8,6 +8,9 @@ export const load: PageServerLoad = async () => {
 		mode: settings.mode,
 		closedMessage: settings.closedMessage,
 		shopEnabled: settings.shopEnabled,
+		shopEnabledByAdmin: settings.shopEnabledByAdmin,
+		stripeConfigured: settings.stripeConfigured,
+		stripeMissingKeys: settings.stripeMissingKeys,
 		schedule: settings.schedule
 	};
 };
