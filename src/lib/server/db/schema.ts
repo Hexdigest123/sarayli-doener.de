@@ -1,4 +1,4 @@
-import { index, jsonb, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, integer, jsonb, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const pageViews = pgTable('page_views', {
 	id: serial('id').primaryKey(),
@@ -36,3 +36,47 @@ export const visitorEvents = pgTable(
 
 export type VisitorEvent = typeof visitorEvents.$inferSelect;
 export type NewVisitorEvent = typeof visitorEvents.$inferInsert;
+
+export const orders = pgTable(
+	'orders',
+	{
+		id: serial('id').primaryKey(),
+		stripeSessionId: text('stripe_session_id').unique(),
+		stripePaymentIntentId: text('stripe_payment_intent_id'),
+		status: text('status').notNull().default('pending'),
+		orderType: text('order_type').notNull(),
+		customerName: text('customer_name').notNull(),
+		customerPhone: text('customer_phone').notNull(),
+		customerEmail: text('customer_email'),
+		pickupTime: text('pickup_time'),
+		totalAmount: integer('total_amount').notNull(),
+		currency: text('currency').notNull().default('eur'),
+		notes: text('notes'),
+		metadata: jsonb('metadata'),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+		paidAt: timestamp('paid_at', { withTimezone: true }),
+		fulfilledAt: timestamp('fulfilled_at', { withTimezone: true })
+	},
+	(table) => [
+		index('orders_status_idx').on(table.status),
+		index('orders_created_at_idx').on(table.createdAt),
+		index('orders_stripe_session_id_idx').on(table.stripeSessionId)
+	]
+);
+
+export const orderItems = pgTable('order_items', {
+	id: serial('id').primaryKey(),
+	orderId: integer('order_id')
+		.notNull()
+		.references(() => orders.id),
+	menuItemId: integer('menu_item_id').notNull(),
+	itemName: text('item_name').notNull(),
+	quantity: integer('quantity').notNull(),
+	unitPrice: integer('unit_price').notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
+export type OrderItem = typeof orderItems.$inferSelect;
+export type NewOrderItem = typeof orderItems.$inferInsert;
