@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
+	import * as m from '$lib/paraglide/messages';
 	import {
 		ArcElement,
 		BarController,
@@ -10,6 +11,7 @@
 		DoughnutController,
 		Legend,
 		LinearScale,
+		PieController,
 		Tooltip
 	} from 'chart.js';
 
@@ -22,7 +24,8 @@
 			Tooltip,
 			Legend,
 			ArcElement,
-			DoughnutController
+			DoughnutController,
+			PieController
 		);
 	}
 
@@ -89,18 +92,32 @@
 		return () => chart.destroy();
 	});
 
+	const allStatuses = [
+		{ key: 'pending', label: 'Pending', color: '#f59e0b' },
+		{ key: 'paid', label: 'Paid', color: '#2563eb' },
+		{ key: 'in_process', label: 'In Process', color: '#9333ea' },
+		{ key: 'fulfilled', label: 'Fulfilled', color: '#16a34a' },
+		{ key: 'cancelled', label: 'Cancelled', color: '#6b7280' },
+		{ key: 'refunded', label: 'Refunded', color: '#dc2626' },
+		{ key: 'cancellation_requested', label: 'Cancel Requested', color: '#ea580c' }
+	];
+
+	const statusCountMap = $derived(
+		new Map(data.statusCounts.map((s: { status: string; count: number }) => [s.status, s.count]))
+	);
+
 	$effect(() => {
-		if (!browser || !statusCanvas || data.statusCounts.length === 0) return;
+		if (!browser || !statusCanvas) return;
 
 		const chart = new Chart(statusCanvas, {
-			type: 'doughnut',
+			type: 'pie',
 			data: {
-				labels: data.statusCounts.map((status: { status: string }) => status.status),
+				labels: allStatuses.map((s) => s.label),
 				datasets: [
 					{
-						data: data.statusCounts.map((status: { count: number }) => status.count),
-						backgroundColor: CHART_PALETTE.slice(0, data.statusCounts.length),
-						hoverOffset: 6,
+						data: allStatuses.map((s) => statusCountMap.get(s.key) ?? 0),
+						backgroundColor: allStatuses.map((s) => s.color),
+						hoverOffset: 8,
 						borderWidth: 2,
 						borderColor: '#ffffff'
 					}
@@ -109,7 +126,6 @@
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
-				cutout: '60%',
 				plugins: {
 					legend: {
 						position: 'bottom',
@@ -118,7 +134,15 @@
 					tooltip: {
 						backgroundColor: '#1a1a1a',
 						titleFont: { family: 'DM Sans' },
-						bodyFont: { family: 'DM Sans' }
+						bodyFont: { family: 'DM Sans' },
+						callbacks: {
+							label: (context) => {
+								const total = (context.dataset.data as number[]).reduce((a, b) => a + b, 0);
+								const value = context.parsed;
+								const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+								return ` ${context.label}: ${value} (${pct}%)`;
+							}
+						}
 					}
 				}
 			}
@@ -134,7 +158,7 @@
 			type: 'doughnut',
 			data: {
 				labels: data.orderTypeDistribution.map((orderType: { type: string }) =>
-					orderType.type === 'pickup' ? 'Pickup' : 'Dine-in'
+					orderType.type === 'pickup' ? m.order_pickup() : m.order_dine_in()
 				),
 				datasets: [
 					{
@@ -169,11 +193,14 @@
 
 	const summaryCards = $derived([
 		{ label: 'Total Revenue', value: formatPrice(data.totalRevenue) },
+		{ label: 'Total Refunded', value: formatPrice(data.totalRefunded) },
+		{ label: 'Total Orders', value: data.totalOrders.toLocaleString('de-DE') },
 		{ label: 'Today Revenue', value: formatPrice(data.todayRevenue) },
 		{ label: 'This Week Revenue', value: formatPrice(data.weekRevenue) },
 		{ label: 'This Month Revenue', value: formatPrice(data.monthRevenue) },
-		{ label: 'Total Orders', value: data.totalOrders.toLocaleString('de-DE') },
-		{ label: 'Today Orders', value: data.todayOrders.toLocaleString('de-DE') }
+		{ label: 'Today Orders', value: data.todayOrders.toLocaleString('de-DE') },
+		{ label: 'This Week Orders', value: data.weekOrders.toLocaleString('de-DE') },
+		{ label: 'This Month Orders', value: data.monthOrders.toLocaleString('de-DE') }
 	]);
 </script>
 
@@ -226,9 +253,9 @@
 
 	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 		<div class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-			<h2 class="mb-4 font-display text-lg text-gray-800">Order Status Distribution</h2>
+			<h2 class="mb-4 font-display text-lg text-gray-800">All Order Statuses</h2>
 			<div class="h-72">
-				{#if browser && data.statusCounts.length > 0}
+				{#if browser}
 					<canvas bind:this={statusCanvas}></canvas>
 				{:else}
 					<div class="flex h-full items-center justify-center">
@@ -239,7 +266,7 @@
 		</div>
 
 		<div class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-			<h2 class="mb-4 font-display text-lg text-gray-800">Pickup vs Dine-in</h2>
+			<h2 class="mb-4 font-display text-lg text-gray-800">{m.order_pickup()} vs {m.order_dine_in()}</h2>
 			<div class="h-72">
 				{#if browser && data.orderTypeDistribution.length > 0}
 					<canvas bind:this={orderTypeCanvas}></canvas>

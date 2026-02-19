@@ -5,7 +5,9 @@ import { desc, sql, count, countDistinct, eq, gte, lte, and, type SQL } from 'dr
 
 export const load: PageServerLoad = async ({ url }) => {
 	const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
-	const perPage = Math.min(100, Math.max(10, Number(url.searchParams.get('perPage')) || 50));
+	const allowedPerPage = [25, 50, 100, 250];
+	const rawPerPage = Number(url.searchParams.get('perPage')) || 25;
+	const perPage = allowedPerPage.includes(rawPerPage) ? rawPerPage : 25;
 	const sortBy = url.searchParams.get('sortBy') || 'createdAt';
 	const sortDir = url.searchParams.get('sortDir') || 'desc';
 	const dateFrom = url.searchParams.get('dateFrom') || '';
@@ -158,6 +160,6 @@ export const load: PageServerLoad = async ({ url }) => {
 			total: totalResult[0]?.count ?? 0,
 			totalPages: Math.ceil((totalResult[0]?.count ?? 0) / perPage)
 		},
-		filters: { sortBy, sortDir, dateFrom, dateTo, source: sourceFilter }
+		filters: { sortBy, sortDir, dateFrom, dateTo, source: sourceFilter, perPage }
 	};
 };

@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { and, count, gte, inArray, sql } from 'drizzle-orm';
+import { and, count, eq, gte, inArray, sql } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { orders } from '$lib/server/db/schema';
 
@@ -17,11 +17,14 @@ export const load: PageServerLoad = async () => {
 		totalRevenue,
 		todayOrders,
 		todayRevenue,
+		weekOrders,
 		weekRevenue,
+		monthOrders,
 		monthRevenue,
 		statusCounts,
 		dailyRevenue,
-		orderTypeDistribution
+		orderTypeDistribution,
+		totalRefunded
 	] = await Promise.all([
 		db.select({ count: count() }).from(orders),
 		db
@@ -33,10 +36,12 @@ export const load: PageServerLoad = async () => {
 			.select({ total: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)` })
 			.from(orders)
 			.where(and(gte(orders.createdAt, todayStart), inArray(orders.status, revenueStatuses))),
+		db.select({ count: count() }).from(orders).where(gte(orders.createdAt, weekStart)),
 		db
 			.select({ total: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)` })
 			.from(orders)
 			.where(and(gte(orders.createdAt, weekStart), inArray(orders.status, revenueStatuses))),
+		db.select({ count: count() }).from(orders).where(gte(orders.createdAt, monthStart)),
 		db
 			.select({ total: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)` })
 			.from(orders)
@@ -56,7 +61,11 @@ export const load: PageServerLoad = async () => {
 			.select({ type: orders.orderType, count: count() })
 			.from(orders)
 			.where(inArray(orders.status, revenueStatuses))
-			.groupBy(orders.orderType)
+			.groupBy(orders.orderType),
+		db
+			.select({ total: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)` })
+			.from(orders)
+			.where(eq(orders.status, 'refunded'))
 	]);
 
 	return {
@@ -64,8 +73,11 @@ export const load: PageServerLoad = async () => {
 		totalRevenue: Number(totalRevenue[0]?.total ?? 0),
 		todayOrders: todayOrders[0]?.count ?? 0,
 		todayRevenue: Number(todayRevenue[0]?.total ?? 0),
+		weekOrders: weekOrders[0]?.count ?? 0,
 		weekRevenue: Number(weekRevenue[0]?.total ?? 0),
+		monthOrders: monthOrders[0]?.count ?? 0,
 		monthRevenue: Number(monthRevenue[0]?.total ?? 0),
+		totalRefunded: Number(totalRefunded[0]?.total ?? 0),
 		statusCounts: statusCounts.map((status) => ({ status: status.status, count: status.count })),
 		dailyRevenue: dailyRevenue.map((day) => ({
 			date: day.date,
