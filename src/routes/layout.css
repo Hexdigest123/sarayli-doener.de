@@ -13,6 +13,8 @@
 	--color-cream-dark: #f5ede0;
 	--font-display: 'Playfair Display', serif;
 	--font-body: 'DM Sans', sans-serif;
+	--breakpoint-3xl: 100rem;
+	--breakpoint-4xl: 160rem;
 }
 
 html {

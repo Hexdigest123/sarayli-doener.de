@@ -4,7 +4,7 @@
 
 <section
 	id="special-offers"
-	class="relative overflow-hidden bg-gradient-to-br from-crimson via-crimson-dark to-crimson py-16 md:py-24"
+	class="relative overflow-hidden bg-gradient-to-br from-crimson via-crimson-dark to-crimson py-16 md:py-24 3xl:py-32 4xl:py-48"
 >
 	<div class="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
 		<div
@@ -14,22 +14,22 @@
 	</div>
 
 	<div
-		class="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-gold/10"
+		class="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-gold/10 3xl:h-96 3xl:w-96 4xl:h-[32rem] 4xl:w-[32rem]"
 		aria-hidden="true"
 	></div>
 	<div
-		class="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-gold/5"
+		class="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-gold/5 3xl:h-72 3xl:w-72 4xl:h-96 4xl:w-96"
 		aria-hidden="true"
 	></div>
 
-	<div class="relative container mx-auto px-4">
+	<div class="relative container mx-auto px-4 3xl:max-w-[1600px] 4xl:max-w-[2400px]">
 		<div class="text-center">
 			<span
-				class="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs font-bold tracking-wide text-gold-light uppercase backdrop-blur-sm"
+				class="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs font-bold tracking-wide text-gold-light uppercase backdrop-blur-sm 3xl:gap-2 3xl:px-6 3xl:py-2 3xl:text-sm 4xl:gap-3 4xl:px-8 4xl:py-3 4xl:text-base"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
-					class="h-3.5 w-3.5"
+					class="h-3.5 w-3.5 3xl:h-4 3xl:w-4 4xl:h-5 4xl:w-5"
 					viewBox="0 0 24 24"
 					fill="currentColor"
 				>
@@ -39,48 +39,58 @@
 				</svg>
 				{m.offer_section_badge()}
 			</span>
-			<h2 class="mt-4 font-display text-3xl font-bold text-white md:text-4xl">
+			<h2
+				class="mt-4 font-display text-3xl font-bold text-white md:text-4xl 3xl:mt-6 3xl:text-5xl 4xl:mt-8 4xl:text-6xl"
+			>
 				{m.offer_section_title()}
 			</h2>
-			<div class="mx-auto mt-3 h-1 w-24 rounded-full bg-gold"></div>
-			<p class="mx-auto mt-4 max-w-lg font-body text-base text-white/70">
+			<div
+				class="mx-auto mt-3 h-1 w-24 rounded-full bg-gold 3xl:mt-4 3xl:h-1.5 3xl:w-32 4xl:mt-6 4xl:h-2 4xl:w-40"
+			></div>
+			<p
+				class="mx-auto mt-4 max-w-lg font-body text-base text-white/70 3xl:mt-6 3xl:max-w-xl 3xl:text-lg 4xl:mt-8 4xl:max-w-2xl 4xl:text-xl"
+			>
 				{m.offer_section_subtitle()}
 			</p>
 		</div>
 
-		<div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+		<div
+			class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 3xl:mt-14 3xl:gap-10 4xl:mt-20 4xl:gap-14"
+		>
 			<div
-				class="group relative overflow-hidden rounded-2xl border border-gold/20 bg-white/[0.07] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:shadow-xl hover:shadow-black/10 sm:p-8"
+				class="group relative overflow-hidden rounded-2xl border border-gold/20 bg-white/[0.07] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:shadow-xl hover:shadow-black/10 sm:p-8 3xl:rounded-3xl 3xl:p-10 4xl:p-14"
 			>
 				<div
-					class="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-gold/10 transition-transform duration-300 group-hover:scale-150"
+					class="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-gold/10 transition-transform duration-300 group-hover:scale-150 3xl:h-28 3xl:w-28 4xl:h-36 4xl:w-36"
 					aria-hidden="true"
 				></div>
 
-				<h3 class="font-display text-xl font-bold text-white sm:text-2xl">
+				<h3 class="font-display text-xl font-bold text-white sm:text-2xl 3xl:text-3xl 4xl:text-4xl">
 					{m.offer_section_menu1_name()}
 				</h3>
 
-				<div class="mt-6">
-					<div class="mb-4 flex items-center gap-3 opacity-80">
+				<div class="mt-6 3xl:mt-8 4xl:mt-10">
+					<div class="mb-4 flex items-center gap-3 opacity-80 3xl:mb-6 4xl:mb-8">
 						<div class="h-px flex-1 bg-gradient-to-r from-transparent to-gold/30"></div>
-						<p class="text-[10px] font-bold tracking-[0.2em] text-gold-light uppercase">
+						<p
+							class="text-[10px] font-bold tracking-[0.2em] text-gold-light uppercase 3xl:text-xs 4xl:text-sm"
+						>
 							{m.offer_section_includes()}
 						</p>
 						<div class="h-px flex-1 bg-gradient-to-l from-transparent to-gold/30"></div>
 					</div>
 
-					<div class="grid grid-cols-2 gap-3">
+					<div class="grid grid-cols-2 gap-3 3xl:gap-4 4xl:gap-6">
 						<!-- Soup -->
 						<div
-							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 3xl:gap-3 3xl:rounded-2xl 3xl:p-5 4xl:gap-4 4xl:p-7"
 						>
 							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light 3xl:h-14 3xl:w-14 4xl:h-18 4xl:w-18"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
+									class="h-5 w-5 3xl:h-7 3xl:w-7 4xl:h-9 4xl:w-9"
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"
@@ -95,21 +105,21 @@
 								</svg>
 							</div>
 							<span
-								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white 3xl:text-base 4xl:text-lg"
 								>{m.offer_item_soup()}</span
 							>
 						</div>
 
 						<!-- Main Dish (Dönerteller) -->
 						<div
-							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 3xl:gap-3 3xl:rounded-2xl 3xl:p-5 4xl:gap-4 4xl:p-7"
 						>
 							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light 3xl:h-14 3xl:w-14 4xl:h-18 4xl:w-18"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
+									class="h-5 w-5 3xl:h-7 3xl:w-7 4xl:h-9 4xl:w-9"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
@@ -123,21 +133,21 @@
 								</svg>
 							</div>
 							<span
-								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white 3xl:text-base 4xl:text-lg"
 								>{m.offer_item_doener_plate()}</span
 							>
 						</div>
 
 						<!-- Drink -->
 						<div
-							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 3xl:gap-3 3xl:rounded-2xl 3xl:p-5 4xl:gap-4 4xl:p-7"
 						>
 							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light 3xl:h-14 3xl:w-14 4xl:h-18 4xl:w-18"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
+									class="h-5 w-5 3xl:h-7 3xl:w-7 4xl:h-9 4xl:w-9"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
@@ -150,21 +160,21 @@
 								</svg>
 							</div>
 							<span
-								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white 3xl:text-base 4xl:text-lg"
 								>{m.offer_item_drink()}</span
 							>
 						</div>
 
 						<!-- Dessert -->
 						<div
-							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 3xl:gap-3 3xl:rounded-2xl 3xl:p-5 4xl:gap-4 4xl:p-7"
 						>
 							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light 3xl:h-14 3xl:w-14 4xl:h-18 4xl:w-18"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
+									class="h-5 w-5 3xl:h-7 3xl:w-7 4xl:h-9 4xl:w-9"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
@@ -176,50 +186,57 @@
 								</svg>
 							</div>
 							<span
-								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white 3xl:text-base 4xl:text-lg"
 								>{m.offer_item_baklava()}</span
 							>
 						</div>
 					</div>
 				</div>
 
-				<div class="mt-6 flex items-baseline gap-2 border-t border-white/10 pt-5">
-					<span class="font-display text-4xl font-bold text-gold">22,00</span>
-					<span class="font-display text-lg font-bold text-gold/70">€</span>
+				<div
+					class="mt-6 flex items-baseline gap-2 border-t border-white/10 pt-5 3xl:mt-8 3xl:gap-3 3xl:pt-7 4xl:mt-10 4xl:pt-9"
+				>
+					<span class="font-display text-4xl font-bold text-gold 3xl:text-5xl 4xl:text-6xl"
+						>22,00</span
+					>
+					<span class="font-display text-lg font-bold text-gold/70 3xl:text-xl 4xl:text-2xl">€</span
+					>
 				</div>
 			</div>
 
 			<div
-				class="group relative overflow-hidden rounded-2xl border border-gold/20 bg-white/[0.07] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:shadow-xl hover:shadow-black/10 sm:p-8"
+				class="group relative overflow-hidden rounded-2xl border border-gold/20 bg-white/[0.07] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:shadow-xl hover:shadow-black/10 sm:p-8 3xl:rounded-3xl 3xl:p-10 4xl:p-14"
 			>
 				<div
-					class="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-gold/10 transition-transform duration-300 group-hover:scale-150"
+					class="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-gold/10 transition-transform duration-300 group-hover:scale-150 3xl:h-28 3xl:w-28 4xl:h-36 4xl:w-36"
 					aria-hidden="true"
 				></div>
 
-				<h3 class="font-display text-xl font-bold text-white sm:text-2xl">
+				<h3 class="font-display text-xl font-bold text-white sm:text-2xl 3xl:text-3xl 4xl:text-4xl">
 					{m.offer_section_menu2_name()}
 				</h3>
 
-				<div class="mt-6">
-					<div class="mb-4 flex items-center gap-3 opacity-80">
+				<div class="mt-6 3xl:mt-8 4xl:mt-10">
+					<div class="mb-4 flex items-center gap-3 opacity-80 3xl:mb-6 4xl:mb-8">
 						<div class="h-px flex-1 bg-gradient-to-r from-transparent to-gold/30"></div>
-						<p class="text-[10px] font-bold tracking-[0.2em] text-gold-light uppercase">
+						<p
+							class="text-[10px] font-bold tracking-[0.2em] text-gold-light uppercase 3xl:text-xs 4xl:text-sm"
+						>
 							{m.offer_section_includes()}
 						</p>
 						<div class="h-px flex-1 bg-gradient-to-l from-transparent to-gold/30"></div>
 					</div>
 
-					<div class="grid grid-cols-2 gap-3">
+					<div class="grid grid-cols-2 gap-3 3xl:gap-4 4xl:gap-6">
 						<div
-							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 3xl:gap-3 3xl:rounded-2xl 3xl:p-5 4xl:gap-4 4xl:p-7"
 						>
 							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light 3xl:h-14 3xl:w-14 4xl:h-18 4xl:w-18"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
+									class="h-5 w-5 3xl:h-7 3xl:w-7 4xl:h-9 4xl:w-9"
 									fill="none"
 									viewBox="0 0 24 24"
 									stroke="currentColor"
@@ -234,20 +251,20 @@
 								</svg>
 							</div>
 							<span
-								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white 3xl:text-base 4xl:text-lg"
 								>{m.offer_item_soup()}</span
 							>
 						</div>
 
 						<div
-							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 3xl:gap-3 3xl:rounded-2xl 3xl:p-5 4xl:gap-4 4xl:p-7"
 						>
 							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light 3xl:h-14 3xl:w-14 4xl:h-18 4xl:w-18"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
+									class="h-5 w-5 3xl:h-7 3xl:w-7 4xl:h-9 4xl:w-9"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
@@ -261,20 +278,20 @@
 								</svg>
 							</div>
 							<span
-								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white 3xl:text-base 4xl:text-lg"
 								>{m.offer_item_doener()}</span
 							>
 						</div>
 
 						<div
-							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 3xl:gap-3 3xl:rounded-2xl 3xl:p-5 4xl:gap-4 4xl:p-7"
 						>
 							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light 3xl:h-14 3xl:w-14 4xl:h-18 4xl:w-18"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
+									class="h-5 w-5 3xl:h-7 3xl:w-7 4xl:h-9 4xl:w-9"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
@@ -287,20 +304,20 @@
 								</svg>
 							</div>
 							<span
-								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white 3xl:text-base 4xl:text-lg"
 								>{m.offer_item_drink()}</span
 							>
 						</div>
 
 						<div
-							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5"
+							class="group/item flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-black/20 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/30 hover:bg-gold/5 3xl:gap-3 3xl:rounded-2xl 3xl:p-5 4xl:gap-4 4xl:p-7"
 						>
 							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light"
+								class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gold/20 to-gold/5 text-gold shadow-inner shadow-gold/10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-gold-light 3xl:h-14 3xl:w-14 4xl:h-18 4xl:w-18"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
+									class="h-5 w-5 3xl:h-7 3xl:w-7 4xl:h-9 4xl:w-9"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
@@ -312,21 +329,28 @@
 								</svg>
 							</div>
 							<span
-								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white"
+								class="font-body text-sm font-medium text-white/90 transition-colors group-hover/item:text-white 3xl:text-base 4xl:text-lg"
 								>{m.offer_item_baklava()}</span
 							>
 						</div>
 					</div>
 				</div>
 
-				<div class="mt-6 flex items-baseline gap-2 border-t border-white/10 pt-5">
-					<span class="font-display text-4xl font-bold text-gold">16,00</span>
-					<span class="font-display text-lg font-bold text-gold/70">€</span>
+				<div
+					class="mt-6 flex items-baseline gap-2 border-t border-white/10 pt-5 3xl:mt-8 3xl:gap-3 3xl:pt-7 4xl:mt-10 4xl:pt-9"
+				>
+					<span class="font-display text-4xl font-bold text-gold 3xl:text-5xl 4xl:text-6xl"
+						>16,00</span
+					>
+					<span class="font-display text-lg font-bold text-gold/70 3xl:text-xl 4xl:text-2xl">€</span
+					>
 				</div>
 			</div>
 		</div>
 
-		<p class="mt-10 text-center font-display text-lg font-semibold text-white/60 italic">
+		<p
+			class="mt-10 text-center font-display text-lg font-semibold text-white/60 italic 3xl:mt-14 3xl:text-xl 4xl:mt-20 4xl:text-2xl"
+		>
 			{m.offer_section_cta()}
 		</p>
 	</div>
