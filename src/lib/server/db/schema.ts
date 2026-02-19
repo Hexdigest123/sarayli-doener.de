@@ -73,10 +73,19 @@ export const orderItems = pgTable('order_items', {
 	itemName: text('item_name').notNull(),
 	quantity: integer('quantity').notNull(),
 	unitPrice: integer('unit_price').notNull(),
+	extras: text('extras'),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const storeSettings = pgTable('store_settings', {
+	id: serial('id').primaryKey(),
+	isOpen: integer('is_open').notNull().default(1),
+	closedMessage: text('closed_message'),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
 
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type NewOrderItem = typeof orderItems.$inferInsert;
+export type StoreSettings = typeof storeSettings.$inferSelect;

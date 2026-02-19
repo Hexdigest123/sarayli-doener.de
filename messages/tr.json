@@ -285,5 +285,16 @@
 	"checkout_cancel_back": "Menüye Dön",
 	"order_pickup": "Gel Al",
 	"order_dine_in": "Burada Ye",
-	"nav_order": "Sipariş"
+	"nav_order": "Sipariş",
+	"cat_menues": "Menüler",
+	"menu_item_34_name": "Menü 1 – Döner Tabağı Menüsü",
+	"menu_item_34_desc": "Çorba + Döner Tabağı + İçecek + Baklava",
+	"menu_item_35_name": "Menü 2 – Döner Menüsü",
+	"menu_item_35_desc": "Çorba + Döner + İçecek + Baklava",
+	"extras_title": "Ekstra Seç",
+	"extras_confirm": "Sepete Ekle",
+	"extras_skip": "Ekstrasız Ekle",
+	"store_closed_title": "Siparişler şu anda alınmıyor",
+	"checkout_cancel_policy": "Hazırlık başlamadığı sürece siparişler iptal edilebilir. Hazırlık başladıktan sonra iptal mümkün değildir.",
+	"checkout_processing": "İşleniyor..."
 }

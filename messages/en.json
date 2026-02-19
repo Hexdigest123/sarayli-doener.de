@@ -285,5 +285,16 @@
 	"checkout_cancel_back": "Back to Menu",
 	"order_pickup": "Pickup",
 	"order_dine_in": "Dine In",
-	"nav_order": "Order"
+	"nav_order": "Order",
+	"cat_menues": "Menus",
+	"menu_item_34_name": "Menu 1 – Döner Plate Menu",
+	"menu_item_34_desc": "Soup + Döner Plate + Drink + Baklava",
+	"menu_item_35_name": "Menu 2 – Döner Menu",
+	"menu_item_35_desc": "Soup + Döner + Drink + Baklava",
+	"extras_title": "Select Extras",
+	"extras_confirm": "Add to Cart",
+	"extras_skip": "Add without Extras",
+	"store_closed_title": "Orders are currently not available",
+	"checkout_cancel_policy": "Orders can be cancelled as long as preparation has not started. After that, cancellation is no longer possible.",
+	"checkout_processing": "Processing..."
 }

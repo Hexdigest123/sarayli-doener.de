@@ -6,6 +6,7 @@ export interface CartItem {
 	price: number;
 	quantity: number;
 	sizeKey?: string;
+	extras?: string[];
 }
 
 const STORAGE_KEY = 'sarayli_cart';
@@ -31,6 +32,13 @@ function saveCart(items: CartItem[]): void {
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
+function extrasMatch(a?: string[], b?: string[]): boolean {
+	const sa = [...(a ?? [])].sort();
+	const sb = [...(b ?? [])].sort();
+	if (sa.length !== sb.length) return false;
+	return sa.every((v, i) => v === sb[i]);
+}
+
 let items = $state<CartItem[]>(loadCart());
 
 export const cart = {
@@ -48,13 +56,14 @@ export const cart = {
 	},
 
 	addItem(item: Omit<CartItem, 'quantity'>) {
-		const existing = items.find((current) => current.menuItemId === item.menuItemId);
+		const existingIndex = items.findIndex(
+			(current) =>
+				current.menuItemId === item.menuItemId && extrasMatch(current.extras, item.extras)
+		);
 
-		if (existing) {
-			items = items.map((current) =>
-				current.menuItemId === item.menuItemId
-					? { ...current, quantity: current.quantity + 1 }
-					: current
+		if (existingIndex >= 0) {
+			items = items.map((current, i) =>
+				i === existingIndex ? { ...current, quantity: current.quantity + 1 } : current
 			);
 		} else {
 			items = [...items, { ...item, quantity: 1 }];
@@ -63,18 +72,16 @@ export const cart = {
 		saveCart(items);
 	},
 
-	removeItem(menuItemId: number) {
-		items = items.filter((item) => item.menuItemId !== menuItemId);
+	removeItem(index: number) {
+		items = items.filter((_, i) => i !== index);
 		saveCart(items);
 	},
 
-	updateQuantity(menuItemId: number, quantity: number) {
+	updateQuantity(index: number, quantity: number) {
 		if (quantity <= 0) {
-			items = items.filter((item) => item.menuItemId !== menuItemId);
+			items = items.filter((_, i) => i !== index);
 		} else {
-			items = items.map((item) =>
-				item.menuItemId === menuItemId ? { ...item, quantity } : item
-			);
+			items = items.map((item, i) => (i === index ? { ...item, quantity } : item));
 		}
 
 		saveCart(items);

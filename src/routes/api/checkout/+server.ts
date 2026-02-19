@@ -3,12 +3,15 @@ import type { RequestHandler } from './$types';
 import { stripe } from '$lib/server/stripe';
 import { db } from '$lib/server/db';
 import { orders, orderItems } from '$lib/server/db/schema';
-import { menuCategories } from '$lib/config';
+import { menuCategories, doenerExtras, stripePriceMap } from '$lib/config';
+import { isStoreOpen } from '$lib/server/store-status';
 import { eq } from 'drizzle-orm';
+import deMessages from '../../../../messages/de.json';
 
 interface CheckoutItemInput {
 	menuItemId: number;
 	quantity: number;
+	extras?: string[];
 }
 
 interface CheckoutBody {
@@ -21,10 +24,19 @@ interface CheckoutBody {
 	notes?: string;
 }
 
-const menuItemMap = new Map<number, { price: number; nameKey: string }>();
+const de = deMessages as Record<string, string>;
+
+const extrasLabelMap = new Map(doenerExtras.map((e) => [e.id, e.label]));
+
+const menuItemMap = new Map<number, { price: number; nameKey: string; displayName: string; stripePriceId: string | undefined }>();
 for (const category of menuCategories) {
 	for (const item of category.items) {
-		menuItemMap.set(item.id, { price: item.price, nameKey: item.nameKey });
+		menuItemMap.set(item.id, {
+			price: item.price,
+			nameKey: item.nameKey,
+			displayName: de[item.nameKey] ?? item.nameKey,
+			stripePriceId: stripePriceMap[item.id]
+		});
 	}
 }
 
@@ -46,6 +58,10 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		notes
 	} = body as CheckoutBody;
 
+	if (!(await isStoreOpen())) {
+		throw error(503, 'Store is currently closed');
+	}
+
 	if (!Array.isArray(items) || items.length === 0 || !orderType || !customerName || !customerPhone) {
 		throw error(400, 'Missing required fields');
 	}
@@ -56,9 +72,11 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
 	const validatedItems: Array<{
 		menuItemId: number;
-		nameKey: string;
+		displayName: string;
 		price: number;
 		quantity: number;
+		extras: string[];
+		stripePriceId: string | undefined;
 	}> = [];
 	let totalCents = 0;
 
@@ -70,13 +88,16 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
 		const quantity = Math.max(1, Math.min(99, Math.floor(item.quantity)));
 		const priceCents = Math.round(menuItem.price * 100);
+		const extras = Array.isArray(item.extras) ? item.extras.filter((e): e is string => typeof e === 'string') : [];
 
 		totalCents += priceCents * quantity;
 		validatedItems.push({
 			menuItemId: item.menuItemId,
-			nameKey: menuItem.nameKey,
+			displayName: menuItem.displayName,
 			price: priceCents,
-			quantity
+			quantity,
+			extras,
+			stripePriceId: menuItem.stripePriceId
 		});
 	}
 
@@ -98,31 +119,52 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		validatedItems.map((item) => ({
 			orderId: createdOrder.id,
 			menuItemId: item.menuItemId,
-			itemName: item.nameKey,
+			itemName: item.displayName,
 			quantity: item.quantity,
-			unitPrice: item.price
+			unitPrice: item.price,
+			extras: item.extras.length > 0 ? JSON.stringify(item.extras) : null
 		}))
 	);
+
+	const extrasPerItem: Record<string, string[]> = {};
+	for (const item of validatedItems) {
+		if (item.extras.length > 0) {
+			const key = `item_${item.menuItemId}`;
+			extrasPerItem[key] = item.extras.map((e) => extrasLabelMap.get(e) ?? e);
+		}
+	}
 
 	const session = await stripe.checkout.sessions.create({
 		payment_method_types: ['card'],
 		mode: 'payment',
 		currency: 'eur',
-		line_items: validatedItems.map((item) => ({
-			price_data: {
-				currency: 'eur',
-				product_data: {
-					name: item.nameKey
+		line_items: validatedItems.map((item) => {
+			if (item.stripePriceId && item.extras.length === 0) {
+				return { price: item.stripePriceId, quantity: item.quantity };
+			}
+
+			return {
+				price_data: {
+					currency: 'eur',
+					product_data: {
+						name: item.displayName,
+						...(item.extras.length > 0
+							? { description: item.extras.map((e) => extrasLabelMap.get(e) ?? e).join(', ') }
+							: {})
+					},
+					unit_amount: item.price
 				},
-				unit_amount: item.price
-			},
-			quantity: item.quantity
-		})),
+				quantity: item.quantity
+			};
+		}),
 		metadata: {
 			order_id: String(createdOrder.id),
 			order_type: orderType,
 			customer_name: customerName,
-			customer_phone: customerPhone
+			customer_phone: customerPhone,
+			...(Object.keys(extrasPerItem).length > 0
+				? { extras: JSON.stringify(extrasPerItem) }
+				: {})
 		},
 		success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
 		cancel_url: `${url.origin}/checkout/cancel`

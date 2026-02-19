@@ -97,14 +97,22 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each data.items as item}
-								<tr class="border-b border-gray-50 last:border-0">
-									<td class="px-4 py-3 font-medium text-gray-800">{item.itemName}</td>
-									<td class="px-4 py-3 text-gray-600">{item.quantity}</td>
-									<td class="px-4 py-3 text-gray-600">{formatPrice(item.unitPrice)}</td>
-									<td class="px-4 py-3 font-medium text-gray-800">{formatPrice(item.unitPrice * item.quantity)}</td>
-								</tr>
-							{/each}
+						{#each data.items as item}
+							<tr class="border-b border-gray-50 last:border-0">
+								<td class="px-4 py-3">
+									<span class="font-medium text-gray-800">{item.itemName}</span>
+									{#if item.extras}
+										{@const parsedExtras = (() => { try { return JSON.parse(item.extras) as string[]; } catch { return []; } })()}
+										{#if parsedExtras.length > 0}
+											<p class="mt-0.5 text-xs text-amber-600">{parsedExtras.join(', ')}</p>
+										{/if}
+									{/if}
+								</td>
+								<td class="px-4 py-3 text-gray-600">{item.quantity}</td>
+								<td class="px-4 py-3 text-gray-600">{formatPrice(item.unitPrice)}</td>
+								<td class="px-4 py-3 font-medium text-gray-800">{formatPrice(item.unitPrice * item.quantity)}</td>
+							</tr>
+						{/each}
 						</tbody>
 					</table>
 				</div>
@@ -122,16 +130,21 @@
 			<div class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
 				<h2 class="mb-4 font-display text-lg text-crimson">Actions</h2>
 				<div class="space-y-3">
-					{#if data.order.status === 'paid' || data.order.status === 'pending'}
-						<form method="POST" action="?/fulfill" use:enhance>
-							<button
-								type="submit"
-								class="w-full rounded-lg border border-emerald-300 px-4 py-2 font-body text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50"
-							>
-								Mark as fulfilled
-							</button>
-						</form>
-					{/if}
+					<form method="POST" action="?/updateStatus" use:enhance>
+						<input type="hidden" name="orderId" value={data.order.id} />
+						<label for="orderStatus" class="mb-1.5 block font-body text-sm font-medium text-gray-600">Status</label>
+						<select
+							id="orderStatus"
+							name="status"
+							class="w-full rounded-lg border border-gray-300 px-3 py-2 font-body text-sm focus:border-crimson focus:ring-crimson"
+							value={data.order.status}
+							onchange={(e) => e.currentTarget.form?.requestSubmit()}
+						>
+							{#each ['pending', 'paid', 'fulfilled', 'cancelled', 'refunded'] as s}
+								<option value={s} selected={s === data.order.status}>{s}</option>
+							{/each}
+						</select>
+					</form>
 
 					{#if data.order.status === 'paid' && data.order.stripePaymentIntentId}
 						<form method="POST" action="?/refund" use:enhance>

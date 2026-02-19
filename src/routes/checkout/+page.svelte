@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
 	import { cart } from '$lib/stores/cart.svelte';
+	import { doenerExtras } from '$lib/config';
 
 	type OrderType = 'pickup' | 'dine_in';
 
@@ -28,6 +29,25 @@
 	let notes = $state('');
 	let isSubmitting = $state(false);
 	let submitError = $state('');
+	let storeClosed = $state(false);
+	let storeClosedMessage = $state('');
+
+	const extrasLabelMap = new Map(doenerExtras.map((e) => [e.id, e.label]));
+
+	$effect(() => {
+		fetch('/api/store-status')
+			.then((r) => r.json())
+			.then((data: { open: boolean; closedMessage: string | null }) => {
+				storeClosed = !data.open;
+				storeClosedMessage = data.closedMessage ?? '';
+			})
+			.catch(() => {});
+	});
+
+	function getExtrasLabel(extras?: string[]): string {
+		if (!extras || extras.length === 0) return '';
+		return extras.map((id) => extrasLabelMap.get(id) ?? id).join(', ');
+	}
 
 	async function handleCheckout(event: SubmitEvent) {
 		event.preventDefault();
@@ -73,7 +93,22 @@
 			{msg.checkout_title?.() ?? 'Checkout'}
 		</h1>
 
-		{#if cart.isEmpty}
+		{#if storeClosed}
+			<div class="mx-auto mb-6 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-6 text-center shadow-sm">
+				<p class="font-display text-lg font-bold text-red-700">
+					{msg.store_closed_title?.() ?? 'Bestellungen sind derzeit nicht möglich'}
+				</p>
+				{#if storeClosedMessage}
+					<p class="mt-2 font-body text-sm text-red-600">{storeClosedMessage}</p>
+				{/if}
+				<a
+					href="/"
+					class="mt-4 inline-flex rounded-lg bg-crimson px-5 py-2.5 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark"
+				>
+					{msg.checkout_back?.() ?? 'Zurück zur Speisekarte'}
+				</a>
+			</div>
+		{:else if cart.isEmpty}
 			<div class="mx-auto max-w-xl rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
 				<p class="font-body text-gray-700">{msg.cart_empty?.() ?? 'Your cart is empty'}</p>
 				<a
@@ -99,6 +134,9 @@
 									</p>
 									{#if item.sizeKey}
 										<p class="font-body text-xs text-gray-500">{msg[item.sizeKey]?.() ?? item.sizeKey}</p>
+									{/if}
+									{#if item.extras && item.extras.length > 0}
+										<p class="font-body text-xs text-gold">{getExtrasLabel(item.extras)}</p>
 									{/if}
 								</div>
 								<div class="text-right">
@@ -225,15 +263,19 @@
 						<p class="mb-3 rounded-lg bg-red-50 px-3 py-2 font-body text-sm text-red-700">{submitError}</p>
 					{/if}
 
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						class="inline-flex w-full items-center justify-center rounded-lg bg-crimson px-4 py-3 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark disabled:cursor-not-allowed disabled:opacity-70"
-					>
-						{isSubmitting
-							? msg.checkout_processing?.() ?? 'Processing...'
-							: msg.checkout_pay_now?.() ?? 'Pay now'}
-					</button>
+				<p class="mb-3 font-body text-xs text-gray-500">
+					{msg.checkout_cancel_policy?.() ?? 'Bestellungen können storniert werden, solange die Zubereitung noch nicht begonnen hat. Danach ist eine Stornierung nicht mehr möglich.'}
+				</p>
+
+				<button
+					type="submit"
+					disabled={isSubmitting || storeClosed}
+					class="inline-flex w-full items-center justify-center rounded-lg bg-crimson px-4 py-3 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark disabled:cursor-not-allowed disabled:opacity-70"
+				>
+					{isSubmitting
+						? msg.checkout_processing?.() ?? 'Processing...'
+						: msg.checkout_pay_now?.() ?? 'Pay now'}
+				</button>
 				</form>
 			</div>
 		{/if}

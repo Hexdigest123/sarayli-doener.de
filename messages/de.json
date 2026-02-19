@@ -285,5 +285,16 @@
 	"checkout_cancel_back": "Zurück zur Speisekarte",
 	"order_pickup": "Abholung",
 	"order_dine_in": "Vor Ort",
-	"nav_order": "Bestellen"
+	"nav_order": "Bestellen",
+	"cat_menues": "Menüs",
+	"menu_item_34_name": "Menü 1 – Döner Teller Menü",
+	"menu_item_34_desc": "Suppe + Döner Teller + Getränk + Baklava",
+	"menu_item_35_name": "Menü 2 – Döner Menü",
+	"menu_item_35_desc": "Suppe + Döner + Getränk + Baklava",
+	"extras_title": "Extras auswählen",
+	"extras_confirm": "In den Warenkorb",
+	"extras_skip": "Ohne Extras hinzufügen",
+	"store_closed_title": "Bestellungen sind derzeit nicht möglich",
+	"checkout_cancel_policy": "Bestellungen können storniert werden, solange die Zubereitung noch nicht begonnen hat. Danach ist eine Stornierung nicht mehr möglich.",
+	"checkout_processing": "Wird verarbeitet..."
 }

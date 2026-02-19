@@ -32,19 +32,33 @@ export const load: PageServerLoad = async ({ params }) => {
 	};
 };
 
+const VALID_STATUSES = ['pending', 'paid', 'fulfilled', 'cancelled', 'refunded'] as const;
+
 export const actions: Actions = {
-	fulfill: async ({ params }) => {
+	updateStatus: async ({ params, request }) => {
 		const orderId = Number.parseInt(params.id, 10);
 		if (Number.isNaN(orderId)) {
 			return fail(400, { error: 'Invalid order ID' });
 		}
 
-		await db
-			.update(orders)
-			.set({ status: 'fulfilled', fulfilledAt: new Date() })
-			.where(eq(orders.id, orderId));
+		const formData = await request.formData();
+		const newStatus = String(formData.get('status') || '');
 
-		return { success: true, action: 'fulfilled' };
+		if (!VALID_STATUSES.includes(newStatus as (typeof VALID_STATUSES)[number])) {
+			return fail(400, { error: 'Invalid status' });
+		}
+
+		const updates: Record<string, unknown> = { status: newStatus };
+		if (newStatus === 'fulfilled') {
+			updates.fulfilledAt = new Date();
+		}
+		if (newStatus === 'paid') {
+			updates.paidAt = new Date();
+		}
+
+		await db.update(orders).set(updates).where(eq(orders.id, orderId));
+
+		return { success: true, action: newStatus };
 	},
 	refund: async ({ params }) => {
 		const orderId = Number.parseInt(params.id, 10);

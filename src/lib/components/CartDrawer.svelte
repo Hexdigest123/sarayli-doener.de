@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
 	import { cart } from '$lib/stores/cart.svelte';
+	import { doenerExtras } from '$lib/config';
 
 	let { open, onclose }: { open: boolean; onclose: () => void } = $props();
 
@@ -9,6 +10,13 @@
 		if (typeof fn === 'function') {
 			msg[key] = fn as () => string;
 		}
+	}
+
+	const extrasLabelMap = new Map(doenerExtras.map((e) => [e.id, e.label]));
+
+	function getExtrasLabel(extras?: string[]): string {
+		if (!extras || extras.length === 0) return '';
+		return extras.map((id) => extrasLabelMap.get(id) ?? id).join(', ');
 	}
 
 	const formatPrice = (price: number) => `${price.toFixed(2).replace('.', ',')} €`;
@@ -60,69 +68,72 @@
 							</p>
 						</div>
 					{:else}
-						<div class="space-y-3">
-							{#each cart.items as item}
-								<div class="rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
-									<div class="flex items-start justify-between gap-3">
-										<div class="min-w-0">
-											<p class="font-body text-sm font-semibold text-gray-900">
-												{msg[item.nameKey]?.() ?? item.nameKey}
-											</p>
-											{#if item.sizeKey}
-												<p class="font-body text-xs text-gray-500">{msg[item.sizeKey]?.() ?? item.sizeKey}</p>
-											{/if}
-										</div>
-										<button
-											onclick={() => cart.removeItem(item.menuItemId, item.sizeKey)}
-											class="rounded-md p-1 text-gray-400 transition-colors hover:bg-cream-dark hover:text-crimson"
-											aria-label={msg.cart_remove?.() ?? 'Remove item'}
+					<div class="space-y-3">
+						{#each cart.items as item, i}
+							<div class="rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
+								<div class="flex items-start justify-between gap-3">
+									<div class="min-w-0">
+										<p class="font-body text-sm font-semibold text-gray-900">
+											{msg[item.nameKey]?.() ?? item.nameKey}
+										</p>
+										{#if item.sizeKey}
+											<p class="font-body text-xs text-gray-500">{msg[item.sizeKey]?.() ?? item.sizeKey}</p>
+										{/if}
+										{#if item.extras && item.extras.length > 0}
+											<p class="font-body text-xs text-gold">{getExtrasLabel(item.extras)}</p>
+										{/if}
+									</div>
+									<button
+										onclick={() => cart.removeItem(i)}
+										class="rounded-md p-1 text-gray-400 transition-colors hover:bg-cream-dark hover:text-crimson"
+										aria-label={msg.cart_remove?.() ?? 'Remove item'}
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											class="h-4 w-4"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke="currentColor"
 										>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												class="h-4 w-4"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="1.8"
-													d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-5-3h4a1 1 0 011 1v2H9V5a1 1 0 011-1z"
-												/>
-											</svg>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.8"
+												d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-5-3h4a1 1 0 011 1v2H9V5a1 1 0 011-1z"
+											/>
+										</svg>
+									</button>
+								</div>
+
+								<div class="mt-3 flex items-center justify-between">
+									<div class="flex items-center rounded-lg border border-gray-100 bg-cream-dark p-1">
+										<button
+											onclick={() => cart.updateQuantity(i, item.quantity - 1)}
+											class="flex h-7 w-7 items-center justify-center rounded-md text-lg leading-none text-gray-700 transition-colors hover:bg-white hover:text-crimson"
+											aria-label={msg.cart_decrease?.() ?? 'Decrease quantity'}
+										>
+											-
+										</button>
+										<span class="w-8 text-center font-body text-sm font-semibold text-gray-800">{item.quantity}</span>
+										<button
+											onclick={() => cart.updateQuantity(i, item.quantity + 1)}
+											class="flex h-7 w-7 items-center justify-center rounded-md text-lg leading-none text-gray-700 transition-colors hover:bg-white hover:text-crimson"
+											aria-label={msg.cart_increase?.() ?? 'Increase quantity'}
+										>
+											+
 										</button>
 									</div>
 
-									<div class="mt-3 flex items-center justify-between">
-										<div class="flex items-center rounded-lg border border-gray-100 bg-cream-dark p-1">
-											<button
-												onclick={() => cart.updateQuantity(item.menuItemId, item.quantity - 1, item.sizeKey)}
-												class="flex h-7 w-7 items-center justify-center rounded-md text-lg leading-none text-gray-700 transition-colors hover:bg-white hover:text-crimson"
-												aria-label={msg.cart_decrease?.() ?? 'Decrease quantity'}
-											>
-												-
-											</button>
-											<span class="w-8 text-center font-body text-sm font-semibold text-gray-800">{item.quantity}</span>
-											<button
-												onclick={() => cart.updateQuantity(item.menuItemId, item.quantity + 1, item.sizeKey)}
-												class="flex h-7 w-7 items-center justify-center rounded-md text-lg leading-none text-gray-700 transition-colors hover:bg-white hover:text-crimson"
-												aria-label={msg.cart_increase?.() ?? 'Increase quantity'}
-											>
-												+
-											</button>
-										</div>
-
-										<div class="text-right">
-											<p class="font-body text-xs text-gray-500">{formatPrice(item.price)}</p>
-											<p class="font-body text-sm font-bold text-crimson">
-												{formatPrice(item.price * item.quantity)}
-											</p>
-										</div>
+									<div class="text-right">
+										<p class="font-body text-xs text-gray-500">{formatPrice(item.price)}</p>
+										<p class="font-body text-sm font-bold text-crimson">
+											{formatPrice(item.price * item.quantity)}
+										</p>
 									</div>
 								</div>
-							{/each}
-						</div>
+							</div>
+						{/each}
+					</div>
 					{/if}
 				</div>
 
