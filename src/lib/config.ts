@@ -139,7 +139,25 @@ export const reviews: Review[] = [
 	{ name: 'Saliha', rating: 5, textKey: 'review_1_text' },
 	{ name: 'Betül Burulday', rating: 5, textKey: 'review_2_text' },
 	{ name: 'Elhame Kurteshi', rating: 5, textKey: 'review_3_text' },
-	{ name: 'Ammar', rating: 5, textKey: 'review_4_text' }
+	{ name: 'Ammar', rating: 5, textKey: 'review_4_text' },
+	{ name: 'Ela Özer', rating: 5, textKey: 'review_5_text' },
+	{ name: 'Hafize Gülsen', rating: 5, textKey: 'review_6_text' },
+	{ name: 'Gökhan', rating: 5, textKey: 'review_7_text' },
+	{ name: 'Dincer Bayramci', rating: 5, textKey: 'review_8_text' },
+	{ name: 'Sxrhvt', rating: 5, textKey: 'review_9_text' },
+	{ name: 'Murat Arslan', rating: 5, textKey: 'review_10_text' },
+	{ name: 'Mustafa Burulday', rating: 5, textKey: 'review_11_text' },
+	{ name: 'Ricco Simic', rating: 5, textKey: 'review_12_text' },
+	{ name: 'Mustafa Demirci', rating: 5, textKey: 'review_13_text' },
+	{ name: 'Bawer Amin', rating: 5, textKey: 'review_14_text' },
+	{ name: 'Muhammed Cavdarci', rating: 5, textKey: 'review_15_text' },
+	{ name: 'Ümmügülsüm Cevik', rating: 5, textKey: 'review_16_text' },
+	{ name: 'Munzer Sy', rating: 5, textKey: 'review_17_text' },
+	{ name: 'GÖKHAN Zidan', rating: 5, textKey: 'review_18_text' },
+	{ name: 'Sema Parmak', rating: 5, textKey: 'review_19_text' },
+	{ name: 'Gülay Kalbur', rating: 5, textKey: 'review_20_text' },
+	{ name: 'Pierre-Maurice Merckel', rating: 5, textKey: 'review_21_text' },
+	{ name: 'Sevval Parmak', rating: 5, textKey: 'review_22_text' }
 ];
 
 // Business information
@@ -151,7 +169,7 @@ export const businessInfo: BusinessInfo = {
 	phone: '0 20 43 / 376 40 90',
 	hours: 'Täglich 11:00 – 22:00',
 	googleRating: 4.9,
-	googleReviewCount: 58,
+	googleReviewCount: 62,
 	googleMapsUrl: 'https://maps.app.goo.gl/ykoztaz2A56ooWcP8',
 	instagramUrl: 'https://www.instagram.com/sarayli.doener',
 	instagramHandle: '@sarayli.doener',

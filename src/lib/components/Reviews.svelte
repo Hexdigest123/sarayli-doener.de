@@ -51,7 +51,7 @@
 		}
 	}
 
-	const displayReviews = reviews.slice(0, 5);
+	const displayReviews = reviews;
 
 	$effect(() => {
 		if (paused) return;
@@ -199,21 +199,48 @@
 				{/each}
 			</div>
 
-			<div class="mt-6 flex items-center justify-center">
-				{#each displayReviews as _, i}
-					<button
-						onclick={() => goTo(i)}
-						class="flex min-h-[44px] min-w-[44px] items-center justify-center focus:outline-none"
-						aria-label="Go to review {i + 1}"
-					>
-						<span
-							class="block h-2.5 rounded-full transition-all duration-300 {i === activeIndex
-								? 'w-8 bg-crimson'
-								: 'w-2.5 bg-gray-300 hover:bg-gray-400'}"
-						></span>
-					</button>
-				{/each}
-			</div>
+		<div class="mt-6 flex items-center justify-center gap-1">
+			<button
+				onclick={() => goTo((activeIndex - 1 + displayReviews.length) % displayReviews.length)}
+				class="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400 transition-colors hover:text-crimson focus:outline-none"
+				aria-label="Previous review"
+			>
+				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+				</svg>
+			</button>
+			{#each Array(Math.min(7, displayReviews.length)) as _, i}
+				{@const dotIndex = (() => {
+					const total = displayReviews.length;
+					const maxDots = Math.min(7, total);
+					const half = Math.floor(maxDots / 2);
+					let start = activeIndex - half;
+					if (start < 0) start = 0;
+					if (start + maxDots > total) start = total - maxDots;
+					return start + i;
+				})()}
+				<button
+					onclick={() => goTo(dotIndex)}
+					class="flex min-h-[44px] min-w-[32px] items-center justify-center focus:outline-none"
+					aria-label="Go to review {dotIndex + 1}"
+				>
+					<span
+						class="block h-2 rounded-full transition-all duration-300 {dotIndex === activeIndex
+							? 'w-6 bg-crimson'
+							: 'w-2 bg-gray-300 hover:bg-gray-400'}"
+					></span>
+				</button>
+			{/each}
+			<button
+				onclick={() => goTo((activeIndex + 1) % displayReviews.length)}
+				class="flex min-h-[44px] min-w-[44px] items-center justify-center text-gray-400 transition-colors hover:text-crimson focus:outline-none"
+				aria-label="Next review"
+			>
+				<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+				</svg>
+			</button>
+		</div>
 		</div>
 
 		<div class="mt-8 flex flex-col items-center gap-4">
