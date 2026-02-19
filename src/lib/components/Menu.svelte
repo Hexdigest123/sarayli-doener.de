@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
-	import { menuCategories } from '$lib/config';
+	import { menuCategories, type MenuItem } from '$lib/config';
+	import { cart } from '$lib/stores/cart.svelte';
 
 	let activeCategory = $state('doener');
 
@@ -26,6 +27,23 @@
 	};
 
 	let activeItems = $derived(menuCategories.find((c) => c.id === activeCategory)?.items ?? []);
+	let justAdded = $state<Record<number, boolean>>({});
+
+	function addToCart(item: MenuItem) {
+		cart.addItem({
+			menuItemId: item.id,
+			nameKey: item.nameKey,
+			price: item.price,
+			sizeKey: item.sizeKey
+		});
+
+		justAdded = { ...justAdded, [item.id]: true };
+		setTimeout(() => {
+			const nextState = { ...justAdded };
+			delete nextState[item.id];
+			justAdded = nextState;
+		}, 500);
+	}
 </script>
 
 <section id="menu" class="bg-white py-16 md:py-24">
@@ -66,9 +84,19 @@
 							<span class="mr-2 font-bold text-gold">{String(item.id).padStart(2, '0')}</span>
 							<span class="font-medium text-gray-900">{msg[item.nameKey]?.() ?? item.nameKey}</span>
 						</div>
-						<span class="font-bold whitespace-nowrap text-crimson">
-							{item.price.toFixed(2).replace('.', ',')} €
-						</span>
+						<div class="flex items-center gap-2 pl-3">
+							<span class="font-bold whitespace-nowrap text-crimson">
+								{item.price.toFixed(2).replace('.', ',')} €
+							</span>
+							<button
+								onclick={() => addToCart(item)}
+								class={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold text-white transition-colors ${justAdded[item.id] ? 'bg-gold' : 'bg-crimson hover:bg-crimson-dark active:bg-gold'}`}
+								title={m.cart_add()}
+								aria-label={m.cart_add()}
+							>
+								+
+							</button>
+						</div>
 					</div>
 					{#if item.descKey || item.sizeKey}
 						<p class="mt-1 pl-8 text-sm text-gray-500">
