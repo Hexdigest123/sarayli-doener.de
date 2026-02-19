@@ -124,10 +124,17 @@
 			<p class="leading-relaxed">{m.impressum_liability_links_body_2()}</p>
 		</section>
 
-		<section>
+		<section class="mb-10">
 			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_copyright_title()}</h2>
 			<p class="mb-3 leading-relaxed">{m.impressum_copyright_body_1()}</p>
 			<p class="leading-relaxed">{m.impressum_copyright_body_2()}</p>
+		</section>
+
+		<section>
+			<h2 class="mb-4 font-display text-2xl text-crimson">{m.impressum_technical_title()}</h2>
+			<p class="leading-relaxed">
+				{@html m.impressum_technical_body().replace(/\n/g, '<br />')}
+			</p>
 		</section>
 	</article>
 </div>
