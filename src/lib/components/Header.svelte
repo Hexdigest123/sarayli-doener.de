@@ -45,14 +45,16 @@
 		return loc.toUpperCase();
 	}
 
-	const navLinks = [
-		{ href: '/#menu', label: m.nav_menu },
-		{ href: '/#gallery', label: m.nav_gallery },
-		{ href: '/#reviews', label: m.nav_reviews },
-		{ href: '/#video', label: m.nav_video },
-		{ href: '/#contact', label: m.nav_contact },
-		{ href: '/order/status', label: m.nav_order_status }
+	const allNavLinks = [
+		{ href: '/#menu', label: m.nav_menu, shopOnly: false },
+		{ href: '/#gallery', label: m.nav_gallery, shopOnly: false },
+		{ href: '/#reviews', label: m.nav_reviews, shopOnly: false },
+		{ href: '/#video', label: m.nav_video, shopOnly: false },
+		{ href: '/#contact', label: m.nav_contact, shopOnly: false },
+		{ href: '/order/status', label: m.nav_order_status, shopOnly: true }
 	];
+
+	let navLinks = $derived(allNavLinks.filter((link) => !link.shopOnly || shopEnabled));
 </script>
 
 <header
