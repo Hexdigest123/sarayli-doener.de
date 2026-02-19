@@ -1,11 +1,23 @@
 import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
 
-if (!env.STRIPE_SECRET_KEY) {
-	throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe {
+	if (!_stripe) {
+		if (!env.STRIPE_SECRET_KEY) {
+			throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+		}
+		_stripe = new Stripe(env.STRIPE_SECRET_KEY);
+	}
+	return _stripe;
 }
 
-export const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+export const stripe = new Proxy({} as Stripe, {
+	get(_, prop) {
+		return (getStripe() as any)[prop];
+	}
+});
 
 export function getStripePublishableKey(): string {
 	const key = env.STRIPE_PUBLISHABLE_KEY;
