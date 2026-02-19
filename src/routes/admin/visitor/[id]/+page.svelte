@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { statusLabel } from '$lib/status-labels';
 
 	let { data }: { data: PageData } = $props();
 
@@ -12,14 +13,22 @@
 	let eventsPerPage = $state(25);
 	let eventsPage = $state(1);
 
-	const pagedViews = $derived(data.pageViews.slice((viewsPage - 1) * viewsPerPage, viewsPage * viewsPerPage));
+	const pagedViews = $derived(
+		data.pageViews.slice((viewsPage - 1) * viewsPerPage, viewsPage * viewsPerPage)
+	);
 	const viewsTotalPages = $derived(Math.ceil(data.pageViews.length / viewsPerPage) || 1);
-	const viewsShowFrom = $derived(data.pageViews.length === 0 ? 0 : (viewsPage - 1) * viewsPerPage + 1);
+	const viewsShowFrom = $derived(
+		data.pageViews.length === 0 ? 0 : (viewsPage - 1) * viewsPerPage + 1
+	);
 	const viewsShowTo = $derived(Math.min(viewsPage * viewsPerPage, data.pageViews.length));
 
-	const pagedEvents = $derived(data.events.slice((eventsPage - 1) * eventsPerPage, eventsPage * eventsPerPage));
+	const pagedEvents = $derived(
+		data.events.slice((eventsPage - 1) * eventsPerPage, eventsPage * eventsPerPage)
+	);
 	const eventsTotalPages = $derived(Math.ceil(data.events.length / eventsPerPage) || 1);
-	const eventsShowFrom = $derived(data.events.length === 0 ? 0 : (eventsPage - 1) * eventsPerPage + 1);
+	const eventsShowFrom = $derived(
+		data.events.length === 0 ? 0 : (eventsPage - 1) * eventsPerPage + 1
+	);
 	const eventsShowTo = $derived(Math.min(eventsPage * eventsPerPage, data.events.length));
 
 	function formatDate(iso: string): string {
@@ -51,9 +60,13 @@
 		].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
 	);
 
-	const pagedTimeline = $derived(timeline.slice((timelinePage - 1) * timelinePerPage, timelinePage * timelinePerPage));
+	const pagedTimeline = $derived(
+		timeline.slice((timelinePage - 1) * timelinePerPage, timelinePage * timelinePerPage)
+	);
 	const timelineTotalPages = $derived(Math.ceil(timeline.length / timelinePerPage) || 1);
-	const timelineShowFrom = $derived(timeline.length === 0 ? 0 : (timelinePage - 1) * timelinePerPage + 1);
+	const timelineShowFrom = $derived(
+		timeline.length === 0 ? 0 : (timelinePage - 1) * timelinePerPage + 1
+	);
 	const timelineShowTo = $derived(Math.min(timelinePage * timelinePerPage, timeline.length));
 
 	function formatPrice(amountCents: number): string {
@@ -62,20 +75,32 @@
 
 	function statusClass(status: string): string {
 		switch (status) {
-			case 'pending': return 'bg-amber-100 text-amber-700';
-			case 'paid': return 'bg-blue-100 text-blue-700';
-			case 'in_process': return 'bg-purple-100 text-purple-700';
-			case 'fulfilled': return 'bg-emerald-100 text-emerald-700';
-			case 'cancelled': return 'bg-gray-100 text-gray-700';
-			case 'refunded': return 'bg-red-100 text-red-700';
-			case 'cancellation_requested': return 'bg-orange-100 text-orange-700';
-			default: return 'bg-gray-100 text-gray-700';
+			case 'pending':
+				return 'bg-amber-100 text-amber-700';
+			case 'paid':
+				return 'bg-blue-100 text-blue-700';
+			case 'in_process':
+				return 'bg-purple-100 text-purple-700';
+			case 'fulfilled':
+				return 'bg-emerald-100 text-emerald-700';
+			case 'cancelled':
+				return 'bg-gray-100 text-gray-700';
+			case 'refunded':
+				return 'bg-red-100 text-red-700';
+			case 'cancellation_requested':
+				return 'bg-orange-100 text-orange-700';
+			default:
+				return 'bg-gray-100 text-gray-700';
 		}
 	}
 
 	function parseExtras(extrasJson: string | null): string[] {
 		if (!extrasJson) return [];
-		try { return JSON.parse(extrasJson) as string[]; } catch { return []; }
+		try {
+			return JSON.parse(extrasJson) as string[];
+		} catch {
+			return [];
+		}
 	}
 
 	const summaryCards = $derived([
@@ -202,7 +227,9 @@
 							<select
 								class="rounded-lg border-gray-300 py-1 font-body text-xs focus:border-crimson focus:ring-crimson"
 								bind:value={timelinePerPage}
-								onchange={() => { timelinePage = 1; }}
+								onchange={() => {
+									timelinePage = 1;
+								}}
 							>
 								{#each PER_PAGE_OPTIONS as size}
 									<option value={size}>{size} / page</option>
@@ -211,16 +238,24 @@
 						</div>
 						<div class="flex items-center gap-2">
 							<button
-								onclick={() => { timelinePage = Math.max(1, timelinePage - 1); }}
+								onclick={() => {
+									timelinePage = Math.max(1, timelinePage - 1);
+								}}
 								disabled={timelinePage <= 1}
 								class="rounded-lg border border-gray-300 px-2.5 py-1 font-body text-xs text-gray-600 transition-colors hover:border-crimson hover:text-crimson disabled:cursor-not-allowed disabled:opacity-40"
-							>Prev</button>
-							<span class="font-body text-xs text-gray-500">{timelinePage} / {timelineTotalPages}</span>
+								>Prev</button
+							>
+							<span class="font-body text-xs text-gray-500"
+								>{timelinePage} / {timelineTotalPages}</span
+							>
 							<button
-								onclick={() => { timelinePage = Math.min(timelineTotalPages, timelinePage + 1); }}
+								onclick={() => {
+									timelinePage = Math.min(timelineTotalPages, timelinePage + 1);
+								}}
 								disabled={timelinePage >= timelineTotalPages}
 								class="rounded-lg border border-gray-300 px-2.5 py-1 font-body text-xs text-gray-600 transition-colors hover:border-crimson hover:text-crimson disabled:cursor-not-allowed disabled:opacity-40"
-							>Next</button>
+								>Next</button
+							>
 						</div>
 					</div>
 				{/if}
@@ -268,15 +303,21 @@
 					</table>
 				</div>
 				{#if data.pageViews.length > viewsPerPage}
-					<div class="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 sm:flex-row">
+					<div
+						class="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 sm:flex-row"
+					>
 						<div class="flex items-center gap-3">
 							<p class="font-body text-sm text-gray-500">
-								Showing {viewsShowFrom}–{viewsShowTo} of {data.pageViews.length.toLocaleString('de-DE')}
+								Showing {viewsShowFrom}–{viewsShowTo} of {data.pageViews.length.toLocaleString(
+									'de-DE'
+								)}
 							</p>
 							<select
 								class="rounded-lg border-gray-300 py-1 font-body text-xs focus:border-crimson focus:ring-crimson"
 								bind:value={viewsPerPage}
-								onchange={() => { viewsPage = 1; }}
+								onchange={() => {
+									viewsPage = 1;
+								}}
 							>
 								{#each PER_PAGE_OPTIONS as size}
 									<option value={size}>{size} / page</option>
@@ -285,16 +326,24 @@
 						</div>
 						<div class="flex items-center gap-2">
 							<button
-								onclick={() => { viewsPage = Math.max(1, viewsPage - 1); }}
+								onclick={() => {
+									viewsPage = Math.max(1, viewsPage - 1);
+								}}
 								disabled={viewsPage <= 1}
 								class="rounded-lg border border-gray-300 px-3 py-1.5 font-body text-sm text-gray-600 transition-colors hover:border-crimson hover:text-crimson disabled:cursor-not-allowed disabled:opacity-40"
-							>Previous</button>
-							<span class="font-body text-sm text-gray-500">Page {viewsPage} of {viewsTotalPages}</span>
+								>Previous</button
+							>
+							<span class="font-body text-sm text-gray-500"
+								>Page {viewsPage} of {viewsTotalPages}</span
+							>
 							<button
-								onclick={() => { viewsPage = Math.min(viewsTotalPages, viewsPage + 1); }}
+								onclick={() => {
+									viewsPage = Math.min(viewsTotalPages, viewsPage + 1);
+								}}
 								disabled={viewsPage >= viewsTotalPages}
 								class="rounded-lg border border-gray-300 px-3 py-1.5 font-body text-sm text-gray-600 transition-colors hover:border-crimson hover:text-crimson disabled:cursor-not-allowed disabled:opacity-40"
-							>Next</button>
+								>Next</button
+							>
 						</div>
 					</div>
 				{/if}
@@ -364,15 +413,21 @@
 					</table>
 				</div>
 				{#if data.events.length > eventsPerPage}
-					<div class="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 sm:flex-row">
+					<div
+						class="flex flex-col items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 sm:flex-row"
+					>
 						<div class="flex items-center gap-3">
 							<p class="font-body text-sm text-gray-500">
-								Showing {eventsShowFrom}–{eventsShowTo} of {data.events.length.toLocaleString('de-DE')}
+								Showing {eventsShowFrom}–{eventsShowTo} of {data.events.length.toLocaleString(
+									'de-DE'
+								)}
 							</p>
 							<select
 								class="rounded-lg border-gray-300 py-1 font-body text-xs focus:border-crimson focus:ring-crimson"
 								bind:value={eventsPerPage}
-								onchange={() => { eventsPage = 1; }}
+								onchange={() => {
+									eventsPage = 1;
+								}}
 							>
 								{#each PER_PAGE_OPTIONS as size}
 									<option value={size}>{size} / page</option>
@@ -381,16 +436,24 @@
 						</div>
 						<div class="flex items-center gap-2">
 							<button
-								onclick={() => { eventsPage = Math.max(1, eventsPage - 1); }}
+								onclick={() => {
+									eventsPage = Math.max(1, eventsPage - 1);
+								}}
 								disabled={eventsPage <= 1}
 								class="rounded-lg border border-gray-300 px-3 py-1.5 font-body text-sm text-gray-600 transition-colors hover:border-crimson hover:text-crimson disabled:cursor-not-allowed disabled:opacity-40"
-							>Previous</button>
-							<span class="font-body text-sm text-gray-500">Page {eventsPage} of {eventsTotalPages}</span>
+								>Previous</button
+							>
+							<span class="font-body text-sm text-gray-500"
+								>Page {eventsPage} of {eventsTotalPages}</span
+							>
 							<button
-								onclick={() => { eventsPage = Math.min(eventsTotalPages, eventsPage + 1); }}
+								onclick={() => {
+									eventsPage = Math.min(eventsTotalPages, eventsPage + 1);
+								}}
 								disabled={eventsPage >= eventsTotalPages}
 								class="rounded-lg border border-gray-300 px-3 py-1.5 font-body text-sm text-gray-600 transition-colors hover:border-crimson hover:text-crimson disabled:cursor-not-allowed disabled:opacity-40"
-							>Next</button>
+								>Next</button
+							>
 						</div>
 					</div>
 				{/if}
@@ -405,30 +468,57 @@
 						<table class="w-full text-left font-body text-sm">
 							<thead>
 								<tr class="border-b border-gray-100 bg-gray-50">
-									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Order</th>
-									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Time</th>
-									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Customer</th>
-									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Type</th>
-									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Items</th>
-									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Total</th>
-									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Status</th>
+									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase"
+										>Order</th
+									>
+									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase"
+										>Time</th
+									>
+									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase"
+										>Customer</th
+									>
+									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase"
+										>Type</th
+									>
+									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase"
+										>Items</th
+									>
+									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase"
+										>Total</th
+									>
+									<th class="px-4 py-3 text-xs font-semibold tracking-wider text-gray-500 uppercase"
+										>Status</th
+									>
 								</tr>
 							</thead>
 							<tbody>
 								{#each data.orders as order, i}
-									<tr class="border-b border-gray-50 last:border-0 {i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-cream transition-colors">
+									<tr
+										class="border-b border-gray-50 last:border-0 {i % 2 === 0
+											? 'bg-white'
+											: 'bg-gray-50/50'} transition-colors hover:bg-cream"
+									>
 										<td class="px-4 py-3 whitespace-nowrap">
-											<a href="/admin/orders/{order.id}" class="font-medium text-crimson hover:underline">
+											<a
+												href="/admin/orders/{order.id}"
+												class="font-medium text-crimson hover:underline"
+											>
 												{order.orderNumber}
 											</a>
 										</td>
-										<td class="px-4 py-3 whitespace-nowrap text-gray-600">{formatDate(order.createdAt)}</td>
+										<td class="px-4 py-3 whitespace-nowrap text-gray-600"
+											>{formatDate(order.createdAt)}</td
+										>
 										<td class="px-4 py-3 text-gray-800">{order.customerName}</td>
-										<td class="px-4 py-3 whitespace-nowrap text-gray-600">{order.orderType === 'pickup' ? 'Pickup' : 'Dine-in'}</td>
+										<td class="px-4 py-3 whitespace-nowrap text-gray-600"
+											>{order.orderType === 'pickup' ? 'Pickup' : 'Dine-in'}</td
+										>
 										<td class="px-4 py-3">
 											{#each order.items as item}
 												<div class="text-xs">
-													<span class="font-medium text-gray-800">{item.quantity}x {item.itemName}</span>
+													<span class="font-medium text-gray-800"
+														>{item.quantity}x {item.itemName}</span
+													>
 													{#if item.extras}
 														{@const extras = parseExtras(item.extras)}
 														{#if extras.length > 0}
@@ -438,9 +528,15 @@
 												</div>
 											{/each}
 										</td>
-										<td class="px-4 py-3 whitespace-nowrap font-medium text-gray-800">{formatPrice(order.totalAmount)}</td>
+										<td class="px-4 py-3 font-medium whitespace-nowrap text-gray-800"
+											>{formatPrice(order.totalAmount)}</td
+										>
 										<td class="px-4 py-3 whitespace-nowrap">
-											<span class="rounded-full px-2 py-0.5 text-xs font-medium {statusClass(order.status)}">{order.status}</span>
+											<span
+												class="rounded-full px-2 py-0.5 text-xs font-medium {statusClass(
+													order.status
+												)}">{statusLabel(order.status)}</span
+											>
 										</td>
 									</tr>
 								{/each}

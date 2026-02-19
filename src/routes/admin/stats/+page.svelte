@@ -2,6 +2,7 @@
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import * as m from '$lib/paraglide/messages';
+	import { statusLabel } from '$lib/status-labels';
 	import {
 		ArcElement,
 		BarController,
@@ -93,13 +94,17 @@
 	});
 
 	const allStatuses = [
-		{ key: 'pending', label: 'Pending', color: '#f59e0b' },
-		{ key: 'paid', label: 'Paid', color: '#2563eb' },
-		{ key: 'in_process', label: 'In Process', color: '#9333ea' },
-		{ key: 'fulfilled', label: 'Fulfilled', color: '#16a34a' },
-		{ key: 'cancelled', label: 'Cancelled', color: '#6b7280' },
-		{ key: 'refunded', label: 'Refunded', color: '#dc2626' },
-		{ key: 'cancellation_requested', label: 'Cancel Requested', color: '#ea580c' }
+		{ key: 'pending', label: statusLabel('pending'), color: '#f59e0b' },
+		{ key: 'paid', label: statusLabel('paid'), color: '#2563eb' },
+		{ key: 'in_process', label: statusLabel('in_process'), color: '#9333ea' },
+		{ key: 'fulfilled', label: statusLabel('fulfilled'), color: '#16a34a' },
+		{ key: 'cancelled', label: statusLabel('cancelled'), color: '#6b7280' },
+		{ key: 'refunded', label: statusLabel('refunded'), color: '#dc2626' },
+		{
+			key: 'cancellation_requested',
+			label: statusLabel('cancellation_requested'),
+			color: '#ea580c'
+		}
 	];
 
 	const statusCountMap = $derived(
@@ -266,7 +271,9 @@
 		</div>
 
 		<div class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-			<h2 class="mb-4 font-display text-lg text-gray-800">{m.order_pickup()} vs {m.order_dine_in()}</h2>
+			<h2 class="mb-4 font-display text-lg text-gray-800">
+				{m.order_pickup()} vs {m.order_dine_in()}
+			</h2>
 			<div class="h-72">
 				{#if browser && data.orderTypeDistribution.length > 0}
 					<canvas bind:this={orderTypeCanvas}></canvas>
