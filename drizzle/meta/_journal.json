@@ -36,6 +36,34 @@
       "when": 1771467582092,
       "tag": "0004_grey_carlie_cooper",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771469063626,
+      "tag": "0005_nosy_sleepwalker",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771469662002,
+      "tag": "0006_handy_siren",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1771470753967,
+      "tag": "0007_daily_mantis",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1771472906798,
+      "tag": "0008_jittery_mephisto",
+      "breakpoints": true
     }
   ]
 }

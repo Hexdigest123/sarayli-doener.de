@@ -41,6 +41,7 @@ export const orders = pgTable(
 	'orders',
 	{
 		id: serial('id').primaryKey(),
+		orderNumber: text('order_number').unique().notNull(),
 		stripeSessionId: text('stripe_session_id').unique(),
 		stripePaymentIntentId: text('stripe_payment_intent_id'),
 		status: text('status').notNull().default('pending'),
@@ -51,16 +52,19 @@ export const orders = pgTable(
 		pickupTime: text('pickup_time'),
 		totalAmount: integer('total_amount').notNull(),
 		currency: text('currency').notNull().default('eur'),
+		visitorId: text('visitor_id'),
 		notes: text('notes'),
 		metadata: jsonb('metadata'),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 		paidAt: timestamp('paid_at', { withTimezone: true }),
-		fulfilledAt: timestamp('fulfilled_at', { withTimezone: true })
+		fulfilledAt: timestamp('fulfilled_at', { withTimezone: true }),
+		cancellationRequestedAt: timestamp('cancellation_requested_at', { withTimezone: true })
 	},
 	(table) => [
 		index('orders_status_idx').on(table.status),
 		index('orders_created_at_idx').on(table.createdAt),
-		index('orders_stripe_session_id_idx').on(table.stripeSessionId)
+		index('orders_stripe_session_id_idx').on(table.stripeSessionId),
+		index('orders_order_number_idx').on(table.orderNumber)
 	]
 );
 
@@ -80,6 +84,7 @@ export const orderItems = pgTable('order_items', {
 export const storeSettings = pgTable('store_settings', {
 	id: serial('id').primaryKey(),
 	isOpen: integer('is_open').notNull().default(1),
+	mode: text('mode').notNull().default('auto'),
 	closedMessage: text('closed_message'),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
