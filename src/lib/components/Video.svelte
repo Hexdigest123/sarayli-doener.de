@@ -96,6 +96,7 @@
 						src="{reel.src}#t=0.001"
 						preload="metadata"
 						playsinline
+						muted
 						onended={() => handleEnded(i)}
 						class="aspect-[9/16] w-full bg-black object-cover"
 					>
