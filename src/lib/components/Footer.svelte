@@ -21,7 +21,7 @@
 </script>
 
 <footer id="contact" class="relative overflow-hidden bg-crimson text-white">
-	<div class="border-b border-white/20 bg-black/20 px-4 py-3">
+	<div class="hidden border-b border-white/20 bg-black/20 px-4 py-3 lg:block">
 		<div class="mx-auto flex max-w-6xl items-center justify-center gap-2">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

@@ -4,6 +4,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import CookieBanner from '$lib/components/CookieBanner.svelte';
 	import SpecialOfferPopup from '$lib/components/SpecialOfferPopup.svelte';
+	import ClosureNoticePopup from '$lib/components/ClosureNoticePopup.svelte';
 	import FingerprintCollector from '$lib/components/FingerprintCollector.svelte';
 	import BehaviorTracker from '$lib/components/BehaviorTracker.svelte';
 	import * as m from '$lib/paraglide/messages';
@@ -204,6 +205,7 @@
 {#if !isAdmin}
 	<CookieBanner />
 	<SpecialOfferPopup />
+	<ClosureNoticePopup />
 	<FingerprintCollector />
 	<BehaviorTracker />
 {/if}
