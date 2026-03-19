@@ -246,7 +246,7 @@ export const businessInfo: BusinessInfo = {
 	tiktokUrl: 'https://www.tiktok.com/@sarayli.doener',
 	tiktokHandle: '@sarayli.doener',
 	phone: '0 20 43 / 376 40 90',
-	hours: 'Täglich 11:00 – 23:00, dienstags Ruhetag ab 20.03.',
+	hours: 'Mittwoch bis Montag 11:00 – 23:00, dienstags Ruhetag.',
 	googleRating: 4.9,
 	googleReviewCount: 62,
 	googleMapsUrl: 'https://maps.app.goo.gl/ykoztaz2A56ooWcP8',
