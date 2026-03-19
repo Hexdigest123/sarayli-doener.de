@@ -16,7 +16,7 @@
 		animateIn = false;
 		setTimeout(() => {
 			visible = false;
-			document.cookie = `closure_notice_203_dismissed=true;path=/;max-age=${60 * 60 * 24 * 30};SameSite=Lax`;
+			document.cookie = `closure_notice_tuesday_restday_20260320_dismissed=true;path=/;max-age=${60 * 60 * 24 * 30};SameSite=Lax`;
 		}, 300);
 	}
 
@@ -56,7 +56,7 @@
 	}
 
 	$effect(() => {
-		if (!browser || getCookie('closure_notice_203_dismissed')) return;
+		if (!browser || getCookie('closure_notice_tuesday_restday_20260320_dismissed')) return;
 
 		// Show popup after a short delay on mobile
 		const isMobile = window.innerWidth < 768;
@@ -79,7 +79,7 @@
 		role="dialog"
 		aria-modal="true"
 		tabindex="-1"
-		aria-label="Geschlossen am 20.3."
+		aria-label="Dienstags Ruhetag ab dem 20.03."
 		onkeydown={handleKeydown}
 	>
 		<div
@@ -140,12 +140,12 @@
 
 				<div class="mt-4 rounded-xl bg-amber-100/50 p-4">
 					<p class="text-center font-body text-base font-semibold text-amber-900">
-						20.3. aufgrund von Zuckerfest geschlossen
+						Ab dem 20.03. ist dienstags Ruhetag
 					</p>
 				</div>
 
 				<p class="mt-4 text-center font-body text-sm text-gray-600">
-					Wir sind am 20. März geschlossen. Am 21. März sind wir wieder für Sie da!
+					Unsere neuen Öffnungszeiten sind von 11:00 bis 23:00 Uhr. Ab dem 20.03. bleibt das Lokal dienstags geschlossen.
 				</p>
 
 				<button

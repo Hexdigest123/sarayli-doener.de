@@ -91,7 +91,7 @@
 						clip-rule="evenodd"
 					/>
 				</svg>
-				20.3. aufgrund von Zuckerfest geschlossen
+				Ab dem 20.03. ist dienstags Ruhetag
 			</span>
 		</div>
 

@@ -3,7 +3,6 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import CookieBanner from '$lib/components/CookieBanner.svelte';
-	import SpecialOfferPopup from '$lib/components/SpecialOfferPopup.svelte';
 	import ClosureNoticePopup from '$lib/components/ClosureNoticePopup.svelte';
 	import FingerprintCollector from '$lib/components/FingerprintCollector.svelte';
 	import BehaviorTracker from '$lib/components/BehaviorTracker.svelte';
@@ -81,9 +80,9 @@
 		},
 		openingHoursSpecification: {
 			'@type': 'OpeningHoursSpecification',
-			dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+			dayOfWeek: ['Monday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
 			opens: '11:00',
-			closes: '22:00'
+			closes: '23:00'
 		},
 		aggregateRating: {
 			'@type': 'AggregateRating',
@@ -204,7 +203,6 @@
 </main>
 {#if !isAdmin}
 	<CookieBanner />
-	<SpecialOfferPopup />
 	<ClosureNoticePopup />
 	<FingerprintCollector />
 	<BehaviorTracker />
