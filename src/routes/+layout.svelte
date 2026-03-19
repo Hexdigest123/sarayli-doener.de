@@ -3,7 +3,6 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import CookieBanner from '$lib/components/CookieBanner.svelte';
-	import ClosureNoticePopup from '$lib/components/ClosureNoticePopup.svelte';
 	import FingerprintCollector from '$lib/components/FingerprintCollector.svelte';
 	import BehaviorTracker from '$lib/components/BehaviorTracker.svelte';
 	import * as m from '$lib/paraglide/messages';
@@ -203,7 +202,6 @@
 </main>
 {#if !isAdmin}
 	<CookieBanner />
-	<ClosureNoticePopup />
 	<FingerprintCollector />
 	<BehaviorTracker />
 {/if}
