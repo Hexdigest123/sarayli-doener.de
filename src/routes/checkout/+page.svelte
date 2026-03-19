@@ -12,8 +12,13 @@
 		}
 	}
 
-	const pickupTimes = Array.from({ length: 22 }, (_, index) => {
-		const totalMinutes = 11 * 60 + index * 30;
+	const PICKUP_OPEN_HOUR = 11;
+	const PICKUP_CLOSE_HOUR = 23;
+	const PICKUP_INTERVAL_MINUTES = 30;
+	const pickupSlotCount = ((PICKUP_CLOSE_HOUR - PICKUP_OPEN_HOUR) * 60) / PICKUP_INTERVAL_MINUTES + 1;
+
+	const pickupTimes = Array.from({ length: pickupSlotCount }, (_, index) => {
+		const totalMinutes = PICKUP_OPEN_HOUR * 60 + index * PICKUP_INTERVAL_MINUTES;
 		const hour = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
 		const minute = String(totalMinutes % 60).padStart(2, '0');
 		return `${hour}:${minute}`;

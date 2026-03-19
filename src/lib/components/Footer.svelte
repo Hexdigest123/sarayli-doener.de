@@ -3,18 +3,21 @@
 	import { businessInfo } from '$lib/config';
 
 	const currentYear = new Date().getFullYear();
+	let open = $state(true);
 
-	function isOpen() {
-		const now = new Date();
-		const h = now.getHours();
-		return h >= 11 && h < 22;
+	function refreshStoreStatus() {
+		fetch('/api/store-status')
+			.then((r) => r.json())
+			.then((data) => {
+				open = data.open;
+			})
+			.catch(() => {});
 	}
 
-	let open = $state(isOpen());
-
 	$effect(() => {
+		refreshStoreStatus();
 		const interval = setInterval(() => {
-			open = isOpen();
+			refreshStoreStatus();
 		}, 60_000);
 		return () => clearInterval(interval);
 	});
@@ -36,7 +39,7 @@
 					clip-rule="evenodd"
 				/>
 			</svg>
-			<p class="text-sm font-semibold text-amber-300">20.3. aufgrund von Zuckerfest geschlossen</p>
+			<p class="text-sm font-semibold text-amber-300">Ab dem 20.03. ist dienstags Ruhetag</p>
 		</div>
 	</div>
 	<div class="mx-auto max-w-6xl px-4 py-16 md:py-24">

@@ -16,12 +16,28 @@ export function getStripeConfigStatus(): { configured: boolean; missingKeys: str
 
 const SETTINGS_ROW_ID = 1;
 const OPEN_HOUR = 11;
-const CLOSE_HOUR = 22;
+const CLOSE_HOUR = 23;
 const TIMEZONE = 'Europe/Berlin';
+const TUESDAY_REST_START_DATE = '2026-03-20';
+
+function getBerlinTime(): Date {
+	return new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }));
+}
+
+function getDateKey(date: Date): string {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
+
+function isTuesdayRestDay(date: Date): boolean {
+	return getDateKey(date) >= TUESDAY_REST_START_DATE && date.getDay() === 2;
+}
 
 function isWithinSchedule(): boolean {
-	const now = new Date();
-	const berlinTime = new Date(now.toLocaleString('en-US', { timeZone: TIMEZONE }));
+	const berlinTime = getBerlinTime();
+	if (isTuesdayRestDay(berlinTime)) return false;
 	const hour = berlinTime.getHours();
 	return hour >= OPEN_HOUR && hour < CLOSE_HOUR;
 }
