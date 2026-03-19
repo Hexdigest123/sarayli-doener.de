@@ -25,7 +25,6 @@
 
 	const getCategoryName = (id: string) => {
 		const map: Record<string, () => string> = {
-			menues: m.cat_menues,
 			doener: m.cat_doener,
 			teig: m.cat_teig,
 			imbiss: m.cat_imbiss,
@@ -226,19 +225,5 @@
 			</div>
 		{/if}
 
-		<div class="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
-			<img
-				src="/images/menu-1.webp"
-				alt="Speisekarte Seite 1"
-				class="w-full rounded-xl shadow-md"
-				loading="lazy"
-			/>
-			<img
-				src="/images/menu-2.webp"
-				alt="Speisekarte Seite 2"
-				class="w-full rounded-xl shadow-md"
-				loading="lazy"
-			/>
-		</div>
 	</div>
 </section>

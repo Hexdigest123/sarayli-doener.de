@@ -176,7 +176,7 @@ export const menuCategories: MenuCategory[] = [
 	},
 	{
 		id: 'pide',
-		name: 'HANDGEMACHTE PIDE',
+		name: 'PIDE',
 		items: [
 			{ id: 23, nameKey: 'menu_item_23_name', price: 10.0, descKey: 'menu_item_23_desc' },
 			{ id: 24, nameKey: 'menu_item_24_name', price: 10.0, descKey: 'menu_item_24_desc' },
@@ -208,14 +208,6 @@ export const menuCategories: MenuCategory[] = [
 			{ id: 38, nameKey: 'menu_item_38_name', price: 2.0, sizeKey: 'menu_item_38_size' },
 			{ id: 39, nameKey: 'menu_item_39_name', price: 2.0, sizeKey: 'menu_item_39_size' },
 			{ id: 40, nameKey: 'menu_item_40_name', price: 1.5, sizeKey: 'menu_item_40_size' }
-		]
-	},
-	{
-		id: 'menues',
-		name: 'MENÜS',
-		items: [
-			{ id: 41, nameKey: 'menu_item_41_name', price: 22.0, descKey: 'menu_item_41_desc' },
-			{ id: 42, nameKey: 'menu_item_42_name', price: 16.0, descKey: 'menu_item_42_desc' }
 		]
 	}
 ];
@@ -254,7 +246,7 @@ export const businessInfo: BusinessInfo = {
 	tiktokUrl: 'https://www.tiktok.com/@sarayli.doener',
 	tiktokHandle: '@sarayli.doener',
 	phone: '0 20 43 / 376 40 90',
-	hours: 'Täglich 11:00 – 22:00',
+	hours: 'Täglich 11:00 – 23:00, dienstags Ruhetag ab 20.03.',
 	googleRating: 4.9,
 	googleReviewCount: 62,
 	googleMapsUrl: 'https://maps.app.goo.gl/ykoztaz2A56ooWcP8',
