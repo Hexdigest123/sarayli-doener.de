@@ -37,6 +37,14 @@
 		return map[id]?.() ?? id;
 	};
 
+	function getSubtitleText(item: MenuItem): string {
+		const descText = item.descKey ? (msg[item.descKey]?.() ?? '').trim() : '';
+		const sizeText = item.sizeKey ? (msg[item.sizeKey]?.() ?? '').trim() : '';
+
+		if (descText && sizeText) return `${descText} · ${sizeText}`;
+		return descText || sizeText;
+	}
+
 	let activeItems = $derived(menuCategories.find((c) => c.id === activeCategory)?.items ?? []);
 	let justAdded = $state<Record<number, boolean>>({});
 
@@ -137,6 +145,7 @@
 
 		<div class="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2">
 			{#each activeItems as item}
+				{@const subtitleText = getSubtitleText(item)}
 				<div
 					class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
 				>
@@ -161,12 +170,8 @@
 							{/if}
 						</div>
 					</div>
-					{#if item.descKey || item.sizeKey}
-						<p class="mt-1 pl-8 text-sm text-gray-500">
-							{item.descKey ? (msg[item.descKey]?.() ?? '') : ''}{item.sizeKey
-								? ` · ${msg[item.sizeKey]?.() ?? ''}`
-								: ''}
-						</p>
+					{#if subtitleText}
+						<p class="mt-1 pl-8 text-sm text-gray-500">{subtitleText}</p>
 					{/if}
 				</div>
 			{/each}
@@ -224,6 +229,5 @@
 				</div>
 			</div>
 		{/if}
-
 	</div>
 </section>

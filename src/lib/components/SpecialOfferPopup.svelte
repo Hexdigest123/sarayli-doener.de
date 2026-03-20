@@ -2,6 +2,37 @@
 	import { browser } from '$app/environment';
 	import * as m from '$lib/paraglide/messages';
 
+	type BerlinDateParts = {
+		year: number;
+		month: number;
+		day: number;
+		hour: number;
+		minute: number;
+		second: number;
+	};
+
+	const OFFER_WINDOW_START: BerlinDateParts = {
+		year: 2026,
+		month: 3,
+		day: 21,
+		hour: 0,
+		minute: 0,
+		second: 0
+	};
+
+	const DISMISS_COOKIE_NAME = 'offer_popup_availability_notice_dismissed';
+
+	const berlinDateFormatter = new Intl.DateTimeFormat('en-CA', {
+		timeZone: 'Europe/Berlin',
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hourCycle: 'h23'
+	});
+
 	let visible = $state(false);
 	let animateIn = $state(false);
 	let dialogEl = $state<HTMLDivElement>();
@@ -12,18 +43,55 @@
 		return match ? match[2] : null;
 	}
 
+	function getBerlinNowParts(now: Date = new Date()): BerlinDateParts {
+		const parts = Object.fromEntries(
+			berlinDateFormatter.formatToParts(now).map((part) => [part.type, Number(part.value)])
+		) as Record<string, number>;
+
+		return {
+			year: parts.year,
+			month: parts.month,
+			day: parts.day,
+			hour: parts.hour,
+			minute: parts.minute,
+			second: parts.second
+		};
+	}
+
+	function getCurrentDate(): Date {
+		if (!browser) return new Date();
+
+		const override = (window as Window & { __offerPopupNow?: string }).__offerPopupNow;
+		if (!override) return new Date();
+
+		const parsed = new Date(override);
+		return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+	}
+
+	function toComparableBerlinTime(parts: BerlinDateParts): number {
+		return Number(
+			`${parts.year}${String(parts.month).padStart(2, '0')}${String(parts.day).padStart(2, '0')}${String(parts.hour).padStart(2, '0')}${String(parts.minute).padStart(2, '0')}${String(parts.second).padStart(2, '0')}`
+		);
+	}
+
+	function isOfferWindowOpen(now = new Date()): boolean {
+		const current = getBerlinNowParts(now);
+		return toComparableBerlinTime(current) >= toComparableBerlinTime(OFFER_WINDOW_START);
+	}
+
 	function dismiss() {
 		animateIn = false;
 		setTimeout(() => {
 			visible = false;
-			document.cookie = `offer_popup_dismissed=true;path=/;max-age=${60 * 60 * 24 * 30};SameSite=Lax`;
+			document.cookie =
+				DISMISS_COOKIE_NAME + '=true;path=/;max-age=' + 60 * 60 * 24 * 30 + ';SameSite=Lax';
 		}, 300);
 	}
 
 	function handleCta() {
 		dismiss();
 		setTimeout(() => {
-			document.getElementById('special-offers')?.scrollIntoView({ behavior: 'smooth' });
+			document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' });
 		}, 350);
 	}
 
@@ -63,7 +131,7 @@
 	}
 
 	$effect(() => {
-		if (!browser || getCookie('offer_popup_dismissed')) return;
+		if (!browser || getCookie(DISMISS_COOKIE_NAME) || !isOfferWindowOpen(getCurrentDate())) return;
 
 		// Returning visitor: cookie banner already resolved, show after 1.5s
 		if (getCookie('tracking_consent')) {
@@ -100,6 +168,7 @@
 		tabindex="-1"
 		aria-label={m.offer_popup_title()}
 		onkeydown={handleKeydown}
+		data-testid="special-offer-popup"
 	>
 		<div
 			class="absolute inset-0 transition-opacity duration-300 {animateIn
