@@ -116,7 +116,7 @@ export const menuCategories: MenuCategory[] = [
 			{
 				id: 5,
 				nameKey: 'menu_item_5_name',
-				price: 5.0,
+				price: 6.0,
 				descKey: 'menu_item_5_desc'
 			},
 			{

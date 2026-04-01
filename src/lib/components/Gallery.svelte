@@ -58,6 +58,10 @@
 			alt: 'Saraylı Döner Laden'
 		},
 		{
+			src: '/images/doener.webp',
+			alt: 'Döner Sandwich'
+		},
+		{
 			src: '/images/kebab-plate-large.webp',
 			alt: 'Döner Teller'
 		},
@@ -80,6 +84,14 @@
 		{
 			src: '/images/food/food-2.webp',
 			alt: 'Frisches Kalbfleisch'
+		},
+		{
+			src: '/images/spiess.webp',
+			alt: 'Döner-Spieß im Laden'
+		},
+		{
+			src: '/images/spiess-2.webp',
+			alt: 'Frischer Döner-Spieß'
 		},
 		{
 			src: '/images/kebab-pike.webp',
