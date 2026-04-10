@@ -18,16 +18,24 @@ export const load: PageServerLoad = async ({ url }) => {
 	const sortBy = url.searchParams.get('sort') || 'createdAt';
 	const sortDir = url.searchParams.get('dir') === 'asc' ? 'asc' : 'desc';
 
-	const sortColumns: Record<string, typeof orders.createdAt> = {
-		createdAt: orders.createdAt,
-		orderNumber: orders.orderNumber,
-		customerName: orders.customerName,
-		totalAmount: orders.totalAmount,
-		status: orders.status,
-		orderType: orders.orderType,
-		pickupTime: orders.pickupTime
-	};
-	const sortColumn = sortColumns[sortBy] ?? orders.createdAt;
+	const sortColumn = (() => {
+		switch (sortBy) {
+			case 'orderNumber':
+				return orders.orderNumber;
+			case 'customerName':
+				return orders.customerName;
+			case 'totalAmount':
+				return orders.totalAmount;
+			case 'status':
+				return orders.status;
+			case 'orderType':
+				return orders.orderType;
+			case 'pickupTime':
+				return orders.pickupTime;
+			default:
+				return orders.createdAt;
+		}
+	})();
 	const orderByClause = sortDir === 'asc' ? asc(sortColumn) : desc(sortColumn);
 
 	const conditions: SQL[] = [];

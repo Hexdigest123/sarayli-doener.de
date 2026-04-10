@@ -69,7 +69,7 @@
 						titleFont: { family: 'DM Sans' },
 						bodyFont: { family: 'DM Sans' },
 						callbacks: {
-							label: (context) => `${context.parsed.y.toFixed(2).replace('.', ',')} €`
+							label: (context) => `${(context.parsed.y ?? 0).toFixed(2).replace('.', ',')} €`
 						}
 					}
 				},
