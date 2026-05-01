@@ -154,7 +154,8 @@ export const menuCategories: MenuCategory[] = [
 			{ id: 14, nameKey: 'menu_item_14_name', price: 4.0, sizeKey: 'menu_item_14_size' },
 			{ id: 15, nameKey: 'menu_item_15_name', price: 5.0, descKey: 'menu_item_15_desc' },
 			{ id: 16, nameKey: 'menu_item_16_name', price: 3.0, descKey: 'menu_item_16_desc' },
-			{ id: 17, nameKey: 'menu_item_17_name', price: 7.0, descKey: 'menu_item_17_desc' }
+			{ id: 17, nameKey: 'menu_item_17_name', price: 7.0, descKey: 'menu_item_17_desc' },
+			{ id: 43, nameKey: 'menu_item_43_name', price: 16.0, descKey: 'menu_item_43_desc' }
 		]
 	},
 	{
@@ -172,17 +173,6 @@ export const menuCategories: MenuCategory[] = [
 		items: [
 			{ id: 21, nameKey: 'menu_item_21_name', price: 4.0, descKey: 'menu_item_21_desc' },
 			{ id: 22, nameKey: 'menu_item_22_name', price: 4.5 }
-		]
-	},
-	{
-		id: 'pide',
-		name: 'PIDE',
-		items: [
-			{ id: 23, nameKey: 'menu_item_23_name', price: 10.0, descKey: 'menu_item_23_desc' },
-			{ id: 24, nameKey: 'menu_item_24_name', price: 10.0, descKey: 'menu_item_24_desc' },
-			{ id: 25, nameKey: 'menu_item_25_name', price: 9.0, descKey: 'menu_item_25_desc' },
-			{ id: 26, nameKey: 'menu_item_26_name', price: 11.0, descKey: 'menu_item_26_desc' },
-			{ id: 27, nameKey: 'menu_item_27_name', price: 12.0, descKey: 'menu_item_27_desc' }
 		]
 	},
 	{

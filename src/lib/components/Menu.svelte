@@ -30,7 +30,6 @@
 			imbiss: m.cat_imbiss,
 			suppen: m.cat_suppen,
 			salat: m.cat_salat,
-			pide: m.cat_pide,
 			extras: m.cat_extras,
 			getraenke: m.cat_getraenke
 		};
