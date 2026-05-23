@@ -9,6 +9,7 @@
 		{ href: '/admin', label: 'Dashboard' },
 		{ href: '/admin/orders', label: 'Orders' },
 		{ href: '/admin/stats', label: 'Stats' },
+		{ href: '/admin/popup', label: 'Popup' },
 		{ href: '/admin/settings', label: 'Settings' }
 	];
 </script>

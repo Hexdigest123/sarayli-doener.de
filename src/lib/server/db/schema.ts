@@ -99,8 +99,28 @@ export const adminSessions = pgTable('admin_sessions', {
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 });
 
+// Single-row (id = 1) configuration for the admin-managed site popup. The popup is
+// shown to every visitor while `active` is 1 and hidden the moment the admin removes
+// it (sets `active` to 0). `imageUrl` holds either an external URL or a self-contained
+// data URL produced when an image is uploaded from the admin's device. `updatedAt`
+// doubles as a version token: bumping it re-shows the popup to visitors who had
+// already dismissed an earlier version.
+export const sitePopup = pgTable('site_popup', {
+	id: serial('id').primaryKey(),
+	active: integer('active').notNull().default(0),
+	title: text('title').notNull().default(''),
+	body: text('body'),
+	imageUrl: text('image_url'),
+	badge: text('badge'),
+	ctaLabel: text('cta_label'),
+	ctaUrl: text('cta_url'),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});
+
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type NewOrderItem = typeof orderItems.$inferInsert;
 export type StoreSettings = typeof storeSettings.$inferSelect;
+export type SitePopup = typeof sitePopup.$inferSelect;
+export type NewSitePopup = typeof sitePopup.$inferInsert;

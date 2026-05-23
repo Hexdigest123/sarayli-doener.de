@@ -1,0 +1,711 @@
+<script lang="ts">
+	import { enhance } from '$app/forms';
+
+	let { data, form } = $props();
+
+	// ── Wizard content state ───────────────────────────────────────────────────
+	// Initialised once from the saved row; edits stay local until published/saved.
+	let title = $state(data.popup?.title ?? '');
+	let body = $state(data.popup?.body ?? '');
+	let badge = $state(data.popup?.badge ?? '');
+	let ctaLabel = $state(data.popup?.ctaLabel ?? '');
+	let ctaUrl = $state(data.popup?.ctaUrl ?? '');
+
+	const savedImage = data.popup?.imageUrl ?? '';
+	const savedImageIsData = savedImage.startsWith('data:');
+
+	// Image source: none | url | upload. The effective value submitted is derived below.
+	let imageMode = $state<'none' | 'url' | 'upload'>(
+		savedImage ? (savedImageIsData ? 'upload' : 'url') : 'none'
+	);
+	let imageUrlInput = $state(savedImageIsData ? '' : savedImage);
+	let uploadedDataUrl = $state(savedImageIsData ? savedImage : '');
+	let uploadName = $state(savedImageIsData ? 'Saved image' : '');
+	let uploadError = $state('');
+	let processing = $state(false);
+
+	const effectiveImageUrl = $derived(
+		imageMode === 'url' ? imageUrlInput.trim() : imageMode === 'upload' ? uploadedDataUrl : ''
+	);
+
+	const previewImage = $derived(effectiveImageUrl || '');
+
+	// ── Wizard steps ───────────────────────────────────────────────────────────
+	const steps = [
+		{ id: 'content', label: 'Content' },
+		{ id: 'image', label: 'Image' },
+		{ id: 'cta', label: 'Button' },
+		{ id: 'review', label: 'Review' }
+	];
+	let step = $state(0);
+
+	const titleValid = $derived(title.trim().length > 0);
+	const canAdvance = $derived(step !== 0 || titleValid);
+
+	function next() {
+		if (step < steps.length - 1 && canAdvance) step += 1;
+	}
+	function back() {
+		if (step > 0) step -= 1;
+	}
+	function goTo(target: number) {
+		// Only allow jumping forward once the title (the one required field) exists.
+		if (target <= step || titleValid) step = target;
+	}
+
+	// ── Device image upload → downscaled, compact data URL ───────────────────────
+	// Kept well under the request body limit by capping dimensions and stepping the
+	// quality down until the encoded string is small enough to store inline.
+	const MAX_DIMENSION = 1280;
+	const TARGET_BYTES = 280_000;
+
+	function readFile(file: File): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result as string);
+			reader.onerror = () => reject(new Error('Could not read file'));
+			reader.readAsDataURL(file);
+		});
+	}
+
+	function loadImage(src: string): Promise<HTMLImageElement> {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.onload = () => resolve(img);
+			img.onerror = () => reject(new Error('Could not load image'));
+			img.src = src;
+		});
+	}
+
+	function encode(canvas: HTMLCanvasElement): string {
+		// Prefer WebP (much smaller); fall back to JPEG where WebP is unsupported.
+		let quality = 0.85;
+		let webp = canvas.toDataURL('image/webp', quality);
+		const useWebp = webp.startsWith('data:image/webp');
+		const type = useWebp ? 'image/webp' : 'image/jpeg';
+		let out = useWebp ? webp : canvas.toDataURL(type, quality);
+		while (out.length > TARGET_BYTES && quality > 0.4) {
+			quality -= 0.1;
+			out = canvas.toDataURL(type, quality);
+		}
+		return out;
+	}
+
+	async function downscale(file: File): Promise<string> {
+		const original = await readFile(file);
+		const img = await loadImage(original);
+		let width = img.naturalWidth;
+		let height = img.naturalHeight;
+		const scale = Math.min(1, MAX_DIMENSION / Math.max(width, height));
+		width = Math.max(1, Math.round(width * scale));
+		height = Math.max(1, Math.round(height * scale));
+
+		// If still too large after quality stepping, shrink the canvas and retry.
+		for (let attempt = 0; attempt < 4; attempt += 1) {
+			const canvas = document.createElement('canvas');
+			canvas.width = width;
+			canvas.height = height;
+			const ctx = canvas.getContext('2d');
+			if (!ctx) return original;
+			ctx.drawImage(img, 0, 0, width, height);
+			const out = encode(canvas);
+			if (out.length <= TARGET_BYTES || (width <= 480 && height <= 480)) return out;
+			width = Math.round(width * 0.8);
+			height = Math.round(height * 0.8);
+		}
+		return original;
+	}
+
+	async function onFileChange(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		uploadError = '';
+		if (!file) return;
+		if (!file.type.startsWith('image/')) {
+			uploadError = 'Please choose an image file.';
+			return;
+		}
+		processing = true;
+		try {
+			uploadedDataUrl = await downscale(file);
+			uploadName = file.name;
+		} catch {
+			uploadError = 'Could not process that image. Try a different file.';
+			uploadedDataUrl = '';
+			uploadName = '';
+		} finally {
+			processing = false;
+		}
+	}
+
+	function clearUpload() {
+		uploadedDataUrl = '';
+		uploadName = '';
+		uploadError = '';
+	}
+
+	// ── Live status (server truth, refreshes after each action) ──────────────────
+	const status = $derived(!data.popup ? 'none' : data.popup.active ? 'live' : 'draft');
+
+	// Saving state for buttons
+	let saving = $state(false);
+	let toast = $state('');
+	let toastTimer: ReturnType<typeof setTimeout> | undefined;
+
+	function showToast(message: string) {
+		toast = message;
+		clearTimeout(toastTimer);
+		toastTimer = setTimeout(() => (toast = ''), 4000);
+	}
+
+	$effect(() => {
+		if (form?.success) {
+			if (form.removed) showToast('Popup removed — it is no longer shown to visitors.');
+			else if (form.published) showToast('Popup published — it is now live for visitors.');
+			else showToast('Draft saved.');
+		}
+	});
+
+	// Format the "last updated" line.
+	const lastUpdated = $derived(
+		data.popup?.updatedAt
+			? new Date(data.popup.updatedAt).toLocaleString('de-DE', {
+					day: '2-digit',
+					month: '2-digit',
+					year: 'numeric',
+					hour: '2-digit',
+					minute: '2-digit'
+				})
+			: ''
+	);
+</script>
+
+<svelte:head><title>Popup – Saraylı Döner Admin</title></svelte:head>
+
+<!-- Top nav bar (matches other admin pages) -->
+<nav class="border-b border-gray-200 bg-white shadow-sm">
+	<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+		<h1 class="font-display text-xl text-crimson">
+			Saraylı Döner <span class="font-body text-sm font-normal text-gray-400">— Popup</span>
+		</h1>
+		<div class="flex items-center gap-3">
+			<a
+				href="/"
+				class="rounded-lg border border-gray-300 px-4 py-2 font-body text-sm text-gray-600 transition-colors hover:border-crimson hover:text-crimson"
+			>
+				&larr; Main Page
+			</a>
+			<form method="POST" action="/admin/logout" use:enhance>
+				<button
+					type="submit"
+					class="rounded-lg border border-gray-300 px-4 py-2 font-body text-sm text-gray-600 transition-colors hover:border-crimson hover:text-crimson"
+				>
+					Logout
+				</button>
+			</form>
+		</div>
+	</div>
+</nav>
+
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+	{#if toast}
+		<div
+			class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 font-body text-sm text-emerald-700"
+		>
+			{toast}
+		</div>
+	{/if}
+	{#if form?.error}
+		<div
+			class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 font-body text-sm text-red-700"
+		>
+			{form.error}
+		</div>
+	{/if}
+
+	<!-- Status panel -->
+	<div class="mb-6 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+		<div class="flex flex-wrap items-center justify-between gap-4">
+			<div class="flex items-center gap-3">
+				<span
+					class="flex h-11 w-11 items-center justify-center rounded-xl {status === 'live'
+						? 'bg-emerald-100'
+						: status === 'draft'
+							? 'bg-amber-100'
+							: 'bg-gray-100'}"
+				>
+					{#if status === 'live'}
+						<span class="relative flex h-3 w-3">
+							<span
+								class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"
+							></span>
+							<span class="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+						</span>
+					{:else}
+						<svg
+							class="h-5 w-5 {status === 'draft' ? 'text-amber-600' : 'text-gray-400'}"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+						>
+							<path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+							<path
+								fill-rule="evenodd"
+								d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					{/if}
+				</span>
+				<div>
+					<h2
+						class="font-display text-xl font-bold {status === 'live'
+							? 'text-emerald-700'
+							: status === 'draft'
+								? 'text-amber-700'
+								: 'text-gray-500'}"
+					>
+						{status === 'live'
+							? 'Popup is live'
+							: status === 'draft'
+								? 'Draft saved (not shown)'
+								: 'No popup configured'}
+					</h2>
+					<p class="font-body text-sm text-gray-500">
+						{#if status === 'live'}
+							Shown to every visitor until you remove it.{lastUpdated
+								? ` Last updated ${lastUpdated}.`
+								: ''}
+						{:else if status === 'draft'}
+							Saved but hidden from visitors. Publish it below when ready.
+						{:else}
+							Use the wizard below to create one.
+						{/if}
+					</p>
+				</div>
+			</div>
+			{#if data.popup}
+				<form
+					method="POST"
+					action="?/remove"
+					use:enhance={() => {
+						saving = true;
+						return async ({ update }) => {
+							await update();
+							saving = false;
+						};
+					}}
+				>
+					<button
+						type="submit"
+						disabled={saving || status !== 'live'}
+						class="rounded-lg border px-4 py-2 font-body text-sm font-semibold transition-colors {status ===
+						'live'
+							? 'border-red-200 bg-white text-red-700 hover:border-red-300 hover:bg-red-50'
+							: 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'}"
+					>
+						Remove popup
+					</button>
+				</form>
+			{/if}
+		</div>
+	</div>
+
+	<div class="grid grid-cols-1 gap-6 lg:grid-cols-5">
+		<!-- Wizard -->
+		<div class="lg:col-span-3">
+			<div class="rounded-xl border border-gray-100 bg-white shadow-sm">
+				<!-- Stepper -->
+				<div class="flex items-center gap-1 border-b border-gray-100 px-4 py-4 sm:px-6">
+					{#each steps as s, i}
+						<button
+							type="button"
+							onclick={() => goTo(i)}
+							class="flex items-center gap-2 rounded-lg px-2.5 py-1.5 font-body text-sm font-medium transition-colors {i ===
+							step
+								? 'text-crimson'
+								: i < step
+									? 'text-gray-600 hover:text-crimson'
+									: 'text-gray-400'}"
+						>
+							<span
+								class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold {i ===
+								step
+									? 'bg-crimson text-white'
+									: i < step
+										? 'bg-crimson/10 text-crimson'
+										: 'bg-gray-100 text-gray-400'}"
+							>
+								{i + 1}
+							</span>
+							<span class="hidden sm:inline">{s.label}</span>
+						</button>
+						{#if i < steps.length - 1}
+							<span class="h-px flex-1 bg-gray-100"></span>
+						{/if}
+					{/each}
+				</div>
+
+				<div class="p-4 sm:p-6">
+					<!-- Step 1: Content -->
+					{#if step === 0}
+						<div class="space-y-5">
+							<div>
+								<label
+									for="f-title"
+									class="mb-1.5 block font-body text-sm font-medium text-gray-700"
+								>
+									Header <span class="text-crimson">*</span>
+								</label>
+								<input
+									id="f-title"
+									type="text"
+									bind:value={title}
+									maxlength="120"
+									placeholder="z.B. Neue Öffnungszeiten"
+									class="w-full rounded-lg border border-gray-200 px-3 py-2 font-body text-sm text-gray-800 focus:border-crimson focus:ring-0"
+								/>
+								<p class="mt-1 font-body text-xs text-gray-400">{title.length}/120</p>
+							</div>
+							<div>
+								<label
+									for="f-body"
+									class="mb-1.5 block font-body text-sm font-medium text-gray-700"
+								>
+									Description
+								</label>
+								<textarea
+									id="f-body"
+									bind:value={body}
+									rows="5"
+									maxlength="2000"
+									placeholder="Tell visitors what's new — an offer, a notice, opening hours…"
+									class="w-full rounded-lg border border-gray-200 px-3 py-2 font-body text-sm text-gray-800 focus:border-crimson focus:ring-0"
+								></textarea>
+							</div>
+							<div>
+								<label
+									for="f-badge"
+									class="mb-1.5 block font-body text-sm font-medium text-gray-700"
+								>
+									Badge <span class="font-normal text-gray-400"
+										>(optional, small label above the header)</span
+									>
+								</label>
+								<input
+									id="f-badge"
+									type="text"
+									bind:value={badge}
+									maxlength="40"
+									placeholder="z.B. Neu · Angebot · Hinweis"
+									class="w-full rounded-lg border border-gray-200 px-3 py-2 font-body text-sm text-gray-800 focus:border-crimson focus:ring-0"
+								/>
+							</div>
+						</div>
+
+						<!-- Step 2: Image -->
+					{:else if step === 1}
+						<div class="space-y-5">
+							<p class="font-body text-sm text-gray-500">
+								Add an image (optional). Choose a source:
+							</p>
+							<div class="grid grid-cols-3 gap-2">
+								{#each [{ v: 'none', l: 'No image' }, { v: 'url', l: 'From URL' }, { v: 'upload', l: 'From device' }] as opt}
+									<button
+										type="button"
+										onclick={() => (imageMode = opt.v as typeof imageMode)}
+										class="rounded-lg border px-3 py-2.5 font-body text-sm font-semibold transition-colors {imageMode ===
+										opt.v
+											? 'border-crimson bg-crimson text-white'
+											: 'border-gray-200 bg-white text-gray-700 hover:border-crimson/40'}"
+									>
+										{opt.l}
+									</button>
+								{/each}
+							</div>
+
+							{#if imageMode === 'url'}
+								<div>
+									<label
+										for="f-imgurl"
+										class="mb-1.5 block font-body text-sm font-medium text-gray-700"
+									>
+										Image URL
+									</label>
+									<input
+										id="f-imgurl"
+										type="url"
+										bind:value={imageUrlInput}
+										placeholder="https://…/image.jpg"
+										class="w-full rounded-lg border border-gray-200 px-3 py-2 font-body text-sm text-gray-800 focus:border-crimson focus:ring-0"
+									/>
+								</div>
+							{:else if imageMode === 'upload'}
+								<div>
+									<label
+										class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center transition-colors hover:border-crimson/40 hover:bg-cream/40"
+									>
+										<svg class="h-7 w-7 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+											<path
+												fill-rule="evenodd"
+												d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+												clip-rule="evenodd"
+											/>
+										</svg>
+										<span class="font-body text-sm font-medium text-gray-600">
+											{processing ? 'Processing…' : 'Click to choose an image'}
+										</span>
+										<span class="font-body text-xs text-gray-400">
+											JPG, PNG or WebP — automatically resized for the web
+										</span>
+										<input
+											type="file"
+											accept="image/*"
+											class="hidden"
+											onchange={onFileChange}
+											disabled={processing}
+										/>
+									</label>
+									{#if uploadName && uploadedDataUrl}
+										<p class="mt-2 flex items-center gap-2 font-body text-xs text-gray-500">
+											<span class="truncate">{uploadName}</span>
+											<button
+												type="button"
+												onclick={clearUpload}
+												class="text-crimson hover:underline">Remove</button
+											>
+										</p>
+									{/if}
+									{#if uploadError}
+										<p class="mt-2 font-body text-xs text-red-600">{uploadError}</p>
+									{/if}
+								</div>
+							{/if}
+
+							{#if previewImage}
+								<div class="overflow-hidden rounded-lg border border-gray-100">
+									<img src={previewImage} alt="Preview" class="max-h-56 w-full object-cover" />
+								</div>
+							{/if}
+						</div>
+
+						<!-- Step 3: Call to action -->
+					{:else if step === 2}
+						<div class="space-y-5">
+							<p class="font-body text-sm text-gray-500">
+								Add an optional button. Leave the link empty for an info-only popup.
+							</p>
+							<div>
+								<label
+									for="f-ctalabel"
+									class="mb-1.5 block font-body text-sm font-medium text-gray-700"
+								>
+									Button label
+								</label>
+								<input
+									id="f-ctalabel"
+									type="text"
+									bind:value={ctaLabel}
+									maxlength="60"
+									placeholder="z.B. Zur Speisekarte"
+									class="w-full rounded-lg border border-gray-200 px-3 py-2 font-body text-sm text-gray-800 focus:border-crimson focus:ring-0"
+								/>
+							</div>
+							<div>
+								<label
+									for="f-ctaurl"
+									class="mb-1.5 block font-body text-sm font-medium text-gray-700"
+								>
+									Button link
+								</label>
+								<input
+									id="f-ctaurl"
+									type="text"
+									bind:value={ctaUrl}
+									placeholder="https://…  ·  /order  ·  #menu"
+									class="w-full rounded-lg border border-gray-200 px-3 py-2 font-body text-sm text-gray-800 focus:border-crimson focus:ring-0"
+								/>
+								<div class="mt-2 flex flex-wrap gap-1.5">
+									{#each ['#menu', '#gallery', '/order/status'] as suggestion}
+										<button
+											type="button"
+											onclick={() => (ctaUrl = suggestion)}
+											class="rounded-full border border-gray-200 px-2.5 py-0.5 font-body text-xs text-gray-500 transition-colors hover:border-crimson hover:text-crimson"
+										>
+											{suggestion}
+										</button>
+									{/each}
+								</div>
+							</div>
+						</div>
+
+						<!-- Step 4: Review -->
+					{:else}
+						<div class="space-y-4">
+							<h3 class="font-display text-lg text-gray-800">Review & publish</h3>
+							<p class="font-body text-sm text-gray-500">
+								This is exactly how the popup will appear to visitors. Publish it to make it live,
+								or save it as a hidden draft.
+							</p>
+							<ul class="space-y-1.5 font-body text-sm text-gray-600">
+								<li class="flex gap-2">
+									<span class="text-gray-400">Header:</span>
+									<span class="font-medium {titleValid ? 'text-gray-800' : 'text-red-600'}">
+										{title.trim() || 'Missing — required'}
+									</span>
+								</li>
+								<li class="flex gap-2">
+									<span class="text-gray-400">Image:</span>
+									{previewImage ? 'Yes' : 'None'}
+								</li>
+								<li class="flex gap-2">
+									<span class="text-gray-400">Button:</span>
+									{ctaUrl.trim() ? `${ctaLabel.trim() || 'Mehr'} → ${ctaUrl.trim()}` : 'None'}
+								</li>
+							</ul>
+						</div>
+					{/if}
+				</div>
+
+				<!-- Footer nav -->
+				<div class="flex items-center justify-between border-t border-gray-100 px-4 py-4 sm:px-6">
+					<button
+						type="button"
+						onclick={back}
+						disabled={step === 0}
+						class="rounded-lg border border-gray-300 px-4 py-2 font-body text-sm text-gray-600 transition-colors hover:border-crimson hover:text-crimson disabled:cursor-not-allowed disabled:opacity-40"
+					>
+						Back
+					</button>
+
+					{#if step < steps.length - 1}
+						<button
+							type="button"
+							onclick={next}
+							disabled={!canAdvance}
+							class="rounded-lg bg-crimson px-5 py-2 font-body text-sm font-semibold text-white transition-colors hover:bg-crimson-dark disabled:cursor-not-allowed disabled:opacity-40"
+						>
+							Next
+						</button>
+					{:else}
+						<!-- Publish / draft forms carry the full content as hidden fields -->
+						<div class="flex items-center gap-2">
+							<form
+								method="POST"
+								action="?/saveDraft"
+								use:enhance={() => {
+									saving = true;
+									return async ({ update }) => {
+										await update({ reset: false });
+										saving = false;
+									};
+								}}
+							>
+								<input type="hidden" name="title" value={title} />
+								<input type="hidden" name="body" value={body} />
+								<input type="hidden" name="imageUrl" value={effectiveImageUrl} />
+								<input type="hidden" name="badge" value={badge} />
+								<input type="hidden" name="ctaLabel" value={ctaLabel} />
+								<input type="hidden" name="ctaUrl" value={ctaUrl} />
+								<button
+									type="submit"
+									disabled={saving || !titleValid}
+									class="rounded-lg border border-gray-300 px-4 py-2 font-body text-sm font-semibold text-gray-600 transition-colors hover:border-crimson hover:text-crimson disabled:cursor-not-allowed disabled:opacity-40"
+								>
+									Save draft
+								</button>
+							</form>
+							<form
+								method="POST"
+								action="?/publish"
+								use:enhance={() => {
+									saving = true;
+									return async ({ update }) => {
+										await update({ reset: false });
+										saving = false;
+									};
+								}}
+							>
+								<input type="hidden" name="title" value={title} />
+								<input type="hidden" name="body" value={body} />
+								<input type="hidden" name="imageUrl" value={effectiveImageUrl} />
+								<input type="hidden" name="badge" value={badge} />
+								<input type="hidden" name="ctaLabel" value={ctaLabel} />
+								<input type="hidden" name="ctaUrl" value={ctaUrl} />
+								<button
+									type="submit"
+									disabled={saving || !titleValid}
+									class="rounded-lg bg-crimson px-5 py-2 font-body text-sm font-semibold text-white shadow-sm transition-colors hover:bg-crimson-dark disabled:cursor-not-allowed disabled:opacity-40"
+								>
+									{status === 'live' ? 'Update & publish' : 'Publish'}
+								</button>
+							</form>
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		<!-- Live preview -->
+		<div class="lg:col-span-2">
+			<div class="sticky top-6">
+				<p class="mb-2 font-body text-xs font-semibold tracking-wider text-gray-400 uppercase">
+					Live preview
+				</p>
+				<div class="rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 p-4 sm:p-6">
+					<div
+						class="popup-card relative w-full overflow-hidden rounded-2xl border-2 border-gold/30 bg-gradient-to-br from-cream via-white to-cream shadow-2xl"
+					>
+						<div class="h-1.5 bg-gradient-to-r from-gold-dark via-gold to-gold-light"></div>
+						<span
+							class="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-gray-400 shadow-sm"
+							aria-hidden="true"
+						>
+							<svg
+								class="h-4 w-4"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+							</svg>
+						</span>
+						{#if previewImage}
+							<img src={previewImage} alt="" class="h-40 w-full object-cover" />
+						{/if}
+						<div class="px-6 pt-5 pb-6">
+							{#if badge.trim()}
+								<div class="mb-3 flex justify-center">
+									<span
+										class="inline-flex items-center rounded-full bg-crimson px-4 py-1.5 text-xs font-bold tracking-wide text-white uppercase shadow-lg shadow-crimson/20"
+									>
+										{badge.trim()}
+									</span>
+								</div>
+							{/if}
+							<h2 class="text-center font-display text-2xl font-bold text-crimson">
+								{title.trim() || 'Your header'}
+							</h2>
+							{#if body.trim()}
+								<p class="mt-2 text-center font-body text-sm whitespace-pre-line text-gray-600">
+									{body.trim()}
+								</p>
+							{/if}
+							{#if ctaUrl.trim()}
+								<div class="mt-5 flex justify-center">
+									<span
+										class="inline-flex items-center justify-center gap-2 rounded-xl bg-crimson px-8 py-3 font-body text-base font-bold text-white shadow-lg shadow-crimson/25"
+									>
+										{ctaLabel.trim() || 'Mehr erfahren'}
+									</span>
+								</div>
+							{/if}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
