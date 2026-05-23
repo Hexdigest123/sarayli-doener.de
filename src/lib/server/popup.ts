@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db';
 import { sitePopup, type SitePopup } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { renderPopupBody } from '$lib/server/markdown';
 
 const POPUP_ROW_ID = 1;
 
@@ -24,16 +25,15 @@ export type PopupInput = {
 	ctaUrl: string | null;
 };
 
-// What the public site needs to render the popup. `version` lets the client remember a
-// per-visitor dismissal that resets whenever the admin republishes new content.
+// What the public site needs to render the popup. `bodyHtml` is the admin's Markdown
+// already rendered and sanitised on the server, ready to drop into the popup with `@html`.
 export type PublicPopup = {
 	title: string;
-	body: string | null;
+	bodyHtml: string | null;
 	imageUrl: string | null;
 	badge: string | null;
 	ctaLabel: string | null;
 	ctaUrl: string | null;
-	version: number;
 };
 
 async function getRow(): Promise<SitePopup | null> {
@@ -52,12 +52,11 @@ export async function getActivePopup(): Promise<PublicPopup | null> {
 	if (!row || row.active !== 1 || !row.title.trim()) return null;
 	return {
 		title: row.title,
-		body: row.body,
+		bodyHtml: renderPopupBody(row.body),
 		imageUrl: row.imageUrl,
 		badge: row.badge,
 		ctaLabel: row.ctaLabel,
-		ctaUrl: row.ctaUrl,
-		version: row.updatedAt.getTime()
+		ctaUrl: row.ctaUrl
 	};
 }
 

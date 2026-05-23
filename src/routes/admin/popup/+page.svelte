@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { tick } from 'svelte';
+	import { markdownToHtml } from '$lib/markdown';
 
 	let { data, form } = $props();
 
@@ -10,6 +12,70 @@
 	let badge = $state(data.popup?.badge ?? '');
 	let ctaLabel = $state(data.popup?.ctaLabel ?? '');
 	let ctaUrl = $state(data.popup?.ctaUrl ?? '');
+
+	// ── Markdown description editor ──────────────────────────────────────────────
+	// The description is stored as Markdown; the toolbar inserts syntax around the
+	// current selection and the live preview (right) shows the rendered result.
+	let bodyEl = $state<HTMLTextAreaElement>();
+	const bodyPreviewHtml = $derived(markdownToHtml(body));
+
+	// Wrap the current selection with the same marker on both sides (e.g. ** for bold).
+	async function surround(marker: string) {
+		const el = bodyEl;
+		if (!el) return;
+		const start = el.selectionStart;
+		const end = el.selectionEnd;
+		const selected = body.slice(start, end);
+		body = body.slice(0, start) + marker + selected + marker + body.slice(end);
+		await tick();
+		el.focus();
+		el.setSelectionRange(start + marker.length, start + marker.length + selected.length);
+	}
+
+	// Prefix each line in the selection (bullet/numbered list, heading, quote).
+	async function prefixLines(prefix: string, numbered = false) {
+		const el = bodyEl;
+		if (!el) return;
+		const start = el.selectionStart;
+		const end = el.selectionEnd;
+		const lineStart = body.lastIndexOf('\n', start - 1) + 1;
+		const nextBreak = body.indexOf('\n', end);
+		const lineEnd = nextBreak === -1 ? body.length : nextBreak;
+		const block = body
+			.slice(lineStart, lineEnd)
+			.split('\n')
+			.map((line, i) => (numbered ? `${i + 1}. ` : prefix) + line)
+			.join('\n');
+		body = body.slice(0, lineStart) + block + body.slice(lineEnd);
+		await tick();
+		el.focus();
+		el.setSelectionRange(lineStart, lineStart + block.length);
+	}
+
+	// Insert a Markdown link, leaving the URL placeholder selected for quick typing.
+	async function insertLink() {
+		const el = bodyEl;
+		if (!el) return;
+		const start = el.selectionStart;
+		const end = el.selectionEnd;
+		const text = body.slice(start, end) || 'Text';
+		const placeholder = 'https://';
+		body = body.slice(0, start) + `[${text}](${placeholder})` + body.slice(end);
+		await tick();
+		el.focus();
+		const urlStart = start + text.length + 3; // past "[text]("
+		el.setSelectionRange(urlStart, urlStart + placeholder.length);
+	}
+
+	const mdTools = [
+		{ label: 'B', title: 'Fett', cls: 'font-bold', run: () => surround('**') },
+		{ label: 'I', title: 'Kursiv', cls: 'italic', run: () => surround('*') },
+		{ label: 'H', title: 'Überschrift', cls: 'font-display', run: () => prefixLines('## ') },
+		{ label: '• Liste', title: 'Aufzählung', cls: '', run: () => prefixLines('- ') },
+		{ label: '1. Liste', title: 'Nummerierte Liste', cls: '', run: () => prefixLines('', true) },
+		{ label: '❝', title: 'Zitat', cls: '', run: () => prefixLines('> ') },
+		{ label: '🔗', title: 'Link', cls: '', run: insertLink }
+	];
 
 	const savedImage = data.popup?.imageUrl ?? '';
 	const savedImageIsData = savedImage.startsWith('data:');
@@ -373,14 +439,34 @@
 								>
 									Description
 								</label>
+								<div
+									class="flex flex-wrap items-center gap-0.5 rounded-t-lg border border-b-0 border-gray-200 bg-gray-50 p-1"
+								>
+									{#each mdTools as tool (tool.label)}
+										<button
+											type="button"
+											title={tool.title}
+											aria-label={tool.title}
+											onclick={tool.run}
+											class="rounded px-2 py-1 font-body text-sm text-gray-600 transition-colors hover:bg-white hover:text-crimson {tool.cls}"
+										>
+											{tool.label}
+										</button>
+									{/each}
+								</div>
 								<textarea
 									id="f-body"
+									bind:this={bodyEl}
 									bind:value={body}
 									rows="5"
 									maxlength="2000"
 									placeholder="Tell visitors what's new — an offer, a notice, opening hours…"
-									class="w-full rounded-lg border border-gray-200 px-3 py-2 font-body text-sm text-gray-800 focus:border-crimson focus:ring-0"
+									class="w-full rounded-b-lg border border-gray-200 px-3 py-2 font-body text-sm text-gray-800 focus:border-crimson focus:ring-0"
 								></textarea>
+								<p class="mt-1 font-body text-xs text-gray-400">
+									Markdown wird unterstützt — **fett**, *kursiv*, Listen und Links. Die Vorschau
+									rechts zeigt das Ergebnis.
+								</p>
 							</div>
 							<div>
 								<label
@@ -688,10 +774,13 @@
 							<h2 class="text-center font-display text-2xl font-bold text-crimson">
 								{title.trim() || 'Your header'}
 							</h2>
-							{#if body.trim()}
-								<p class="mt-2 text-center font-body text-sm whitespace-pre-line text-gray-600">
-									{body.trim()}
-								</p>
+							{#if bodyPreviewHtml}
+								<div
+									class="prose prose-sm mt-2 max-w-none text-center font-body leading-relaxed text-gray-600 prose-headings:font-display prose-headings:text-crimson prose-a:text-crimson prose-ol:list-inside prose-ol:pl-0 prose-ul:list-inside prose-ul:pl-0 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+								>
+									<!-- eslint-disable-next-line svelte/no-at-html-tags -- admin's own trusted preview; published copy is sanitised server-side in $lib/server/markdown -->
+									{@html bodyPreviewHtml}
+								</div>
 							{/if}
 							{#if ctaUrl.trim()}
 								<div class="mt-5 flex justify-center">

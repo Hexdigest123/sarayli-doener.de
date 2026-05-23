@@ -3,12 +3,11 @@
 
 	type Popup = {
 		title: string;
-		body: string | null;
+		bodyHtml: string | null;
 		imageUrl: string | null;
 		badge: string | null;
 		ctaLabel: string | null;
 		ctaUrl: string | null;
-		version: number;
 	};
 
 	let popup = $state<Popup | null>(null);
@@ -16,37 +15,18 @@
 	let animateIn = $state(false);
 	let dialogEl = $state<HTMLDivElement>();
 
-	const DISMISS_KEY_PREFIX = 'site_popup_dismissed_v';
-
 	function getCookie(name: string): string | null {
 		if (!browser) return null;
 		const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
 		return match ? match[2] : null;
 	}
 
-	function isDismissed(version: number): boolean {
-		if (!browser) return true;
-		try {
-			return localStorage.getItem(DISMISS_KEY_PREFIX + version) === '1';
-		} catch {
-			return false;
-		}
-	}
-
-	function rememberDismissal(version: number) {
-		try {
-			localStorage.setItem(DISMISS_KEY_PREFIX + version, '1');
-		} catch {
-			// Private mode / storage disabled — popup simply reappears next visit.
-		}
-	}
-
+	// The popup is shown on every visit, so closing it only hides it for the current page
+	// load — there is no persisted "already seen" flag.
 	function dismiss() {
 		animateIn = false;
-		const version = popup?.version;
 		setTimeout(() => {
 			visible = false;
-			if (version != null) rememberDismissal(version);
 		}, 300);
 	}
 
@@ -68,7 +48,6 @@
 			return;
 		}
 		// Same-tab navigation for paths and absolute URLs.
-		rememberDismissal(popup!.version);
 		window.location.href = url;
 	}
 
@@ -109,7 +88,7 @@
 			if (!res.ok) return;
 			const data = (await res.json()) as { popup: Popup | null };
 			const next = data.popup;
-			if (!next || !next.title?.trim() || isDismissed(next.version)) return;
+			if (!next || !next.title?.trim()) return;
 			popup = next;
 
 			// Don't stack on top of the cookie banner. On a first visit, wait for the
@@ -203,12 +182,13 @@
 					{popup.title}
 				</h2>
 
-				{#if popup.body}
-					<p
-						class="mt-3 text-center font-body text-sm leading-relaxed whitespace-pre-line text-gray-600"
+				{#if popup.bodyHtml}
+					<div
+						class="popup-prose prose prose-sm mt-3 max-w-none text-center font-body leading-relaxed text-gray-600 prose-headings:font-display prose-headings:text-crimson prose-a:text-crimson prose-ol:list-inside prose-ol:pl-0 prose-ul:list-inside prose-ul:pl-0"
 					>
-						{popup.body}
-					</p>
+						<!-- eslint-disable-next-line svelte/no-at-html-tags -- sanitised server-side in $lib/server/markdown -->
+						{@html popup.bodyHtml}
+					</div>
 				{/if}
 
 				<div class="mt-6 flex flex-col items-center gap-2">
@@ -245,6 +225,15 @@
 <style>
 	.offer-badge {
 		animation: badgePulse 2s ease-in-out infinite;
+	}
+
+	/* Keep the rendered Markdown tight inside the popup: drop the outer margins the
+	   typography plugin adds to the first/last block so spacing stays controlled. */
+	.popup-prose :global(> :first-child) {
+		margin-top: 0;
+	}
+	.popup-prose :global(> :last-child) {
+		margin-bottom: 0;
 	}
 
 	@keyframes badgePulse {
