@@ -3,8 +3,10 @@ import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { visitorEvents } from '$lib/server/db/schema';
 import { computeVisitorId } from '$lib/server/tracking';
+import { rateLimit } from '$lib/server/rate-limit';
 
 const MAX_EVENTS_PER_REQUEST = 50;
+const MAX_METADATA_BYTES = 2048;
 const VALID_EVENT_TYPES = new Set(['scroll_depth', 'click']);
 
 interface IncomingEvent {
@@ -25,7 +27,26 @@ function isValidEvent(e: unknown): e is IncomingEvent {
 	);
 }
 
+// Drop oversized or non-object metadata so a client can't grow the jsonb column
+// without bound. Returns null when the blob is missing, malformed, or too large.
+function boundMetadata(m: unknown): Record<string, unknown> | null {
+	if (typeof m !== 'object' || m === null || Array.isArray(m)) return null;
+	try {
+		if (JSON.stringify(m).length > MAX_METADATA_BYTES) return null;
+		return m as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+}
+
 export const POST: RequestHandler = async (event) => {
+	// This endpoint writes to the DB on an unauthenticated, client-set consent
+	// cookie, so cap the request rate per IP before doing any work.
+	const limit = rateLimit('events', event.getClientAddress(), 60, 60 * 1000);
+	if (!limit.allowed) {
+		return json({ error: 'rate_limited' }, { status: 429 });
+	}
+
 	const consent = event.cookies.get('tracking_consent');
 	if (consent !== 'granted') {
 		return json({ error: 'consent_required' }, { status: 403 });
@@ -68,7 +89,7 @@ export const POST: RequestHandler = async (event) => {
 			visitorId,
 			eventType: e.type,
 			page: e.page,
-			metadata: e.metadata ?? null
+			metadata: boundMetadata(e.metadata)
 		}))
 	);
 

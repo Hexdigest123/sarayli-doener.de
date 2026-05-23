@@ -1,8 +1,47 @@
 import { sequence } from '@sveltejs/kit/hooks';
 import { error, redirect, type Handle, type HandleServerError } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { handleTracking } from '$lib/server/tracking';
 import { validateSession, SESSION_COOKIE_NAME } from '$lib/server/auth';
+
+// Content-Security-Policy. The site loads no third-party scripts (Stripe uses a
+// hosted-checkout redirect, not Stripe.js) and no iframes, so script/connect/frame
+// stay locked to 'self'. Google Fonts is the only external origin (its stylesheet
+// and font files). 'unsafe-inline' is required for script-src because SvelteKit
+// emits an inline hydration bootstrap and the app injects inline JSON-LD via
+// {@html}; the strong protections here are frame-ancestors (clickjacking),
+// object-src 'none', and base-uri/form-action 'self'. Tightening script-src to a
+// nonce would require plumbing the nonce into the JSON-LD {@html} blocks.
+const CSP = [
+	"default-src 'self'",
+	"script-src 'self' 'unsafe-inline'",
+	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+	"font-src 'self' https://fonts.gstatic.com",
+	"img-src 'self' data: https:",
+	"connect-src 'self'",
+	"frame-src 'none'",
+	"frame-ancestors 'none'",
+	"base-uri 'self'",
+	"form-action 'self'",
+	"object-src 'none'"
+].join('; ');
+
+const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
+	const response = await resolve(event);
+	const headers = response.headers;
+	headers.set('X-Content-Type-Options', 'nosniff');
+	headers.set('X-Frame-Options', 'DENY');
+	headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+	headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	if (!dev) {
+		// HSTS and CSP only in production: dev runs over http and Vite's HMR uses a
+		// websocket that a strict connect-src would block.
+		headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+		headers.set('Content-Security-Policy', CSP);
+	}
+	return response;
+};
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
@@ -36,7 +75,12 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = sequence(handleParaglide, handleAuth, handleTracking);
+export const handle: Handle = sequence(
+	handleSecurityHeaders,
+	handleParaglide,
+	handleAuth,
+	handleTracking
+);
 
 export const handleError: HandleServerError = ({ error, status }) => {
 	if (status !== 404) {

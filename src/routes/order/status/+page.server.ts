@@ -3,6 +3,9 @@ import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { orderItems, orders } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { rateLimit } from '$lib/server/rate-limit';
+
+const CANCELLABLE_STATUSES = ['paid', 'pending'];
 
 export const load: PageServerLoad = async ({ url }) => {
 	const orderIdParam = url.searchParams.get('id')?.trim().toUpperCase();
@@ -56,27 +59,34 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-	requestCancellation: async ({ request }) => {
+	requestCancellation: async ({ request, getClientAddress }) => {
+		// The order is identified only by its number, which anyone can submit, so
+		// throttle to stop scripted abuse against the whole order table.
+		const limit = rateLimit('order-cancel', getClientAddress(), 10, 10 * 60 * 1000);
+		if (!limit.allowed) {
+			return fail(429, { error: 'Too many requests. Please try again later.' });
+		}
+
 		const data = await request.formData();
-		const orderId = Number.parseInt(String(data.get('orderId')), 10);
-
-		if (!orderId) {
-			return fail(400, { error: 'Missing order ID' });
+		// Authorise by the high-entropy order number (a bearer token printed on the
+		// customer's receipt), never the sequential internal row id — the latter is
+		// trivially guessable and would let anyone cancel arbitrary orders.
+		const orderNumber = String(data.get('orderNumber') ?? '')
+			.trim()
+			.toUpperCase();
+		if (!orderNumber) {
+			return fail(400, { error: 'Missing order number' });
 		}
 
-		const [order] = await db.select().from(orders).where(eq(orders.id, orderId));
-		if (!order) {
-			return fail(404, { error: 'Order not found' });
-		}
+		const [order] = await db
+			.select({ id: orders.id, status: orders.status })
+			.from(orders)
+			.where(eq(orders.orderNumber, orderNumber));
 
-		// Only allow cancellation request for paid or pending orders
-		if (!['paid', 'pending'].includes(order.status)) {
-			return fail(400, { error: 'Order cannot be cancelled in its current status' });
-		}
-
-		// Don't allow if already requested
-		if (order.status === 'cancellation_requested') {
-			return fail(400, { error: 'Cancellation already requested' });
+		// Uniform response whether the order is unknown or simply not cancellable,
+		// so this endpoint cannot be used to probe which orders exist or their status.
+		if (!order || !CANCELLABLE_STATUSES.includes(order.status)) {
+			return fail(400, { error: 'This order can no longer be cancelled.' });
 		}
 
 		await db
@@ -85,7 +95,7 @@ export const actions: Actions = {
 				status: 'cancellation_requested',
 				cancellationRequestedAt: new Date()
 			})
-			.where(eq(orders.id, orderId));
+			.where(eq(orders.id, order.id));
 
 		return { success: true };
 	}

@@ -150,7 +150,11 @@
 							<p class="font-display text-2xl font-bold text-crimson">{data.order.orderNumber}</p>
 						</div>
 						<div class="text-right">
-							<span class="inline-block rounded-full border px-3 py-1 text-sm font-medium {statusClass(data.order.status)}">
+							<span
+								class="inline-block rounded-full border px-3 py-1 text-sm font-medium {statusClass(
+									data.order.status
+								)}"
+							>
 								{statusLabel(data.order.status)}
 							</span>
 						</div>
@@ -166,16 +170,22 @@
 						{#if data.order.pickupTime}
 							<div>
 								<p class="font-body text-xs text-gray-500">{m.order_status_pickup_time()}</p>
-								<p class="mt-0.5 font-body text-sm font-medium text-gray-800">{data.order.pickupTime}</p>
+								<p class="mt-0.5 font-body text-sm font-medium text-gray-800">
+									{data.order.pickupTime}
+								</p>
 							</div>
 						{/if}
 						<div>
 							<p class="font-body text-xs text-gray-500">{m.order_status_placed_at()}</p>
-							<p class="mt-0.5 font-body text-sm font-medium text-gray-800">{formatDate(data.order.createdAt)}</p>
+							<p class="mt-0.5 font-body text-sm font-medium text-gray-800">
+								{formatDate(data.order.createdAt)}
+							</p>
 						</div>
 						<div>
 							<p class="font-body text-xs text-gray-500">{m.cart_total()}</p>
-							<p class="mt-0.5 font-display text-lg font-bold text-crimson">{formatPrice(data.order.totalAmount)}</p>
+							<p class="mt-0.5 font-display text-lg font-bold text-crimson">
+								{formatPrice(data.order.totalAmount)}
+							</p>
 						</div>
 					</div>
 				</div>
@@ -189,17 +199,23 @@
 							{#each data.items as item}
 								<div class="flex items-center justify-between px-6 py-3">
 									<div>
-										<p class="font-body text-sm font-medium text-gray-800">{getTranslatedItemName(item.menuItemId, item.itemName)}</p>
-							{#if item.extras}
-										{@const extras = parseExtras(item.extras)}
-										{#if extras.length > 0}
-											<p class="font-body text-xs text-amber-600">{extras.map((id) => getTranslatedExtra(id)).join(', ')}</p>
+										<p class="font-body text-sm font-medium text-gray-800">
+											{getTranslatedItemName(item.menuItemId, item.itemName)}
+										</p>
+										{#if item.extras}
+											{@const extras = parseExtras(item.extras)}
+											{#if extras.length > 0}
+												<p class="font-body text-xs text-amber-600">
+													{extras.map((id) => getTranslatedExtra(id)).join(', ')}
+												</p>
+											{/if}
 										{/if}
-									{/if}
-								</div>
-								<div class="shrink-0 text-right">
-									<p class="font-body text-xs text-gray-500">{item.quantity}x</p>
-									<p class="whitespace-nowrap font-body text-sm font-medium text-gray-800">{formatPrice(item.unitPrice * item.quantity)}</p>
+									</div>
+									<div class="shrink-0 text-right">
+										<p class="font-body text-xs text-gray-500">{item.quantity}x</p>
+										<p class="font-body text-sm font-medium whitespace-nowrap text-gray-800">
+											{formatPrice(item.unitPrice * item.quantity)}
+										</p>
 									</div>
 								</div>
 							{/each}
@@ -230,10 +246,7 @@
 		{/if}
 
 		<div class="mt-8 text-center">
-			<a
-				href="/"
-				class="font-body text-sm text-gray-500 transition-colors hover:text-crimson"
-			>
+			<a href="/" class="font-body text-sm text-gray-500 transition-colors hover:text-crimson">
 				{m.checkout_success_back()}
 			</a>
 		</div>
@@ -254,11 +267,24 @@
 		></button>
 		<div class="relative z-10 mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
 			<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100">
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-6 w-6 text-orange-600"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+					/>
 				</svg>
 			</div>
-			<h3 class="mb-1 font-display text-lg font-bold text-gray-900">{m.order_status_cancel_confirm_title()}</h3>
+			<h3 class="mb-1 font-display text-lg font-bold text-gray-900">
+				{m.order_status_cancel_confirm_title()}
+			</h3>
 			<p class="mb-4 font-body text-sm text-gray-600">
 				{m.order_status_cancel_confirm_message()}
 			</p>
@@ -269,13 +295,18 @@
 				>
 					{m.order_status_cancel_go_back()}
 				</button>
-				<form method="POST" action="?/requestCancellation" use:enhance={() => {
-					return async ({ update }) => {
-						await update();
-						showCancelModal = false;
-					};
-				}} class="flex-1">
-					<input type="hidden" name="orderId" value={data.order.id} />
+				<form
+					method="POST"
+					action="?/requestCancellation"
+					use:enhance={() => {
+						return async ({ update }) => {
+							await update();
+							showCancelModal = false;
+						};
+					}}
+					class="flex-1"
+				>
+					<input type="hidden" name="orderNumber" value={data.order.orderNumber} />
 					<button
 						type="submit"
 						class="w-full rounded-lg bg-red-600 px-3 py-2.5 font-body text-sm font-semibold text-white transition-colors hover:bg-red-700"
