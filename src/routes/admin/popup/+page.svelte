@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { tick } from 'svelte';
-	import { markdownToHtml } from '$lib/markdown';
+	import { renderPopupBody } from '$lib/popup-markdown';
 
 	let { data, form } = $props();
 
@@ -24,7 +24,7 @@
 	// The description is stored as Markdown; the toolbar inserts syntax around the
 	// current selection and the live preview (right) shows the rendered result.
 	let bodyEl = $state<HTMLTextAreaElement>();
-	const bodyPreviewHtml = $derived(markdownToHtml(body));
+	const bodyPreviewHtml = $derived(renderPopupBody(body));
 
 	// Wrap the current selection with the same marker on both sides (e.g. ** for bold).
 	async function surround(marker: string) {
@@ -969,7 +969,7 @@
 									<div
 										class="prose prose-sm mt-2 max-w-none text-center font-body leading-relaxed text-gray-600 prose-headings:font-display prose-headings:text-crimson prose-a:text-crimson prose-ol:list-inside prose-ol:pl-0 prose-ul:list-inside prose-ul:pl-0 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
 									>
-										<!-- eslint-disable-next-line svelte/no-at-html-tags -- admin's own trusted preview; published copy is sanitised server-side in $lib/server/markdown -->
+										<!-- eslint-disable-next-line svelte/no-at-html-tags -- sanitised via renderPopupBody (same allowlist as the published popup) -->
 										{@html bodyPreviewHtml}
 									</div>
 								{/if}

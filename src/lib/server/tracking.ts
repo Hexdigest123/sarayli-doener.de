@@ -2,6 +2,12 @@ import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { pageViews } from '$lib/server/db/schema';
 import { generateVisitorId, parseClientFingerprint } from '$lib/server/fingerprint';
+import { rateLimit } from '$lib/server/rate-limit';
+
+// Bound stored analytics strings so a crafted request (long UA / referer / query
+// string) can't write oversized rows.
+const cap = (value: string | null, max: number): string | null =>
+	value == null ? null : value.slice(0, max);
 
 const REFERER_SOURCE_MAP: [pattern: string, source: string, medium: string][] = [
 	['tiktok.com', 'tiktok', 'social'],
@@ -100,14 +106,14 @@ export async function trackPageView(event: RequestEvent): Promise<void> {
 		await db.insert(pageViews).values({
 			ipAddress: ip,
 			visitorId,
-			userAgent,
-			referer,
-			landingPage: `${event.url.pathname}${event.url.search}`,
-			utmSource: source,
-			utmMedium: medium,
-			utmCampaign: event.url.searchParams.get('utm_campaign'),
-			utmTerm: event.url.searchParams.get('utm_term'),
-			utmContent: event.url.searchParams.get('utm_content'),
+			userAgent: cap(userAgent, 512),
+			referer: cap(referer, 2048),
+			landingPage: cap(`${event.url.pathname}${event.url.search}`, 2048) ?? '/',
+			utmSource: cap(source, 256),
+			utmMedium: cap(medium, 256),
+			utmCampaign: cap(event.url.searchParams.get('utm_campaign'), 256),
+			utmTerm: cap(event.url.searchParams.get('utm_term'), 256),
+			utmContent: cap(event.url.searchParams.get('utm_content'), 256),
 			locale: getLocaleFromPath(event.url.pathname)
 		});
 	} catch (error) {
@@ -127,7 +133,11 @@ export const handleTracking: Handle = async ({ event, resolve }) => {
 		!pathname.startsWith('/_app') &&
 		!pathname.startsWith('/api')
 	) {
-		void trackPageView(event);
+		// Cap page-view inserts per IP so a flood of requests can't bloat the table.
+		// Generous enough that normal browsing is never throttled.
+		if (rateLimit('pageview', event.getClientAddress(), 60, 60 * 1000).allowed) {
+			void trackPageView(event);
+		}
 	}
 
 	return resolve(event);
