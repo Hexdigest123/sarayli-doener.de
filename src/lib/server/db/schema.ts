@@ -81,6 +81,59 @@ export const orderItems = pgTable('order_items', {
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 });
 
+// Menu is fully admin-managed and persisted here. On first launch the tables are
+// seeded from src/lib/config.ts + the messages/*.json translations (see
+// src/lib/server/menu.ts → ensureMenuSeeded). Text is stored per locale (de required,
+// en/tr optional and fall back to de) because Paraglide messages are compiled at build
+// time and cannot represent meals created at runtime.
+export const menuCategories = pgTable(
+	'menu_categories',
+	{
+		id: serial('id').primaryKey(),
+		nameDe: text('name_de').notNull(),
+		nameEn: text('name_en'),
+		nameTr: text('name_tr'),
+		sortOrder: integer('sort_order').notNull().default(0),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(table) => [index('menu_categories_sort_order_idx').on(table.sortOrder)]
+);
+
+export const menuItems = pgTable(
+	'menu_items',
+	{
+		id: serial('id').primaryKey(),
+		categoryId: integer('category_id')
+			.notNull()
+			.references(() => menuCategories.id),
+		nameDe: text('name_de').notNull(),
+		nameEn: text('name_en'),
+		nameTr: text('name_tr'),
+		descDe: text('desc_de'),
+		descEn: text('desc_en'),
+		descTr: text('desc_tr'),
+		sizeDe: text('size_de'),
+		sizeEn: text('size_en'),
+		sizeTr: text('size_tr'),
+		// Price in cents, matching orders.totalAmount / order_items.unit_price.
+		priceCents: integer('price_cents').notNull(),
+		// 1 when the item shows the free-toppings ("Extras") picker (formerly DOENER_ITEM_IDS).
+		supportsExtras: integer('supports_extras').notNull().default(0),
+		// 0 hides the item from the public menu without deleting it.
+		isAvailable: integer('is_available').notNull().default(1),
+		sortOrder: integer('sort_order').notNull().default(0),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(table) => [index('menu_items_category_id_sort_order_idx').on(table.categoryId, table.sortOrder)]
+);
+
+export type MenuCategoryRow = typeof menuCategories.$inferSelect;
+export type NewMenuCategoryRow = typeof menuCategories.$inferInsert;
+export type MenuItemRow = typeof menuItems.$inferSelect;
+export type NewMenuItemRow = typeof menuItems.$inferInsert;
+
 export const storeSettings = pgTable('store_settings', {
 	id: serial('id').primaryKey(),
 	isOpen: integer('is_open').notNull().default(1),

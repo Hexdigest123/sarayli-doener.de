@@ -1,7 +1,9 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
+	import { getLocale } from '$lib/paraglide/runtime';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { doenerExtras } from '$lib/config';
+	import { pickText } from '$lib/menu-types';
 
 	type OrderType = 'pickup' | 'dine_in';
 
@@ -11,6 +13,8 @@
 			msg[key] = fn as () => string;
 		}
 	}
+
+	const t = (text: Parameters<typeof pickText>[1]) => pickText(getLocale(), text);
 
 	const PICKUP_OPEN_HOUR = 11;
 	const PICKUP_CLOSE_HOUR = 23;
@@ -195,11 +199,11 @@
 								<div class="flex items-start justify-between">
 									<div class="min-w-0 flex-1">
 										<p class="font-body text-sm font-semibold text-gray-900">
-											{msg[item.nameKey]?.() ?? item.nameKey}
+											{t(item.name)}
 										</p>
-										{#if item.sizeKey}
+										{#if item.size}
 											<p class="font-body text-xs text-gray-500">
-												{msg[item.sizeKey]?.() ?? item.sizeKey}
+												{t(item.size)}
 											</p>
 										{/if}
 										{#if item.extras && item.extras.length > 0}

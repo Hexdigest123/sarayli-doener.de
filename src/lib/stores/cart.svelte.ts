@@ -1,15 +1,28 @@
 import { browser } from '$app/environment';
+import type { LocalizedText } from '$lib/menu-types';
 
 export interface CartItem {
 	menuItemId: number;
-	nameKey: string;
+	/** Localized meal name snapshot, resolved per locale at render time. */
+	name: LocalizedText;
 	price: number;
 	quantity: number;
-	sizeKey?: string;
+	size?: LocalizedText | null;
 	extras?: string[];
 }
 
 const STORAGE_KEY = 'sarayli_cart';
+
+function isValidItem(item: unknown): item is CartItem {
+	return (
+		typeof item === 'object' &&
+		item !== null &&
+		typeof (item as CartItem).menuItemId === 'number' &&
+		typeof (item as CartItem).name === 'object' &&
+		(item as CartItem).name !== null &&
+		typeof (item as CartItem).price === 'number'
+	);
+}
 
 function loadCart(): CartItem[] {
 	if (!browser) {
@@ -18,7 +31,11 @@ function loadCart(): CartItem[] {
 
 	try {
 		const saved = localStorage.getItem(STORAGE_KEY);
-		return saved ? (JSON.parse(saved) as CartItem[]) : [];
+		if (!saved) return [];
+		const parsed = JSON.parse(saved);
+		// Drop legacy carts saved before the menu moved to the DB (they used `nameKey`
+		// translation keys instead of localized text snapshots).
+		return Array.isArray(parsed) ? parsed.filter(isValidItem) : [];
 	} catch {
 		return [];
 	}

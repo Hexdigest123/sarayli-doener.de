@@ -1,8 +1,9 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
-	import { localizeHref } from '$lib/paraglide/runtime';
+	import { localizeHref, getLocale } from '$lib/paraglide/runtime';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { doenerExtras } from '$lib/config';
+	import { pickText } from '$lib/menu-types';
 
 	let { open, onclose }: { open: boolean; onclose: () => void } = $props();
 
@@ -12,6 +13,8 @@
 			msg[key] = fn as () => string;
 		}
 	}
+
+	const t = (text: Parameters<typeof pickText>[1]) => pickText(getLocale(), text);
 
 	function getExtrasLabel(extras?: string[]): string {
 		if (!extras || extras.length === 0) return '';
@@ -78,10 +81,10 @@
 								<div class="flex items-start justify-between gap-3">
 									<div class="min-w-0">
 										<p class="font-body text-sm font-semibold text-gray-900">
-											{msg[item.nameKey]?.() ?? item.nameKey}
+											{t(item.name)}
 										</p>
-										{#if item.sizeKey}
-											<p class="font-body text-xs text-gray-500">{msg[item.sizeKey]?.() ?? item.sizeKey}</p>
+										{#if item.size}
+											<p class="font-body text-xs text-gray-500">{t(item.size)}</p>
 										{/if}
 										{#if item.extras && item.extras.length > 0}
 											<p class="font-body text-xs text-gold">{getExtrasLabel(item.extras)}</p>

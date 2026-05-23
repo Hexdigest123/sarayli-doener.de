@@ -1,9 +1,13 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
-	import { menuCategories, doenerExtras, DOENER_ITEM_IDS, type MenuItem } from '$lib/config';
+	import { getLocale } from '$lib/paraglide/runtime';
+	import { doenerExtras } from '$lib/config';
+	import { pickText, type PublicMenuCategory, type PublicMenuItem } from '$lib/menu-types';
 	import { cart } from '$lib/stores/cart.svelte';
 
-	let activeCategory = $state('doener');
+	let { categories = [] }: { categories?: PublicMenuCategory[] } = $props();
+
+	let activeCategory = $state<number | null>(null);
 	let shopEnabled = $state(true);
 
 	$effect(() => {
@@ -15,7 +19,7 @@
 			.catch(() => {});
 	});
 
-	// Build a lookup of all message functions for dynamic key access
+	// Build a lookup of all message functions for dynamic key access (extras labels).
 	const msg: Record<string, () => string> = {};
 	for (const [key, fn] of Object.entries(m)) {
 		if (typeof fn === 'function') {
@@ -23,36 +27,28 @@
 		}
 	}
 
-	const getCategoryName = (id: string) => {
-		const map: Record<string, () => string> = {
-			doener: m.cat_doener,
-			teig: m.cat_teig,
-			imbiss: m.cat_imbiss,
-			suppen: m.cat_suppen,
-			salat: m.cat_salat,
-			extras: m.cat_extras,
-			getraenke: m.cat_getraenke
-		};
-		return map[id]?.() ?? id;
-	};
+	// Resolve localized DB text for the active locale. Called in markup so it tracks
+	// locale changes (which navigate to a localized URL and re-render this component).
+	const t = (text: Parameters<typeof pickText>[1]) => pickText(getLocale(), text);
 
-	function getSubtitleText(item: MenuItem): string {
-		const descText = item.descKey ? (msg[item.descKey]?.() ?? '').trim() : '';
-		const sizeText = item.sizeKey ? (msg[item.sizeKey]?.() ?? '').trim() : '';
+	function getSubtitleText(item: PublicMenuItem): string {
+		const descText = t(item.desc).trim();
+		const sizeText = t(item.size).trim();
 
 		if (descText && sizeText) return `${descText} · ${sizeText}`;
 		return descText || sizeText;
 	}
 
-	let activeItems = $derived(menuCategories.find((c) => c.id === activeCategory)?.items ?? []);
+	let effectiveActive = $derived(activeCategory ?? categories[0]?.id ?? null);
+	let activeItems = $derived(categories.find((c) => c.id === effectiveActive)?.items ?? []);
 	let justAdded = $state<Record<number, boolean>>({});
 
 	// Extras picker state
-	let extrasModalItem = $state<MenuItem | null>(null);
+	let extrasModalItem = $state<PublicMenuItem | null>(null);
 	let selectedExtras = $state<Set<string>>(new Set());
 
-	function handleAddClick(item: MenuItem) {
-		if (DOENER_ITEM_IDS.has(item.id)) {
+	function handleAddClick(item: PublicMenuItem) {
+		if (item.supportsExtras) {
 			extrasModalItem = item;
 			selectedExtras = new Set();
 		} else {
@@ -74,9 +70,9 @@
 		if (!extrasModalItem) return;
 		cart.addItem({
 			menuItemId: extrasModalItem.id,
-			nameKey: extrasModalItem.nameKey,
+			name: extrasModalItem.name,
 			price: extrasModalItem.price,
-			sizeKey: extrasModalItem.sizeKey,
+			size: extrasModalItem.size,
 			extras: [...selectedExtras]
 		});
 
@@ -97,12 +93,12 @@
 		selectedExtras = new Set();
 	}
 
-	function addToCart(item: MenuItem) {
+	function addToCart(item: PublicMenuItem) {
 		cart.addItem({
 			menuItemId: item.id,
-			nameKey: item.nameKey,
+			name: item.name,
 			price: item.price,
-			sizeKey: item.sizeKey
+			size: item.size
 		});
 
 		justAdded = { ...justAdded, [item.id]: true };
@@ -128,15 +124,15 @@
 				class="scrollbar-hide flex gap-2 overflow-x-auto pb-2 md:justify-center"
 				style="-webkit-overflow-scrolling: touch;"
 			>
-				{#each menuCategories as category}
+				{#each categories as category}
 					<button
-						class="rounded-full px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all {activeCategory ===
+						class="rounded-full px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all {effectiveActive ===
 						category.id
 							? 'bg-crimson text-white'
 							: 'border border-gray-200 bg-white text-gray-700 hover:bg-cream-dark'}"
 						onclick={() => (activeCategory = category.id)}
 					>
-						{getCategoryName(category.id)}
+						{t(category.name)}
 					</button>
 				{/each}
 			</div>
@@ -151,7 +147,7 @@
 					<div class="flex min-w-0 items-start justify-between">
 						<div>
 							<span class="mr-2 font-bold text-gold">{String(item.id).padStart(2, '0')}</span>
-							<span class="font-medium text-gray-900">{msg[item.nameKey]?.() ?? item.nameKey}</span>
+							<span class="font-medium text-gray-900">{t(item.name)}</span>
 						</div>
 						<div class="flex items-center gap-2 pl-3">
 							<span class="font-bold whitespace-nowrap text-crimson">
@@ -193,7 +189,7 @@
 						{msg.extras_title?.() ?? 'Extras auswählen'}
 					</h3>
 					<p class="mb-4 font-body text-sm text-gray-600">
-						{msg[extrasModalItem.nameKey]?.() ?? extrasModalItem.nameKey}
+						{t(extrasModalItem.name)}
 					</p>
 
 					<div class="mb-5 grid grid-cols-2 gap-2">

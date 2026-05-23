@@ -3,12 +3,12 @@ import type { RequestHandler } from './$types';
 import { stripe } from '$lib/server/stripe';
 import { db } from '$lib/server/db';
 import { orders, orderItems } from '$lib/server/db/schema';
-import { menuCategories, doenerExtras, stripePriceMap } from '$lib/config';
+import { doenerExtras } from '$lib/config';
+import { ensureMenuSeeded, getOrderableItems } from '$lib/server/menu';
 import { isStoreOpen, isShopEnabled } from '$lib/server/store-status';
 import { generateOrderNumber } from '$lib/server/order-number';
 import { computeVisitorId } from '$lib/server/tracking';
 import { eq } from 'drizzle-orm';
-import deMessages from '../../../../messages/de.json';
 
 interface CheckoutItemInput {
 	menuItemId: number;
@@ -26,24 +26,7 @@ interface CheckoutBody {
 	notes?: string;
 }
 
-const de = deMessages as Record<string, string>;
-
 const extrasLabelMap = new Map(doenerExtras.map((e) => [e.id, e.label]));
-
-const menuItemMap = new Map<
-	number,
-	{ price: number; nameKey: string; displayName: string; stripePriceId: string | undefined }
->();
-for (const category of menuCategories) {
-	for (const item of category.items) {
-		menuItemMap.set(item.id, {
-			price: item.price,
-			nameKey: item.nameKey,
-			displayName: de[item.nameKey] ?? item.nameKey,
-			stripePriceId: stripePriceMap[item.id]
-		});
-	}
-}
 
 export const POST: RequestHandler = async (event) => {
 	const { request, url } = event;
@@ -79,13 +62,17 @@ export const POST: RequestHandler = async (event) => {
 		throw error(400, 'Invalid order type');
 	}
 
+	// Authoritative pricing/names come from the DB, never the client. Only available
+	// items can be ordered. Seed on first launch in case checkout is the first hit.
+	await ensureMenuSeeded();
+	const menuItemMap = await getOrderableItems();
+
 	const validatedItems: Array<{
 		menuItemId: number;
 		displayName: string;
 		price: number;
 		quantity: number;
 		extras: string[];
-		stripePriceId: string | undefined;
 	}> = [];
 	let totalCents = 0;
 
@@ -96,7 +83,7 @@ export const POST: RequestHandler = async (event) => {
 		}
 
 		const quantity = Math.max(1, Math.min(99, Math.floor(item.quantity)));
-		const priceCents = Math.round(menuItem.price * 100);
+		const priceCents = menuItem.priceCents;
 		const extras = Array.isArray(item.extras)
 			? item.extras.filter((e): e is string => typeof e === 'string')
 			: [];
@@ -104,11 +91,10 @@ export const POST: RequestHandler = async (event) => {
 		totalCents += priceCents * quantity;
 		validatedItems.push({
 			menuItemId: item.menuItemId,
-			displayName: menuItem.displayName,
+			displayName: menuItem.name,
 			price: priceCents,
 			quantity,
-			extras,
-			stripePriceId: menuItem.stripePriceId
+			extras
 		});
 	}
 
@@ -154,25 +140,19 @@ export const POST: RequestHandler = async (event) => {
 		payment_method_types: ['card'],
 		mode: 'payment',
 		currency: 'eur',
-		line_items: validatedItems.map((item) => {
-			if (item.stripePriceId && item.extras.length === 0) {
-				return { price: item.stripePriceId, quantity: item.quantity };
-			}
-
-			return {
-				price_data: {
-					currency: 'eur',
-					product_data: {
-						name: item.displayName,
-						...(item.extras.length > 0
-							? { description: item.extras.map((e) => extrasLabelMap.get(e) ?? e).join(', ') }
-							: {})
-					},
-					unit_amount: item.price
+		line_items: validatedItems.map((item) => ({
+			price_data: {
+				currency: 'eur',
+				product_data: {
+					name: item.displayName,
+					...(item.extras.length > 0
+						? { description: item.extras.map((e) => extrasLabelMap.get(e) ?? e).join(', ') }
+						: {})
 				},
-				quantity: item.quantity
-			};
-		}),
+				unit_amount: item.price
+			},
+			quantity: item.quantity
+		})),
 		metadata: {
 			order_id: String(createdOrder.id),
 			order_number: orderNumber,
