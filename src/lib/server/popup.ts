@@ -21,6 +21,7 @@ export type PopupInput = {
 	badge: string | null;
 	ctaLabel: string | null;
 	ctaUrl: string | null;
+	closesShop: boolean;
 };
 
 // What the public site needs to render the popup. `bodyHtml` is the admin's Markdown
@@ -59,6 +60,21 @@ export async function getActivePopup(): Promise<PublicPopup | null> {
 	};
 }
 
+/**
+ * Whether the live popup is configured to close the shop while it is shown. A blank-title
+ * popup is never shown to visitors (see `getActivePopup`), so it can't close the shop
+ * either. Used by the store-status logic to block orders for the duration of the popup.
+ */
+export async function isShopClosedByActivePopup(): Promise<boolean> {
+	const [row] = await db
+		.select({ title: sitePopup.title, closesShop: sitePopup.closesShop })
+		.from(sitePopup)
+		.where(eq(sitePopup.active, 1))
+		.limit(1);
+	if (!row || !row.title.trim()) return false;
+	return row.closesShop === 1;
+}
+
 function trimToNull(value: string | null | undefined): string | null {
 	const trimmed = (value ?? '').trim();
 	return trimmed.length > 0 ? trimmed : null;
@@ -86,8 +102,11 @@ export function validatePopupInput(raw: {
 	badge?: unknown;
 	ctaLabel?: unknown;
 	ctaUrl?: unknown;
+	closesShop?: unknown;
 }): { ok: true; value: PopupInput } | { ok: false; error: string } {
 	const asString = (v: unknown) => (typeof v === 'string' ? v : '');
+	// Checkbox arrives as a string ('true'/'on'/'1') over the form post, or a real boolean.
+	const asBool = (v: unknown) => v === true || v === 'true' || v === 'on' || v === '1';
 
 	const title = asString(raw.title).trim();
 	if (!title) return { ok: false, error: 'A title is required.' };
@@ -144,7 +163,15 @@ export function validatePopupInput(raw: {
 
 	return {
 		ok: true,
-		value: { title, body, imageUrl, badge, ctaLabel: finalCtaLabel, ctaUrl }
+		value: {
+			title,
+			body,
+			imageUrl,
+			badge,
+			ctaLabel: finalCtaLabel,
+			ctaUrl,
+			closesShop: asBool(raw.closesShop)
+		}
 	};
 }
 
@@ -156,6 +183,7 @@ function contentValues(input: PopupInput) {
 		badge: input.badge,
 		ctaLabel: input.ctaLabel,
 		ctaUrl: input.ctaUrl,
+		closesShop: input.closesShop ? 1 : 0,
 		updatedAt: new Date()
 	};
 }

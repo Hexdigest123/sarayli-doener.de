@@ -19,6 +19,8 @@
 	let badge = $state('');
 	let ctaLabel = $state('');
 	let ctaUrl = $state('');
+	// When on, the shop counts as closed (orders are blocked) for as long as this popup is live.
+	let closesShop = $state(false);
 
 	// ── Markdown description editor ──────────────────────────────────────────────
 	// The description is stored as Markdown; the toolbar inserts syntax around the
@@ -109,6 +111,7 @@
 		badge = popup?.badge ?? '';
 		ctaLabel = popup?.ctaLabel ?? '';
 		ctaUrl = popup?.ctaUrl ?? '';
+		closesShop = popup?.closesShop ?? false;
 
 		const img = popup?.imageUrl ?? '';
 		const isData = img.startsWith('data:');
@@ -404,6 +407,14 @@
 										class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 font-body text-xs font-bold tracking-wide text-amber-700 uppercase"
 									>
 										Draft
+									</span>
+								{/if}
+								{#if popup.closesShop}
+									<span
+										class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 font-body text-xs font-bold tracking-wide text-red-700 uppercase"
+										title="The shop is closed for orders while this popup is live"
+									>
+										Closes shop
 									</span>
 								{/if}
 								{#if popup.badge}
@@ -807,7 +818,35 @@
 										<span class="text-gray-400">Button:</span>
 										{ctaUrl.trim() ? `${ctaLabel.trim() || 'Mehr'} → ${ctaUrl.trim()}` : 'None'}
 									</li>
+									<li class="flex gap-2">
+										<span class="text-gray-400">Closes shop:</span>
+										<span class="font-medium {closesShop ? 'text-red-600' : 'text-gray-800'}">
+											{closesShop ? 'Yes — orders blocked while live' : 'No'}
+										</span>
+									</li>
 								</ul>
+
+								<!-- Close-the-shop toggle: ties this popup to the store's open/closed state -->
+								<label
+									class="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors {closesShop
+										? 'border-red-300 bg-red-50'
+										: 'border-gray-200 bg-white hover:border-crimson/40'}"
+								>
+									<input
+										type="checkbox"
+										bind:checked={closesShop}
+										class="mt-0.5 h-5 w-5 rounded border-gray-300 text-crimson focus:ring-crimson"
+									/>
+									<span class="font-body text-sm">
+										<span class="block font-semibold text-gray-800"
+											>Close the shop while this popup is live</span
+										>
+										<span class="mt-0.5 block text-gray-500">
+											Visitors can still browse, but online orders are blocked and the store shows
+											as closed until you take this popup down (or publish another one).
+										</span>
+									</span>
+								</label>
 							</div>
 						{/if}
 					</div>
@@ -857,6 +896,7 @@
 									<input type="hidden" name="badge" value={badge} />
 									<input type="hidden" name="ctaLabel" value={ctaLabel} />
 									<input type="hidden" name="ctaUrl" value={ctaUrl} />
+									<input type="hidden" name="closesShop" value={closesShop ? 'true' : 'false'} />
 									<button
 										type="submit"
 										disabled={saving || !titleValid}
@@ -914,6 +954,7 @@
 										<input type="hidden" name="badge" value={badge} />
 										<input type="hidden" name="ctaLabel" value={ctaLabel} />
 										<input type="hidden" name="ctaUrl" value={ctaUrl} />
+										<input type="hidden" name="closesShop" value={closesShop ? 'true' : 'false'} />
 										<button
 											type="submit"
 											disabled={saving || !titleValid}

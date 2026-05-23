@@ -1,0 +1,1 @@
+ALTER TABLE "site_popup" ADD COLUMN "closes_shop" integer DEFAULT 0 NOT NULL;

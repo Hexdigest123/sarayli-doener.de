@@ -22,6 +22,7 @@ export const load: PageServerLoad = async () => {
 			badge: p.badge,
 			ctaLabel: p.ctaLabel,
 			ctaUrl: p.ctaUrl,
+			closesShop: p.closesShop === 1,
 			updatedAt: p.updatedAt.toISOString()
 		}))
 	};
@@ -34,7 +35,8 @@ function readInput(data: FormData) {
 		imageUrl: data.get('imageUrl'),
 		badge: data.get('badge'),
 		ctaLabel: data.get('ctaLabel'),
-		ctaUrl: data.get('ctaUrl')
+		ctaUrl: data.get('ctaUrl'),
+		closesShop: data.get('closesShop')
 	};
 }
 

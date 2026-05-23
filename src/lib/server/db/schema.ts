@@ -169,6 +169,8 @@ export const adminSessions = pgTable('admin_sessions', {
 // `imageUrl` holds either an external URL or a self-contained data URL produced when an
 // image is uploaded from the admin's device. `updatedAt` doubles as a version token:
 // bumping it re-shows the popup to visitors who had already dismissed an earlier version.
+// `closesShop` = 1 means the store counts as closed for as long as this popup is the live
+// one (orders are blocked), so an announcement and a closure can be published in one step.
 export const sitePopup = pgTable(
 	'site_popup',
 	{
@@ -180,6 +182,7 @@ export const sitePopup = pgTable(
 		badge: text('badge'),
 		ctaLabel: text('cta_label'),
 		ctaUrl: text('cta_url'),
+		closesShop: integer('closes_shop').notNull().default(0),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 	},

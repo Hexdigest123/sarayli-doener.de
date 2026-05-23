@@ -2,6 +2,7 @@ import { db } from '$lib/server/db';
 import { storeSettings } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
+import { isShopClosedByActivePopup } from '$lib/server/popup';
 
 const REQUIRED_STRIPE_KEYS = [
 	'STRIPE_SECRET_KEY',
@@ -48,6 +49,8 @@ async function getRow() {
 }
 
 export async function isStoreOpen(): Promise<boolean> {
+	// A live "close shop" popup overrides everything else — orders stay blocked while it shows.
+	if (await isShopClosedByActivePopup()) return false;
 	const row = await getRow();
 	if (!row) return isWithinSchedule();
 	if (row.mode === 'manual') return row.isOpen === 1;
@@ -64,11 +67,14 @@ export async function isShopEnabled(): Promise<boolean> {
 export async function getStoreSettings() {
 	const row = await getRow();
 	const mode = row?.mode ?? 'auto';
-	const open = mode === 'manual' ? row?.isOpen === 1 : isWithinSchedule();
+	const scheduledOpen = mode === 'manual' ? row?.isOpen === 1 : isWithinSchedule();
+	const closedByPopup = await isShopClosedByActivePopup();
 	const stripe = getStripeConfigStatus();
 
 	return {
-		isOpen: open,
+		// The live "close shop" popup forces closed regardless of schedule or manual setting.
+		isOpen: scheduledOpen && !closedByPopup,
+		closedByPopup,
 		mode,
 		closedMessage: row?.closedMessage ?? null,
 		shopEnabled: stripe.configured && row?.shopEnabled !== 0,
