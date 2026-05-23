@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { orderItems, orders } from '$lib/server/db/schema';
 import { stripe } from '$lib/server/stripe';
+import { requireAdmin } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const orderId = Number.parseInt(params.id, 10);
@@ -35,7 +36,8 @@ export const load: PageServerLoad = async ({ params }) => {
 const VALID_STATUSES = ['pending', 'paid', 'in_process', 'fulfilled', 'cancelled', 'refunded', 'cancellation_requested'] as const;
 
 export const actions: Actions = {
-	updateStatus: async ({ params, request }) => {
+	updateStatus: async ({ params, request, locals }) => {
+		requireAdmin(locals);
 		const orderId = Number.parseInt(params.id, 10);
 		if (Number.isNaN(orderId)) {
 			return fail(400, { error: 'Invalid order ID' });
@@ -71,7 +73,8 @@ export const actions: Actions = {
 
 		return { success: true, action: newStatus };
 	},
-	refund: async ({ params }) => {
+	refund: async ({ params, locals }) => {
+		requireAdmin(locals);
 		const orderId = Number.parseInt(params.id, 10);
 		if (Number.isNaN(orderId)) {
 			return fail(400, { error: 'Invalid order ID' });

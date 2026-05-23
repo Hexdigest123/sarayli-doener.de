@@ -6,7 +6,7 @@ export const actions: Actions = {
 	default: async ({ cookies }) => {
 		const token = cookies.get(SESSION_COOKIE_NAME);
 		if (token) {
-			deleteSession(token);
+			await deleteSession(token);
 		}
 		cookies.delete(SESSION_COOKIE_NAME, { path: '/admin' });
 		throw redirect(303, '/admin/login');

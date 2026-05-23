@@ -90,6 +90,15 @@ export const storeSettings = pgTable('store_settings', {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
 
+// Admin sessions are persisted server-side so they survive restarts and are shared
+// across instances. The primary key is a SHA-256 hash of the session token, never the
+// token itself, so a leaked DB row cannot be replayed as a valid session cookie.
+export const adminSessions = pgTable('admin_sessions', {
+	tokenHash: text('token_hash').primaryKey(),
+	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
 export type OrderItem = typeof orderItems.$inferSelect;

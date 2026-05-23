@@ -1,5 +1,6 @@
 import type { Actions, PageServerLoad } from './$types';
 import { getStoreSettings, setStoreMode, setShopEnabled } from '$lib/server/store-status';
+import { requireAdmin } from '$lib/server/auth';
 
 export const load: PageServerLoad = async () => {
 	const settings = await getStoreSettings();
@@ -16,25 +17,30 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	setAuto: async () => {
+	setAuto: async ({ locals }) => {
+		requireAdmin(locals);
 		await setStoreMode('auto');
 		return { success: true };
 	},
-	manualOpen: async () => {
+	manualOpen: async ({ locals }) => {
+		requireAdmin(locals);
 		await setStoreMode('manual', true);
 		return { success: true };
 	},
-	manualClose: async ({ request }) => {
+	manualClose: async ({ request, locals }) => {
+		requireAdmin(locals);
 		const data = await request.formData();
 		const closedMessage = String(data.get('closedMessage') || '') || null;
 		await setStoreMode('manual', false, closedMessage);
 		return { success: true };
 	},
-	enableShop: async () => {
+	enableShop: async ({ locals }) => {
+		requireAdmin(locals);
 		await setShopEnabled(true);
 		return { success: true };
 	},
-	disableShop: async () => {
+	disableShop: async ({ locals }) => {
+		requireAdmin(locals);
 		await setShopEnabled(false);
 		return { success: true };
 	}

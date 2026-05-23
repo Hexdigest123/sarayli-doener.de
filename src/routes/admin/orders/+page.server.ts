@@ -3,6 +3,7 @@ import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { orderItems, orders } from '$lib/server/db/schema';
 import { stripe } from '$lib/server/stripe';
+import { requireAdmin } from '$lib/server/auth';
 import { and, asc, count, desc, eq, gte, inArray, lte, type SQL } from 'drizzle-orm';
 
 const VALID_STATUSES = ['pending', 'paid', 'in_process', 'fulfilled', 'cancelled', 'refunded', 'cancellation_requested'] as const;
@@ -118,7 +119,8 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-	updateStatus: async ({ request }) => {
+	updateStatus: async ({ request, locals }) => {
+		requireAdmin(locals);
 		const data = await request.formData();
 		const orderIdRaw = data.get('orderId');
 		const newStatus = String(data.get('status') || '');
@@ -156,7 +158,8 @@ export const actions: Actions = {
 		return { success: true };
 	},
 
-	refund: async ({ request }) => {
+	refund: async ({ request, locals }) => {
+		requireAdmin(locals);
 		const data = await request.formData();
 		const orderId = Number.parseInt(String(data.get('orderId')), 10);
 
