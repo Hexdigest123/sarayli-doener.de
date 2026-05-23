@@ -662,6 +662,13 @@
 									{/each}
 								</div>
 
+								{#if imageMode !== 'none'}
+									<p class="font-body text-xs text-gray-400">
+										Best results with a wide image, ratio ≈ 5:2 (e.g. 1000 × 400 px).
+										Images are cropped to fill, so keep the subject centered.
+									</p>
+								{/if}
+
 								{#if imageMode === 'url'}
 									<div>
 										<label
