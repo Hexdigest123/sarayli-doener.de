@@ -1,9 +1,7 @@
 import { db } from '$lib/server/db';
 import { sitePopup, type SitePopup } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { renderPopupBody } from '$lib/server/markdown';
-
-const POPUP_ROW_ID = 1;
 
 // Field limits. The image, when uploaded from a device, is stored inline as a data
 // URL, so it must stay well under the adapter-node request body limit (512 KB). The
@@ -36,20 +34,21 @@ export type PublicPopup = {
 	ctaUrl: string | null;
 };
 
-async function getRow(): Promise<SitePopup | null> {
-	const [row] = await db.select().from(sitePopup).where(eq(sitePopup.id, POPUP_ROW_ID));
+/** List every saved popup (drafts and the live one), live first then newest edits. */
+export async function listPopups(): Promise<SitePopup[]> {
+	return db.select().from(sitePopup).orderBy(desc(sitePopup.active), desc(sitePopup.updatedAt));
+}
+
+/** A single popup by id, for the admin editor. */
+export async function getPopupById(id: number): Promise<SitePopup | null> {
+	const [row] = await db.select().from(sitePopup).where(eq(sitePopup.id, id));
 	return row ?? null;
 }
 
-/** Full row for the admin editor (active or not). */
-export async function getPopup(): Promise<SitePopup | null> {
-	return getRow();
-}
-
-/** Active popup shaped for the public site, or null when none is live. */
+/** The currently active popup shaped for the public site, or null when none is live. */
 export async function getActivePopup(): Promise<PublicPopup | null> {
-	const row = await getRow();
-	if (!row || row.active !== 1 || !row.title.trim()) return null;
+	const [row] = await db.select().from(sitePopup).where(eq(sitePopup.active, 1)).limit(1);
+	if (!row || !row.title.trim()) return null;
 	return {
 		title: row.title,
 		bodyHtml: renderPopupBody(row.body),
@@ -149,10 +148,8 @@ export function validatePopupInput(raw: {
 	};
 }
 
-/** Upsert the popup content and mark it active. Bumps the version (updatedAt). */
-export async function savePopup(input: PopupInput): Promise<void> {
-	const values = {
-		active: 1,
+function contentValues(input: PopupInput) {
+	return {
 		title: input.title,
 		body: input.body,
 		imageUrl: input.imageUrl,
@@ -161,42 +158,51 @@ export async function savePopup(input: PopupInput): Promise<void> {
 		ctaUrl: input.ctaUrl,
 		updatedAt: new Date()
 	};
-
-	const existing = await getRow();
-	if (existing) {
-		await db.update(sitePopup).set(values).where(eq(sitePopup.id, POPUP_ROW_ID));
-	} else {
-		await db.insert(sitePopup).values({ id: POPUP_ROW_ID, ...values });
-	}
 }
 
-/** Save the popup as a draft without showing it to visitors. */
-export async function saveDraft(input: PopupInput): Promise<void> {
-	const values = {
-		active: 0,
-		title: input.title,
-		body: input.body,
-		imageUrl: input.imageUrl,
-		badge: input.badge,
-		ctaLabel: input.ctaLabel,
-		ctaUrl: input.ctaUrl,
-		updatedAt: new Date()
-	};
-
-	const existing = await getRow();
-	if (existing) {
-		await db.update(sitePopup).set(values).where(eq(sitePopup.id, POPUP_ROW_ID));
-	} else {
-		await db.insert(sitePopup).values({ id: POPUP_ROW_ID, ...values });
+/**
+ * Create a new draft or update an existing popup's content. Never changes the active
+ * flag — a draft stays a draft and the live popup stays live (its content is refreshed).
+ * Returns the row id so the caller can keep editing it. If `id` is given but no longer
+ * exists, a new draft is created instead.
+ */
+export async function upsertPopup(id: number | null, input: PopupInput): Promise<number> {
+	if (id != null) {
+		const updated = await db
+			.update(sitePopup)
+			.set(contentValues(input))
+			.where(eq(sitePopup.id, id))
+			.returning({ id: sitePopup.id });
+		if (updated.length > 0) return updated[0].id;
 	}
+	const [inserted] = await db
+		.insert(sitePopup)
+		.values({ active: 0, ...contentValues(input) })
+		.returning({ id: sitePopup.id });
+	return inserted.id;
 }
 
-/** Take the popup down. Content is kept so it can be re-published later. */
-export async function removePopup(): Promise<void> {
-	const existing = await getRow();
-	if (!existing) return;
-	await db
-		.update(sitePopup)
-		.set({ active: 0, updatedAt: new Date() })
-		.where(eq(sitePopup.id, POPUP_ROW_ID));
+/**
+ * Make one popup the live one. Deactivates every other popup first so only a single
+ * row is ever active (also guarded by the `site_popup_single_active_idx` partial unique
+ * index). Bumps the activated row's `updatedAt` to record when it went live.
+ */
+export async function publishPopup(id: number): Promise<void> {
+	await db.transaction(async (tx) => {
+		await tx.update(sitePopup).set({ active: 0 }).where(eq(sitePopup.active, 1));
+		await tx
+			.update(sitePopup)
+			.set({ active: 1, updatedAt: new Date() })
+			.where(eq(sitePopup.id, id));
+	});
+}
+
+/** Take the live popup down. Its content is kept as a draft so it can be re-published. */
+export async function takeDownPopup(id: number): Promise<void> {
+	await db.update(sitePopup).set({ active: 0, updatedAt: new Date() }).where(eq(sitePopup.id, id));
+}
+
+/** Permanently delete a saved popup. */
+export async function deletePopup(id: number): Promise<void> {
+	await db.delete(sitePopup).where(eq(sitePopup.id, id));
 }

@@ -1,4 +1,14 @@
-import { index, integer, jsonb, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import {
+	index,
+	integer,
+	jsonb,
+	pgTable,
+	serial,
+	text,
+	timestamp,
+	uniqueIndex
+} from 'drizzle-orm/pg-core';
 
 export const pageViews = pgTable('page_views', {
 	id: serial('id').primaryKey(),
@@ -152,23 +162,33 @@ export const adminSessions = pgTable('admin_sessions', {
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 });
 
-// Single-row (id = 1) configuration for the admin-managed site popup. The popup is
-// shown to every visitor while `active` is 1 and hidden the moment the admin removes
-// it (sets `active` to 0). `imageUrl` holds either an external URL or a self-contained
-// data URL produced when an image is uploaded from the admin's device. `updatedAt`
-// doubles as a version token: bumping it re-shows the popup to visitors who had
-// already dismissed an earlier version.
-export const sitePopup = pgTable('site_popup', {
-	id: serial('id').primaryKey(),
-	active: integer('active').notNull().default(0),
-	title: text('title').notNull().default(''),
-	body: text('body'),
-	imageUrl: text('image_url'),
-	badge: text('badge'),
-	ctaLabel: text('cta_label'),
-	ctaUrl: text('cta_url'),
-	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
-});
+// Admin-managed site popups. Each row is a saved draft; the admin can keep several and
+// publish one at a time. The `site_popup_single_active_idx` partial unique index
+// enforces that at most one row has `active` = 1, so the public site always has a single
+// source of truth (publishing one popup deactivates the rest in the same transaction).
+// `imageUrl` holds either an external URL or a self-contained data URL produced when an
+// image is uploaded from the admin's device. `updatedAt` doubles as a version token:
+// bumping it re-shows the popup to visitors who had already dismissed an earlier version.
+export const sitePopup = pgTable(
+	'site_popup',
+	{
+		id: serial('id').primaryKey(),
+		active: integer('active').notNull().default(0),
+		title: text('title').notNull().default(''),
+		body: text('body'),
+		imageUrl: text('image_url'),
+		badge: text('badge'),
+		ctaLabel: text('cta_label'),
+		ctaUrl: text('cta_url'),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(table) => [
+		uniqueIndex('site_popup_single_active_idx')
+			.on(table.active)
+			.where(sql`${table.active} = 1`)
+	]
+);
 
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;

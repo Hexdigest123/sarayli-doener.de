@@ -1,28 +1,33 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { requireAdmin } from '$lib/server/auth';
-import { getPopup, savePopup, saveDraft, removePopup, validatePopupInput } from '$lib/server/popup';
+import {
+	listPopups,
+	upsertPopup,
+	publishPopup,
+	takeDownPopup,
+	deletePopup,
+	validatePopupInput
+} from '$lib/server/popup';
 
 export const load: PageServerLoad = async () => {
-	const popup = await getPopup();
+	const rows = await listPopups();
 	return {
-		popup: popup
-			? {
-					active: popup.active === 1,
-					title: popup.title,
-					body: popup.body,
-					imageUrl: popup.imageUrl,
-					badge: popup.badge,
-					ctaLabel: popup.ctaLabel,
-					ctaUrl: popup.ctaUrl,
-					updatedAt: popup.updatedAt.toISOString()
-				}
-			: null
+		popups: rows.map((p) => ({
+			id: p.id,
+			active: p.active === 1,
+			title: p.title,
+			body: p.body,
+			imageUrl: p.imageUrl,
+			badge: p.badge,
+			ctaLabel: p.ctaLabel,
+			ctaUrl: p.ctaUrl,
+			updatedAt: p.updatedAt.toISOString()
+		}))
 	};
 };
 
-async function readInput(request: Request) {
-	const data = await request.formData();
+function readInput(data: FormData) {
 	return {
 		title: data.get('title'),
 		body: data.get('body'),
@@ -33,24 +38,59 @@ async function readInput(request: Request) {
 	};
 }
 
+function readId(data: FormData): number | null {
+	const raw = data.get('id');
+	if (typeof raw !== 'string' || raw.trim() === '') return null;
+	const n = Number(raw);
+	return Number.isInteger(n) && n > 0 ? n : null;
+}
+
 export const actions: Actions = {
+	// Editor: create a new draft or update an existing popup's content (active flag
+	// untouched — a draft stays a draft, the live popup stays live with a fresh version).
+	save: async ({ request, locals }) => {
+		requireAdmin(locals);
+		const data = await request.formData();
+		const result = validatePopupInput(readInput(data));
+		if (!result.ok) return fail(400, { error: result.error });
+		const id = await upsertPopup(readId(data), result.value);
+		return { success: true, savedId: id, action: 'saved' as const };
+	},
+	// Editor: save the current content and make this popup the single live one.
 	publish: async ({ request, locals }) => {
 		requireAdmin(locals);
-		const result = validatePopupInput(await readInput(request));
+		const data = await request.formData();
+		const result = validatePopupInput(readInput(data));
 		if (!result.ok) return fail(400, { error: result.error });
-		await savePopup(result.value);
-		return { success: true, published: true };
+		const id = await upsertPopup(readId(data), result.value);
+		await publishPopup(id);
+		return { success: true, savedId: id, action: 'published' as const };
 	},
-	saveDraft: async ({ request, locals }) => {
+	// List: make an already-saved popup the live one without re-editing it.
+	activate: async ({ request, locals }) => {
 		requireAdmin(locals);
-		const result = validatePopupInput(await readInput(request));
-		if (!result.ok) return fail(400, { error: result.error });
-		await saveDraft(result.value);
-		return { success: true, published: false };
+		const data = await request.formData();
+		const id = readId(data);
+		if (id == null) return fail(400, { error: 'Missing popup id.' });
+		await publishPopup(id);
+		return { success: true, action: 'published' as const };
 	},
-	remove: async ({ locals }) => {
+	// Take the live popup down (kept as a draft).
+	takeDown: async ({ request, locals }) => {
 		requireAdmin(locals);
-		await removePopup();
-		return { success: true, removed: true };
+		const data = await request.formData();
+		const id = readId(data);
+		if (id == null) return fail(400, { error: 'Missing popup id.' });
+		await takeDownPopup(id);
+		return { success: true, action: 'takenDown' as const };
+	},
+	// Permanently delete a saved popup.
+	delete: async ({ request, locals }) => {
+		requireAdmin(locals);
+		const data = await request.formData();
+		const id = readId(data);
+		if (id == null) return fail(400, { error: 'Missing popup id.' });
+		await deletePopup(id);
+		return { success: true, action: 'deleted' as const };
 	}
 };

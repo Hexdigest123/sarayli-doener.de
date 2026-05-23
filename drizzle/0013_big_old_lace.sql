@@ -1,0 +1,2 @@
+ALTER TABLE "site_popup" ADD COLUMN "created_at" timestamp with time zone DEFAULT now() NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "site_popup_single_active_idx" ON "site_popup" USING btree ("active") WHERE "site_popup"."active" = 1;
