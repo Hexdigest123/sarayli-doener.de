@@ -1,42 +1,64 @@
-# sv
+# Sarayli Döner Website
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Official website for **Sarayli**, a Turkish restaurant.
 
-## Creating a project
+- Live site: https://sarayli-doener.de
+- Purpose: present the restaurant online and support customer-facing website flows.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Tech stack
+
+- Svelte: **70.4%**
+- TypeScript: **28.6%**
+
+## Setup
+
+### Prerequisites
+
+- Node.js 20.19.0 or newer
+- npm
+
+### Install dependencies
 
 ```sh
-# create a new project
-npx sv create my-app
+npm ci
 ```
 
-To recreate this project with the same configuration:
+## Development
 
-```sh
-# recreate this project
-bun x sv create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" playwright tailwindcss="plugins:typography,forms" sveltekit-adapter="adapter:node" paraglide="languageTags:de,en,tr+demo:no" --install bun .
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Start the local development server:
 
 ```sh
 npm run dev
+```
 
-# or start the server and open the app in a new browser tab
+Or open it directly in a browser:
+
+```sh
 npm run dev -- --open
 ```
 
 ## Building
 
-To create a production version of your app:
+Create a production build:
 
 ```sh
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Preview the production build locally:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```sh
+npm run preview
+```
+
+## Deployment
+
+This project is configured as a SvelteKit app (Node adapter) and can be deployed as a Node.js service.
+
+Typical deployment flow:
+
+1. Install dependencies: `npm ci`
+2. Build: `npm run build`
+3. Start with your process/runtime setup using the built output
+
+A Dockerfile and docker-compose files are also included for container-based deployment.
