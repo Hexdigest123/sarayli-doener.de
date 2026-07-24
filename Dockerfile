@@ -6,7 +6,8 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 COPY . .
-RUN DATABASE_URL=postgres://build:build@localhost:5432/build bun run build
+# Avoid resolving a cached Vite shim relative to node_modules/.bin.
+RUN DATABASE_URL=postgres://build:build@localhost:5432/build bun ./node_modules/vite/bin/vite.js build
 RUN mkdir -p /app/drizzle
 
 # Stage 2: Production runtime
